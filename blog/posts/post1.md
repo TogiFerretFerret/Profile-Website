@@ -4,7 +4,7 @@ date: 2026-01-06
 description: How I built a (somewhat) secure markdown-based blog engine that compiles at runtime using vanilla JS and Firebase, completely skipping modern build steps or server infrastructure.
 tags: webdev,javascript,firebase,innovative
 ---
-### The Problem with Modern Web Dev
+# The Problem with Modern Web Dev
 Everywhere I go, I hear people ranting about the next big new framework. "Use Next.js" "Use Gatsby" "use Hugo".
 
 Everything needs a "build step"
