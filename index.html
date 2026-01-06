@@ -20,7 +20,7 @@
             background-color: #f3f4f6;
         }
         
-        /* Custom Animations from v0 */
+        /* Gradient Animation */
         @keyframes gradient-x {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -30,6 +30,7 @@
             background-size: 200% 200%; 
         }
         
+        /* Blob Animation */
         @keyframes float {
             0% { transform: translate(0px, 0px) scale(1); }
             33% { transform: translate(30px, -50px) scale(1.1); }
@@ -38,26 +39,33 @@
         }
         .animate-blob { 
             animation: float 10s infinite ease-in-out; 
-            opacity: 0.1; /* Matching the subtle v0 look */
+            opacity: 0.1; 
         }
         .delay-2000 { animation-delay: 2s; }
         .delay-4000 { animation-delay: 4s; }
 
-        /* Hide scrollbar for clean tabs */
+        /* Hide scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Custom Tab Styles to match v0's active state */
-        .tab-btn[data-state="active"] {
-            background-color: white;
-            color: #7e22ce; /* purple-700 */
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-weight: 500;
+        /* Tab Transition Styles */
+        .tab-btn {
+            position: relative;
+            z-index: 10;
+            transition: color 0.3s ease;
         }
-        /* Specific colors for specific active tabs */
+        
+        /* Active Tab Text Styles */
+        .tab-btn[data-state="active"] {
+            font-weight: 600;
+        }
+        
+        /* Specific colors for active tabs */
         #tab-btn-achievements[data-state="active"] { color: #b45309; } /* amber-700 */
         #tab-btn-skills[data-state="active"] { color: #1d4ed8; } /* blue-700 */
         #tab-btn-projects[data-state="active"] { color: #15803d; } /* green-700 */
+        #tab-btn-about[data-state="active"] { color: #7e22ce; } /* purple-700 */
+
     </style>
     
     <script>
@@ -78,7 +86,7 @@
 </head>
 <body class="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 relative overflow-x-hidden text-gray-900">
 
-    <!-- Background Animated Blobs (Restored the subtle ones) -->
+    <!-- Background Animated Blobs -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
         <div class="absolute top-0 right-1/4 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob delay-2000"></div>
@@ -86,26 +94,26 @@
     </div>
 
     <!-- Main Card Container -->
-    <div class="relative w-full max-w-4xl bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-10">
+    <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-10">
         
-        <!-- Top Gradient Border & Animation -->
-        <div class="absolute inset-0 p-[1px] rounded-xl overflow-hidden pointer-events-none z-0">
+        <!-- The Pretty Gradient Background -->
+        <div class="absolute inset-0 p-[1px] rounded-xl overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 opacity-50 animate-gradient-x"></div>
         </div>
 
-        <!-- Inner Content (White Background) -->
-        <div class="relative z-10 bg-white m-[1px] rounded-[calc(0.75rem-1px)] h-full">
-            <div class="p-5 md:p-8">
+        <!-- Inner Content -->
+        <div class="relative p-1">
+            <div class="relative z-10 p-5 md:p-8">
                 
                 <!-- Profile Header -->
                 <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
                     
-                    <!-- Profile Picture (The Abstract One) -->
+                    <!-- Programmatic Abstract Avatar -->
                     <div class="relative group shrink-0">
                         <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-75 group-hover:opacity-100 blur transition duration-300"></div>
-                        <div class="relative h-28 w-28 md:h-36 md:w-36 rounded-full border-4 border-white overflow-hidden transition-transform duration-300 group-hover:scale-105 bg-white">
-                            <!-- This image src is the actual generated pattern from your v0 file -->
-                            <img src="data:image/png;base64,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" alt="Abstract Avatar" class="h-full w-full object-cover">
+                        <div class="relative h-28 w-28 md:h-36 md:w-36 rounded-full border-4 border-white overflow-hidden transition-transform duration-300 group-hover:scale-105 bg-white flex items-center justify-center">
+                            <canvas id="avatarCanvas" width="144" height="144" class="h-full w-full object-cover"></canvas>
+                            <span class="absolute inset-0 flex items-center justify-center text-4xl font-bold text-white mix-blend-overlay drop-shadow-md">RC</span>
                         </div>
                     </div>
 
@@ -116,23 +124,23 @@
                             <div class="h-1 w-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-full transform translate-y-[-0.25rem] opacity-70"></div>
                         </div>
                         
-                        <div class="text-gray-600 text-lg">
-                            <p class="font-medium text-gray-800">RiverCodes</p>
-                            <p>Competitive Programmer & Developer</p>
-                            <p class="text-sm italic mt-1">Your friendly catboy hacker :3</p>
+                        <div class="text-gray-700 text-lg font-medium">
+                            <p>@RiverCodes</p>
+                            <p class="font-normal text-gray-600">Competitive Programmer & Developer</p>
+                            <p class="text-sm italic mt-1 text-gray-500">Your friendly catboy hacker :3</p>
                         </div>
 
                         <!-- Social Links -->
                         <div class="flex flex-wrap justify-center md:justify-start gap-2 pt-3">
-                            <a href="https://github.com/TogiFerretFerret" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-purple-200 bg-white hover:bg-purple-50 hover:text-purple-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm">
+                            <a href="https://github.com/TogiFerretFerret" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-purple-200 bg-white/80 hover:bg-white hover:text-purple-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm shadow-sm">
                                 <i data-lucide="github" class="w-4 h-4 text-purple-600"></i>
                                 <span>TogiFerretFerret</span>
                             </a>
-                            <a href="#" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-pink-200 bg-white hover:bg-pink-50 hover:text-pink-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm">
+                            <a href="#" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-pink-200 bg-white/80 hover:bg-white hover:text-pink-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm shadow-sm">
                                 <i data-lucide="message-circle" class="w-4 h-4 text-pink-600"></i>
                                 <span>@rivercodes</span>
                             </a>
-                            <a href="https://osu.ppy.sh/users/34415790" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-orange-200 bg-white hover:bg-orange-50 hover:text-orange-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm">
+                            <a href="https://osu.ppy.sh/users/34415790" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-orange-200 bg-white/80 hover:bg-white hover:text-orange-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm shadow-sm">
                                 <i data-lucide="music" class="w-4 h-4 text-orange-600"></i>
                                 <span>osu! Riverxia</span>
                             </a>
@@ -141,44 +149,47 @@
                 </div>
 
                 <!-- Highlight Stats -->
-                <div class="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-gray-100">
-                    <div class="text-center p-2 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors cursor-default">
+                <div class="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-gray-200/50">
+                    <div class="text-center p-2 rounded-lg bg-purple-50/80 hover:bg-purple-100 transition-colors cursor-default border border-purple-100">
                         <p class="text-xl font-bold text-purple-700">2nd Place</p>
-                        <p class="text-xs text-gray-600 uppercase tracking-wide">PicoCTF</p>
+                        <p class="text-xs text-gray-600 uppercase tracking-wide">PICOCTF</p>
                     </div>
-                    <div class="text-center p-2 rounded-lg bg-amber-50 hover:bg-amber-100 transition-colors cursor-default">
+                    <div class="text-center p-2 rounded-lg bg-amber-50/80 hover:bg-amber-100 transition-colors cursor-default border border-amber-100">
                         <p class="text-2xl font-bold text-amber-700">Gold</p>
                         <p class="text-xs text-gray-600 uppercase tracking-wide">USACO</p>
                     </div>
-                    <div class="text-center p-2 rounded-lg bg-pink-50 hover:bg-pink-100 transition-colors cursor-default">
+                    <div class="text-center p-2 rounded-lg bg-pink-50/80 hover:bg-pink-100 transition-colors cursor-default border border-pink-100">
                         <p class="text-2xl font-bold text-pink-700">50+</p>
-                        <p class="text-xs text-gray-600 uppercase tracking-wide">Projects</p>
+                        <p class="text-xs text-gray-600 uppercase tracking-wide">PROJECTS</p>
                     </div>
                 </div>
 
-                <!-- Tabs Navigation -->
+                <!-- Sliding Tabs Navigation -->
                 <div class="mt-8">
-                    <div class="grid w-full grid-cols-4 mb-6 p-1 bg-gray-100 rounded-md overflow-x-auto no-scrollbar">
-                        <button onclick="switchTab('about')" id="tab-btn-about" class="tab-btn inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900" data-state="active">
+                    <div class="relative grid grid-cols-4 p-1.5 bg-gray-100/90 rounded-xl shadow-inner">
+                        <!-- Sliding Background -->
+                        <div id="tab-slider" class="absolute top-1.5 bottom-1.5 bg-white rounded-lg shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" style="left: 0.375rem; width: calc(25% - 0.75rem);"></div>
+                        
+                        <button onclick="switchTab('about')" id="tab-btn-about" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="active">
                             About Me
                         </button>
-                        <button onclick="switchTab('achievements')" id="tab-btn-achievements" class="tab-btn inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900" data-state="inactive">
+                        <button onclick="switchTab('achievements')" id="tab-btn-achievements" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">
                             Achievements
                         </button>
-                        <button onclick="switchTab('skills')" id="tab-btn-skills" class="tab-btn inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900" data-state="inactive">
+                        <button onclick="switchTab('skills')" id="tab-btn-skills" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">
                             Skills
                         </button>
-                        <button onclick="switchTab('projects')" id="tab-btn-projects" class="tab-btn inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900" data-state="inactive">
+                        <button onclick="switchTab('projects')" id="tab-btn-projects" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">
                             Projects
                         </button>
                     </div>
 
                     <!-- Content Area -->
-                    <div class="min-h-[400px]">
+                    <div class="min-h-[400px] mt-4">
                         
                         <!-- ABOUT TAB -->
                         <div id="content-about" class="tab-content space-y-6 animate-in fade-in zoom-in-95 duration-300">
-                            <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white">
+                            <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white/60 shadow-sm">
                                 <h3 class="text-xl font-semibold mb-3 flex items-center gap-2 text-gray-800">
                                     <i data-lucide="heart" class="h-5 w-5 text-pink-500 fill-pink-500"></i> About Me
                                 </h3>
@@ -189,7 +200,7 @@
                                 <p class="text-gray-700 leading-relaxed mt-3">
                                     My journey in programming started when I was 7, and I've been hooked ever since. I specialize in algorithmic problems, you can find me working on personal coding projects or playing osu!. I love algorithms, data structures, and web development.
                                 </p>
-                                <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100 font-mono text-sm text-gray-600 space-y-1">
+                                <div class="mt-4 p-3 bg-gray-50/80 rounded-lg border border-gray-100 font-mono text-sm text-gray-600 space-y-1">
                                     <p>#2 High School hacker</p>
                                     <p>#9 MS Science Bowl Team</p>
                                     <p>USACO Gold</p>
@@ -200,19 +211,19 @@
                                         <i data-lucide="info" class="w-4 h-4"></i> Site Features
                                     </summary>
                                     <p class="text-gray-600 text-sm leading-relaxed mt-2 pl-6">
-                                        This website uses pure HTML/Tailwind. The abstract avatar above is a generated pattern!
+                                        This website uses pure HTML/Tailwind. The abstract avatar above is a generated pattern on a canvas!
                                     </p>
                                 </details>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-blue-200 bg-white group hover:shadow-md transition-all duration-300">
+                                <div class="relative p-6 rounded-xl overflow-hidden border border-blue-200 bg-white/60 group hover:shadow-md transition-all duration-300">
                                     <h3 class="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-800">
                                         <i data-lucide="zap" class="h-5 w-5 text-blue-500 group-hover:fill-blue-500 transition-colors"></i> Current Focus
                                     </h3>
                                     <p class="text-gray-700 text-sm">Currently focused on mastering advanced algorithms and exploring machine learning applications in competitive programming. Working on a personal project develop a more powerful computer interaction system relying on TARS-UI, realtime vision LLMS and prompt engineering.</p>
                                 </div>
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-pink-200 bg-white group hover:shadow-md transition-all duration-300">
+                                <div class="relative p-6 rounded-xl overflow-hidden border border-pink-200 bg-white/60 group hover:shadow-md transition-all duration-300">
                                     <h3 class="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-800">
                                         <i data-lucide="star" class="h-5 w-5 text-orange-500 group-hover:fill-orange-500 transition-colors"></i> Fun Facts
                                     </h3>
@@ -225,294 +236,58 @@
                             </div>
                         </div>
 
-                        <!-- ACHIEVEMENTS TAB -->
+                        <!-- ACHIEVEMENTS TAB (Dynamically Rendered) -->
                         <div id="content-achievements" class="tab-content hidden space-y-4 animate-in fade-in zoom-in-95 duration-300">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- PicoCTF -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-amber-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-amber-100 p-3 rounded-lg h-fit text-amber-600">
-                                            <i data-lucide="trophy" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-amber-700">PicoCTF</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-semibold text-amber-700">2nd Place</span>
-                                                <span class="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-semibold text-amber-700">2025</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">Solved complex cybersecurity challenges and cryptographic puzzles to secure the runner-up position.</p>
-                                            <div class="mt-3 pt-3 border-t border-amber-100 flex items-center gap-2">
-                                                <span class="text-xs text-amber-700 font-medium">Highlight:</span>
-                                                <span class="text-xs text-gray-600">Placed second in my first year competing.</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- USACO -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-yellow-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-yellow-100 p-3 rounded-lg h-fit text-yellow-600">
-                                            <i data-lucide="award" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-yellow-700">USACO Gold</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-yellow-50 border border-yellow-200 px-2 py-0.5 text-xs font-semibold text-yellow-700">Gold Division</span>
-                                                <span class="inline-flex items-center rounded-full bg-yellow-50 border border-yellow-200 px-2 py-0.5 text-xs font-semibold text-yellow-700">Top 20</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">Achieved Gold division ranking in the USA Computing Olympiad.</p>
-                                            <div class="mt-3 pt-3 border-t border-yellow-100 flex items-center gap-2">
-                                                <span class="text-xs text-yellow-700 font-medium">Highlight:</span>
-                                                <span class="text-xs text-gray-600">Perfect score twice.</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Science Bowl -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-blue-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-blue-100 p-3 rounded-lg h-fit text-blue-600">
-                                            <i data-lucide="flask-round" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-blue-700">Science Bowl MS</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-xs font-semibold text-blue-700">9th Place</span>
-                                                <span class="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-xs font-semibold text-blue-700">2024</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">Competed in the National Science Bowl competition.</p>
-                                            <div class="mt-3 pt-3 border-t border-blue-100 flex items-center gap-2">
-                                                <span class="text-xs text-blue-700 font-medium">Highlight:</span>
-                                                <span class="text-xs text-gray-600">Fastest response time in CS questions.</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- CMIMC -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-teal-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-teal-100 p-3 rounded-lg h-fit text-teal-600">
-                                            <i data-lucide="medal" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-teal-700">CMIMC</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-teal-50 border border-teal-200 px-2 py-0.5 text-xs font-semibold text-teal-700">6/1st Place</span>
-                                                <span class="inline-flex items-center rounded-full bg-teal-50 border border-teal-200 px-2 py-0.5 text-xs font-semibold text-teal-700">2025</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">Mathematics competition.</p>
-                                            <div class="mt-3 pt-3 border-t border-teal-100 flex items-center gap-2">
-                                                <span class="text-xs text-teal-700 font-medium">Highlight:</span>
-                                                <span class="text-xs text-gray-600">1st place in DE-Shaw problem.</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Additional Achievements -->
-                            <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white">
+                           <!-- JS will populate this -->
+                           <div id="achievements-main-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                           
+                           <!-- Additional Achievements Container -->
+                           <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white/60">
                                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
                                     <i data-lucide="star" class="h-5 w-5 text-purple-600"></i> Additional Achievements
                                 </h3>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                                    <div class="flex items-center gap-2 p-2 rounded-lg bg-purple-50">
-                                        <i data-lucide="code" class="h-4 w-4 text-purple-600"></i>
-                                        <span class="text-gray-700">Regional Hackathon Winner</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 p-2 rounded-lg bg-pink-50">
-                                        <i data-lucide="trophy" class="h-4 w-4 text-pink-600"></i>
-                                        <span class="text-gray-700">School Coding Champion</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 p-2 rounded-lg bg-blue-50">
-                                        <i data-lucide="award" class="h-4 w-4 text-blue-600"></i>
-                                        <span class="text-gray-700">Open Source Contributor</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 p-2 rounded-lg bg-orange-50">
-                                        <i data-lucide="music" class="h-4 w-4 text-orange-600"></i>
-                                        <span class="text-gray-700">osu! Tournament Finalist</span>
-                                    </div>
-                                </div>
-                            </div>
+                                <div id="achievements-additional-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+                           </div>
                         </div>
 
-                        <!-- SKILLS TAB -->
+                        <!-- SKILLS TAB (Dynamically Rendered) -->
                         <div id="content-skills" class="tab-content hidden space-y-6 animate-in fade-in zoom-in-95 duration-300">
-                            <div class="relative p-6 rounded-xl overflow-hidden border border-blue-200 bg-white">
+                            <!-- Technical Skills -->
+                            <div class="relative p-6 rounded-xl overflow-hidden border border-blue-200 bg-white/60">
                                 <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-800">
                                     <i data-lucide="code" class="h-5 w-5 text-blue-600"></i> Technical Skills
                                 </h3>
-                                <div class="space-y-4">
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between text-sm">
-                                            <label class="font-medium text-gray-700">Algorithms & Data Structures</label>
-                                            <span class="text-blue-700 font-semibold">100%</span>
-                                        </div>
-                                        <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                            <div class="h-full bg-blue-600 rounded-full" style="width:100%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between text-sm">
-                                            <label class="font-medium text-gray-700">Web Development</label>
-                                            <span class="text-indigo-700 font-semibold">85%</span>
-                                        </div>
-                                        <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                            <div class="h-full bg-indigo-600 rounded-full" style="width:85%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between text-sm">
-                                            <label class="font-medium text-gray-700">Cybersecurity</label>
-                                            <span class="text-purple-700 font-semibold">90%</span>
-                                        </div>
-                                        <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                            <div class="h-full bg-purple-600 rounded-full" style="width:90%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between text-sm">
-                                            <label class="font-medium text-gray-700">Game Development</label>
-                                            <span class="text-pink-700 font-semibold">65%</span>
-                                        </div>
-                                        <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                            <div class="h-full bg-pink-600 rounded-full" style="width:65%"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <div id="skills-technical-list" class="space-y-4"></div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-indigo-200 bg-white group hover:shadow-md transition-all duration-300">
+                                <!-- Languages -->
+                                <div class="relative p-6 rounded-xl overflow-hidden border border-indigo-200 bg-white/60 group hover:shadow-md transition-all duration-300">
                                     <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
                                         <i data-lucide="code-2" class="h-5 w-5 text-indigo-600"></i> Languages
                                     </h3>
-                                    <div class="grid grid-cols-2 gap-2 text-sm">
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-indigo-50"><div class="w-2 h-2 rounded-full bg-indigo-600"></div><span class="text-gray-700">Python</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-blue-50"><div class="w-2 h-2 rounded-full bg-blue-600"></div><span class="text-gray-700">JS/TypeScript</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-cyan-50"><div class="w-2 h-2 rounded-full bg-cyan-600"></div><span class="text-gray-700">C++</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-teal-50"><div class="w-2 h-2 rounded-full bg-teal-600"></div><span class="text-gray-700">Java</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-emerald-50"><div class="w-2 h-2 rounded-full bg-emerald-600"></div><span class="text-gray-700">Rust</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-green-50"><div class="w-2 h-2 rounded-full bg-green-600"></div><span class="text-gray-700">Go</span></div>
-                                    </div>
+                                    <div id="skills-languages-grid" class="grid grid-cols-2 gap-2 text-sm"></div>
                                 </div>
-
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white group hover:shadow-md transition-all duration-300">
+                                <!-- Frameworks -->
+                                <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white/60 group hover:shadow-md transition-all duration-300">
                                     <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
                                         <i data-lucide="zap" class="h-5 w-5 text-purple-600"></i> Frameworks
                                     </h3>
-                                    <div class="grid grid-cols-2 gap-2 text-sm">
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-purple-50"><div class="w-2 h-2 rounded-full bg-purple-600"></div><span class="text-gray-700">React/Next.js</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-fuchsia-50"><div class="w-2 h-2 rounded-full bg-fuchsia-600"></div><span class="text-gray-700">Node.js</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-pink-50"><div class="w-2 h-2 rounded-full bg-pink-600"></div><span class="text-gray-700">TensorFlow</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-rose-50"><div class="w-2 h-2 rounded-full bg-rose-600"></div><span class="text-gray-700">Q#</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-red-50"><div class="w-2 h-2 rounded-full bg-red-600"></div><span class="text-gray-700">Git/GitHub</span></div>
-                                        <div class="flex items-center gap-2 p-2 rounded-lg bg-orange-50"><div class="w-2 h-2 rounded-full bg-orange-600"></div><span class="text-gray-700">Azure</span></div>
-                                    </div>
+                                    <div id="skills-frameworks-grid" class="grid grid-cols-2 gap-2 text-sm"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- PROJECTS TAB -->
+                        <!-- PROJECTS TAB (Dynamically Rendered) -->
                         <div id="content-projects" class="tab-content hidden space-y-4 animate-in fade-in zoom-in-95 duration-300">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                
-                                <!-- Project 1 -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-green-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-green-100 p-3 rounded-lg h-fit text-green-600">
-                                            <i data-lucide="code" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-green-700">AI Vision Assistant</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-green-50 border border-green-200 px-2 py-0.5 text-xs font-semibold text-green-700">In Progress</span>
-                                                <span class="inline-flex items-center rounded-full bg-green-50 border border-green-200 px-2 py-0.5 text-xs font-semibold text-green-700">2025</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">AI-powered vision assistant analyzing visual data in real-time.</p>
-                                            <div class="mt-3 pt-3 border-t border-green-200 flex items-center gap-2">
-                                                <span class="text-xs text-green-700 font-medium">Stack:</span>
-                                                <span class="text-xs text-gray-600">Python, TensorFlow, OpenCV</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Project 2 -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-yellow-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-yellow-100 p-3 rounded-lg h-fit text-yellow-600">
-                                            <i data-lucide="code" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-yellow-700">Aluminum (HCHS Alt)</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-yellow-50 border border-yellow-200 px-2 py-0.5 text-xs font-semibold text-yellow-700">In Progress</span>
-                                                <span class="inline-flex items-center rounded-full bg-yellow-50 border border-yellow-200 px-2 py-0.5 text-xs font-semibold text-yellow-700">2025</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">Reverse engineered copy of HCHS's Blackbaud. Closed source.</p>
-                                            <div class="mt-3 pt-3 border-t border-yellow-200 flex items-center gap-2">
-                                                <span class="text-xs text-yellow-700 font-medium">Stack:</span>
-                                                <span class="text-xs text-gray-600">Python, Flask, Node.js</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Project 3 -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-purple-100 p-3 rounded-lg h-fit text-purple-600">
-                                            <i data-lucide="trophy" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-purple-700">CP Trainer</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-purple-50 border border-purple-200 px-2 py-0.5 text-xs font-semibold text-purple-700">Completed</span>
-                                                <span class="inline-flex items-center rounded-full bg-purple-50 border border-purple-200 px-2 py-0.5 text-xs font-semibold text-purple-700">2024</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">Platform for practicing algorithmic problems with automated testing.</p>
-                                            <div class="mt-3 pt-3 border-t border-purple-200 flex items-center gap-2">
-                                                <span class="text-xs text-purple-700 font-medium">Stack:</span>
-                                                <span class="text-xs text-gray-600">Next.js, Node.js, PostgreSQL</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Project 4 -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-pink-200 bg-white group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex gap-4">
-                                        <div class="bg-pink-100 p-3 rounded-lg h-fit text-pink-600">
-                                            <i data-lucide="music" class="h-6 w-6"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-pink-700">osu! Analyzer</h3>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="inline-flex items-center rounded-full bg-pink-50 border border-pink-200 px-2 py-0.5 text-xs font-semibold text-pink-700">Deprecated</span>
-                                                <span class="inline-flex items-center rounded-full bg-pink-50 border border-pink-200 px-2 py-0.5 text-xs font-semibold text-pink-700">2024</span>
-                                            </div>
-                                            <p class="mt-2 text-sm text-gray-700">Analyzes osu! gameplay data for insights on performance patterns.</p>
-                                            <div class="mt-3 pt-3 border-t border-pink-200 flex items-center gap-2">
-                                                <span class="text-xs text-pink-700 font-medium">Stack:</span>
-                                                <span class="text-xs text-gray-600">Python, Flask, TensorFlow</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                         </div>
 
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="mt-8 pt-6 border-t border-gray-100 flex flex-wrap justify-between items-center gap-4 text-xs text-gray-400">
+                <div class="mt-8 pt-6 border-t border-gray-100/50 flex flex-wrap justify-between items-center gap-4 text-xs text-gray-500">
                     <p>&copy; 2026 RiverCodes. Last updated: April 2025.</p>
                     <div class="flex gap-3">
                         <a href="https://github.com/TogiFerretFerret" class="hover:text-purple-500 transition-colors">GitHub</a>
@@ -525,26 +300,319 @@
         </div>
     </div>
 
-    <!-- JavaScript for Interactions -->
+    <!-- JavaScript for Interactions, Avatar Generation, and Data Rendering -->
     <script>
+        
+        // --- DATA SECTION: Add new items here! ---
+
+        const achievementsData = {
+            main: [
+                {
+                    title: "picoCTF",
+                    icon: "trophy",
+                    color: "amber",
+                    tags: ["2nd Place (Middle School)", "2025"],
+                    desc: "Solved complex cybersecurity challenges and cryptographic puzzles to secure the runner-up position.",
+                    highlight: "Placed second in my first year competing."
+                },
+                {
+                    title: "USACO Gold",
+                    icon: "award",
+                    color: "yellow",
+                    tags: ["Gold Division", "Top 20"],
+                    desc: "Achieved Gold division ranking in the USA Computing Olympiad.",
+                    highlight: "Perfect score twice."
+                },
+                {
+                    title: "Science Bowl MS",
+                    icon: "flask-round",
+                    color: "blue",
+                    tags: ["9th Place", "2024"],
+                    desc: "Competed in the National Science Bowl competition.",
+                    highlight: "Fastest response time in CS questions."
+                },
+                {
+                    title: "CMIMC Programming",
+                    icon: "medal",
+                    color: "teal",
+                    tags: ["6/1st Place", "2025"],
+                    desc: "CMIMC Programming Competition.",
+                    highlight: "1st place in DE-Shaw problem."
+                },
+                {
+                    title: "picoMini by CMU-Africa",
+                    icon: "flag",
+                    color: "green",
+                    tags: ["20th Globally", "2025"],
+                    desc: "Global cybersecurity capture-the-flag competition.",
+                    highlight: "Top 20 worldwide performance."
+                }
+            ],
+            additional: [
+                { icon: "code", color: "purple", text: "Regional Hackathon Winner" },
+                { icon: "trophy", color: "pink", text: "School Coding Champion" },
+                { icon: "award", color: "blue", text: "Open Source Contributor" },
+                { icon: "music", color: "orange", text: "osu! Tournament Finalist" }
+            ]
+        };
+
+        const skillsData = {
+            technical: [
+                { name: "Algorithms & Data Structures", pct: "100%", color: "blue" },
+                { name: "Web Development", pct: "85%", color: "indigo" },
+                { name: "Cybersecurity", pct: "90%", color: "purple" },
+                { name: "Game Development", pct: "65%", color: "pink" }
+            ],
+            languages: [
+                { name: "Python", color: "indigo" },
+                { name: "JS/TypeScript", color: "blue" },
+                { name: "C++", color: "cyan" },
+                { name: "Java", color: "teal" },
+                { name: "Rust", color: "emerald" },
+                { name: "Go", color: "green" }
+            ],
+            frameworks: [
+                { name: "React/Next.js", color: "purple" },
+                { name: "Node.js", color: "fuchsia" },
+                { name: "TensorFlow", color: "pink" },
+                { name: "Q#", color: "rose" },
+                { name: "Git/GitHub", color: "red" },
+                { name: "Azure", color: "orange" }
+            ]
+        };
+
+        const projectsData = [
+            {
+                title: "AI Vision Assistant",
+                icon: "code",
+                color: "green",
+                tags: ["In Progress", "2025"],
+                desc: "AI-powered vision assistant analyzing visual data in real-time.",
+                stack: "Python, TensorFlow, OpenCV"
+            },
+            {
+                title: "Aluminum (HCHS Alt)",
+                icon: "code",
+                color: "yellow",
+                tags: ["In Progress", "2025"],
+                desc: "Reverse engineered copy of HCHS's Blackbaud. Closed source.",
+                stack: "Python, Flask, Node.js"
+            },
+            {
+                title: "CP Trainer",
+                icon: "trophy",
+                color: "purple",
+                tags: ["Completed", "2024"],
+                desc: "Platform for practicing algorithmic problems with automated testing.",
+                stack: "Next.js, Node.js, PostgreSQL"
+            },
+            {
+                title: "osu! Analyzer",
+                icon: "music",
+                color: "pink",
+                tags: ["Deprecated", "2024"],
+                desc: "Analyzes osu! gameplay data for insights on performance patterns.",
+                stack: "Python, Flask, TensorFlow"
+            }
+        ];
+
+        // --- END DATA SECTION ---
+
+        // Render Functions
+        function renderAchievements() {
+            const mainGrid = document.getElementById('achievements-main-grid');
+            const additionalGrid = document.getElementById('achievements-additional-grid');
+            
+            if (!mainGrid || !additionalGrid) return;
+
+            mainGrid.innerHTML = achievementsData.main.map(item => `
+                <div class="relative p-6 rounded-xl overflow-hidden border border-${item.color}-200 bg-white/60 group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
+                    <div class="relative flex gap-4">
+                        <div class="bg-${item.color}-100 p-3 rounded-lg h-fit text-${item.color}-600">
+                            <i data-lucide="${item.icon}" class="h-6 w-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-${item.color}-700">${item.title}</h3>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                ${item.tags.map(tag => `<span class="inline-flex items-center rounded-full bg-${item.color}-50 border border-${item.color}-200 px-2 py-0.5 text-xs font-semibold text-${item.color}-700">${tag}</span>`).join('')}
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700">${item.desc}</p>
+                            <div class="mt-3 pt-3 border-t border-${item.color}-100 flex items-center gap-2">
+                                <span class="text-xs text-${item.color}-700 font-medium">Highlight:</span>
+                                <span class="text-xs text-gray-600">${item.highlight}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            additionalGrid.innerHTML = achievementsData.additional.map(item => `
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-${item.color}-50">
+                    <i data-lucide="${item.icon}" class="h-4 w-4 text-${item.color}-600"></i>
+                    <span class="text-gray-700">${item.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderSkills() {
+            const techList = document.getElementById('skills-technical-list');
+            const langGrid = document.getElementById('skills-languages-grid');
+            const frameGrid = document.getElementById('skills-frameworks-grid');
+
+            if (!techList || !langGrid || !frameGrid) return;
+
+            techList.innerHTML = skillsData.technical.map(item => `
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <label class="font-medium text-gray-700">${item.name}</label>
+                        <span class="text-${item.color}-700 font-semibold">${item.pct}</span>
+                    </div>
+                    <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-${item.color}-600 rounded-full" style="width:${item.pct}"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            langGrid.innerHTML = skillsData.languages.map(item => `
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-${item.color}-50"><div class="w-2 h-2 rounded-full bg-${item.color}-600"></div><span class="text-gray-700">${item.name}</span></div>
+            `).join('');
+
+            frameGrid.innerHTML = skillsData.frameworks.map(item => `
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-${item.color}-50"><div class="w-2 h-2 rounded-full bg-${item.color}-600"></div><span class="text-gray-700">${item.name}</span></div>
+            `).join('');
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projects-grid');
+            if (!grid) return;
+
+            grid.innerHTML = projectsData.map(item => `
+                <div class="relative p-6 rounded-xl overflow-hidden border border-${item.color}-200 bg-white/60 group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
+                    <div class="relative flex gap-4">
+                        <div class="bg-${item.color}-100 p-3 rounded-lg h-fit text-${item.color}-600">
+                            <i data-lucide="${item.icon}" class="h-6 w-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-${item.color}-700">${item.title}</h3>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                ${item.tags.map(tag => `<span class="inline-flex items-center rounded-full bg-${item.color}-50 border border-${item.color}-200 px-2 py-0.5 text-xs font-semibold text-${item.color}-700">${tag}</span>`).join('')}
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700">${item.desc}</p>
+                            <div class="mt-3 pt-3 border-t border-${item.color}-200 flex items-center gap-2">
+                                <span class="text-xs text-${item.color}-700 font-medium">Stack:</span>
+                                <span class="text-xs text-gray-600">${item.stack}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // Initialize Lucide Icons
-        lucide.createIcons();
+        function initIcons() {
+             lucide.createIcons();
+        }
 
         function switchTab(tabId) {
-            // Hide all contents with fade out
+            // 1. Hide all contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
             });
 
-            // Show selected content
+            // 2. Show selected content
             const selectedContent = document.getElementById(`content-${tabId}`);
-            selectedContent.classList.remove('hidden');
+            if (selectedContent) {
+                selectedContent.classList.remove('hidden');
+            }
 
-            // Update Tab Button Styles
+            // 3. Reset Button States (inactive)
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.setAttribute('data-state', 'inactive');
             });
-            document.getElementById(`tab-btn-${tabId}`).setAttribute('data-state', 'active');
+
+            // 4. Activate current button
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.setAttribute('data-state', 'active');
+                
+                // 5. Move the Slider
+                const slider = document.getElementById('tab-slider');
+                const btnRect = activeBtn.getBoundingClientRect();
+                const containerRect = activeBtn.parentElement.getBoundingClientRect();
+                const relativeLeft = btnRect.left - containerRect.left;
+                
+                slider.style.width = `${btnRect.width}px`;
+                slider.style.transform = `translateX(${relativeLeft}px)`;
+                slider.style.left = '0';
+            }
+        }
+
+        // Initialize slider position on load
+        window.addEventListener('load', () => {
+            generateAvatar();
+            renderAchievements();
+            renderSkills();
+            renderProjects();
+            
+            // Wait a tick for DOM updates before initializing icons and setting tab
+            setTimeout(() => {
+                initIcons();
+                switchTab('about');
+            }, 0);
+        });
+
+        // Update slider on resize
+        window.addEventListener('resize', () => {
+            const activeBtn = document.querySelector('.tab-btn[data-state="active"]');
+            if (activeBtn) {
+                const id = activeBtn.id.replace('tab-btn-', '');
+                switchTab(id);
+            }
+        });
+
+        // Generative Abstract Pattern for Avatar
+        function generateAvatar() {
+            const canvas = document.getElementById('avatarCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            const baseHues = [270, 330, 30]; 
+            const hue1 = baseHues[Math.floor(Math.random() * baseHues.length)] + Math.random() * 20 - 10;
+            const hue2 = baseHues[Math.floor(Math.random() * baseHues.length)] + Math.random() * 20 - 10;
+            
+            gradient.addColorStop(0, `hsl(${hue1}, 70%, 85%)`);
+            gradient.addColorStop(1, `hsl(${hue2}, 70%, 75%)`);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            const shapes = 12;
+            for (let i = 0; i < shapes; i++) {
+                ctx.beginPath();
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                const size = (Math.random() * width * 0.6) + 20;
+                
+                const type = Math.random();
+                if (type > 0.66) {
+                    ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                } else if (type > 0.33) {
+                    ctx.rect(x - size/2, y - size/2, size, size);
+                } else {
+                    ctx.moveTo(x, y - size/2);
+                    ctx.lineTo(x + size/2, y + size/2);
+                    ctx.lineTo(x - size/2, y + size/2);
+                    ctx.closePath();
+                }
+
+                const shapeHue = baseHues[Math.floor(Math.random() * baseHues.length)];
+                ctx.fillStyle = `hsla(${shapeHue}, 80%, 65%, ${Math.random() * 0.4 + 0.1})`;
+                ctx.fill();
+            }
         }
     </script>
 </body>
