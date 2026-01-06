@@ -72,8 +72,8 @@
 
         // CONFIGURATION
         const CONFIG = {
-            postCount: 2, // UPDATE THIS NUMBER when adding new posts (post1.md, post2.md, etc.)
-            postsDir: './posts/', // Adjusted to match typical relative path structure
+            postCount: 1, // UPDATE THIS NUMBER when adding new posts (post1.md, post2.md, etc.)
+            postsDir: './blog/posts/', // Adjusted to match typical relative path structure
             siteTitle: "riverxia's pile of steaming shit - blog edition" // Base title
         };
 
@@ -171,7 +171,7 @@
                 html += `
                     <div onclick="renderPost(${post.id})" class="group cursor-pointer p-6 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all">
                         <div class="flex justify-between items-start mb-2">
-                            <h2 class="text-xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">${post.title}</h2>
+                            <h2 clasw all posts the vis="text-xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">${post.title}</h2>
                             <span class="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-1 rounded">${post.date}</span>
                         </div>
                         <p class="text-gray-600 text-sm leading-relaxed mb-4">${post.description}</p>
