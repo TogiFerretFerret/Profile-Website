@@ -134,12 +134,6 @@
                 if (user.email) {
                     const userHash = await sha256(user.email);
                     
-                    // DEBUGGING: Log the hash so you can copy it
-                    console.log("--------------------------------------------------");
-                    console.log("Your Email Hash (Copy this to ADMIN_EMAIL_HASH):");
-                    console.log(userHash);
-                    console.log("--------------------------------------------------");
-                    
                     currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
                     if (currentUserIsAdmin) {
                         console.log("Admin privileges active.");
