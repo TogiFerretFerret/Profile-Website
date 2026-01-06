@@ -41,18 +41,15 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
-                <a href="../index.html" class="p-2 rounded-full bg-white border border-gray-200 hover:bg-gray-100 transition-colors shadow-sm" title="Back to Portfolio">
+                <!-- Single Navigation Button -->
+                <button id="nav-btn" onclick="handleNavClick()" class="p-2 rounded-full bg-white border border-gray-200 hover:bg-gray-100 transition-colors shadow-sm" title="Go Back">
                     <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
-                </a>
+                </button>
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">riverxia's hellhole</h1>
                     <p class="text-sm text-gray-500">Thoughts on code, CTFs, and tech.</p>
                 </div>
             </div>
-            <!-- Home Button (visible when reading a post) -->
-            <button id="home-btn" onclick="showPostList()" class="hidden px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm font-medium text-gray-600 hover:text-purple-600 hover:border-purple-200 transition-all shadow-sm">
-                View All Posts
-            </button>
         </div>
 
         <!-- Content Container -->
@@ -79,6 +76,7 @@
 
         // State
         const postsCache = [];
+        let currentView = 'list'; // 'list' or 'post'
 
         // Initialize
         async function init() {
@@ -150,10 +148,22 @@
             }
         }
 
+        // Navigation Handler
+        function handleNavClick() {
+            if (currentView === 'post') {
+                renderPostList();
+            } else {
+                // Go back to main portfolio site
+                window.location.href = '../index.html';
+            }
+        }
+
         // Render List View
         function renderPostList() {
             const container = document.getElementById('content-area');
-            const homeBtn = document.getElementById('home-btn');
+            
+            // Update State
+            currentView = 'list';
             
             // Update Title
             document.title = CONFIG.siteTitle;
@@ -163,15 +173,13 @@
             url.searchParams.delete('post');
             window.history.pushState({}, '', url);
 
-            homeBtn.classList.add('hidden');
-
             let html = '<div class="space-y-4 animate-fade-in">';
             
             postsCache.forEach(post => {
                 html += `
                     <div onclick="renderPost(${post.id})" class="group cursor-pointer p-6 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all">
                         <div class="flex justify-between items-start mb-2">
-                            <h2 clasw all posts the vis="text-xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">${post.title}</h2>
+                            <h2 class="text-xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">${post.title}</h2>
                             <span class="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-1 rounded">${post.date}</span>
                         </div>
                         <p class="text-gray-600 text-sm leading-relaxed mb-4">${post.description}</p>
@@ -193,7 +201,9 @@
             if (!post) return;
 
             const container = document.getElementById('content-area');
-            const homeBtn = document.getElementById('home-btn');
+
+            // Update State
+            currentView = 'post';
 
             // Update Title
             document.title = `${post.title} | riverxia's pile of steaming shit`;
@@ -202,8 +212,6 @@
             const url = new URL(window.location);
             url.searchParams.set('post', id);
             window.history.pushState({}, '', url);
-
-            homeBtn.classList.remove('hidden');
 
             const html = `
                 <article class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
