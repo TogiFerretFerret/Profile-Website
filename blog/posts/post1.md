@@ -7,8 +7,13 @@ tags: webdev,javascript,firebase,innovative
 ## The Problem with Modern Web Dev
 Everywhere I go, I hear people ranting about the next big new framework. "Use Next.js" "Use Gatsby" "use Hugo".
 
-Everything needs a "build step"
+Everything needs a "build step";
 You write markdown, run a command, and it spits out static HTML.
-One little issue - to do that, you need infrastructure. Actually scratch that, you basically need infrastructure for everything. 
-Nothing is plain anymore, and with compute becoming more and more expensive because every ol' AI startup can get a ton of money for doing basically nothing, 
 
+One little issue - to do that, you need infrastructure. Actually scratch that, you basically need infrastructure for everything. 
+
+Nothing is plain-ol' HTML anymore, and with compute becoming more and more expensive because every ol' AI startup can get a ton of money for doing basically nothing, 
+
+So I wanted to do something different for my blog. Something I (hope) no one had done before. 
+Pure HTML. Pure Markdown. No build step.
+(and later on, we'll talk about how I added comments while keeping it FREE [I hope])
