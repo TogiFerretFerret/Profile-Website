@@ -17,11 +17,11 @@
         }
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; /* Very light slate base */
+            background-color: #f0f4f8; 
+            overflow-x: hidden;
         }
         
-        /* --- LIQUID BACKGROUND ANIMATIONS --- */
-        /* Increased translation values significantly for visibility */
+        /* --- BACKGROUND BLOBS --- */
         @keyframes drift-1 {
             0% { transform: translate(0, 0) scale(1); }
             33% { transform: translate(150px, -100px) scale(1.1); }
@@ -41,48 +41,67 @@
 
         .liquid-shape {
             position: absolute;
-            border-radius: 50%; /* Ensure round shape */
-            filter: blur(60px); /* Slightly reduced blur to make movement clearer */
-            opacity: 0.7; /* Increased opacity for better visibility */
-            will-change: transform; /* Hint to browser for smoother animation */
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.7;
+            will-change: transform;
             animation-timing-function: ease-in-out;
             animation-iteration-count: infinite;
         }
 
         .shape-1 {
-            top: -10%;
-            left: -10%;
-            width: 700px;
-            height: 700px;
-            background: radial-gradient(circle, rgba(168,85,247,0.8) 0%, rgba(192,132,252,0) 70%); /* Purple */
+            top: -10%; left: -10%; width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(168,85,247,0.8) 0%, rgba(192,132,252,0) 70%);
             animation: drift-1 25s infinite;
         }
-        
         .shape-2 {
-            bottom: -10%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(236,72,153,0.8) 0%, rgba(244,114,182,0) 70%); /* Pink */
+            bottom: -10%; right: -10%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(236,72,153,0.8) 0%, rgba(244,114,182,0) 70%);
             animation: drift-2 30s infinite reverse;
         }
-
         .shape-3 {
-            top: 40%;
-            left: 40%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(96,165,250,0) 70%); /* Blue */
+            top: 40%; left: 40%; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(96,165,250,0) 70%);
             animation: drift-3 35s infinite alternate;
         }
-
         .shape-4 {
-            bottom: 10%;
-            left: 10%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(245,158,11,0.6) 0%, rgba(251,191,36,0) 70%); /* Amber */
+            bottom: 10%; left: 10%; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(245,158,11,0.6) 0%, rgba(251,191,36,0) 70%);
             animation: drift-1 28s infinite reverse;
+        }
+
+        /* --- LIQUID GLASS LAYER --- */
+        /* Applied to a separate background layer to prevent blurry text */
+        .glass-bg {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.1),
+                inset 0 4px 15px rgba(255, 255, 255, 0.4);
+        }
+
+        .glass-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+            box-shadow: 
+                inset -10px -10px 20px rgba(255, 255, 255, 0.2),
+                inset 10px 10px 20px rgba(255, 255, 255, 0.5);
+            filter: brightness(1.2);
+            opacity: 0.7;
+        }
+
+        /* Inner Glass Panels (Cards) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4); 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px); /* Lighter blur for nested items */
+            -webkit-backdrop-filter: blur(10px);
         }
 
         /* Gradient Animation for Border */
@@ -95,28 +114,22 @@
             background-size: 200% 200%; 
         }
 
-        /* Hide scrollbar */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
         /* Tab Transition Styles */
         .tab-btn {
             position: relative;
-            z-index: 10;
+            z-index: 20;
             transition: color 0.3s ease;
         }
+        .tab-btn[data-state="active"] { font-weight: 600; }
         
-        /* Active Tab Text Styles */
-        .tab-btn[data-state="active"] {
-            font-weight: 600;
-        }
-        
-        /* Specific colors for active tabs */
-        #tab-btn-achievements[data-state="active"] { color: #b45309; } /* amber-700 */
-        #tab-btn-skills[data-state="active"] { color: #1d4ed8; } /* blue-700 */
-        #tab-btn-projects[data-state="active"] { color: #15803d; } /* green-700 */
-        #tab-btn-about[data-state="active"] { color: #7e22ce; } /* purple-700 */
+        #tab-btn-achievements[data-state="active"] { color: #b45309; }
+        #tab-btn-skills[data-state="active"] { color: #1d4ed8; }
+        #tab-btn-projects[data-state="active"] { color: #15803d; }
+        #tab-btn-about[data-state="active"] { color: #7e22ce; }
 
+        /* Scrollbar Hide */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
     
     <script>
@@ -137,7 +150,7 @@
 </head>
 <body class="min-h-screen w-full flex items-center justify-center p-4 relative overflow-x-hidden text-gray-900">
 
-    <!-- New Liquid Background -->
+    <!-- Background Blobs -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div class="liquid-shape shape-1"></div>
         <div class="liquid-shape shape-2"></div>
@@ -146,228 +159,210 @@
     </div>
 
     <!-- Main Card Container -->
-    <!-- Added bg-white/70 and backdrop-blur-xl for the frosted glass effect -->
-    <div class="relative w-full max-w-4xl bg-white/70 backdrop-blur-xl rounded-lg shadow-2xl border border-white/50 overflow-hidden z-10">
+    <div class="relative w-full max-w-4xl rounded-[2rem] transition-transform duration-500 hover:scale-[1.002]">
         
-        <!-- The Pretty Gradient Border -->
-        <div class="absolute inset-0 p-[1px] rounded-xl overflow-hidden pointer-events-none">
-            <div class="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 opacity-50 animate-gradient-x"></div>
+        <!-- 1. Liquid Glass Layer (Behind Content) -->
+        <div class="absolute inset-0 glass-bg rounded-[2rem] z-0"></div>
+
+        <!-- 2. Animated Gradient Border (Behind Content) -->
+        <div class="absolute inset-0 p-[1px] rounded-[2rem] overflow-hidden pointer-events-none z-10">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 opacity-30 animate-gradient-x"></div>
         </div>
 
-        <!-- Inner Content -->
-        <div class="relative p-1">
-            <div class="relative z-10 p-5 md:p-8 bg-white/40 rounded-lg"> 
+        <!-- 3. Inner Content (Relative, Z-index higher, No Blur applied here) -->
+        <div class="relative z-20 p-6 md:p-10"> 
+            
+            <!-- Profile Header -->
+            <div class="flex flex-col md:flex-row gap-6 items-center md:items-start mb-8">
                 
-                <!-- Profile Header -->
-                <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+                <!-- Avatar -->
+                <div class="relative group shrink-0">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-60 group-hover:opacity-80 blur transition duration-300"></div>
+                    <div class="relative h-28 w-28 md:h-36 md:w-36 rounded-full border-2 border-white/50 overflow-hidden bg-white/20 backdrop-blur-md flex items-center justify-center">
+                        <canvas id="avatarCanvas" width="144" height="144" class="h-full w-full object-cover"></canvas>
+                        <span class="absolute inset-0 flex items-center justify-center text-4xl font-bold text-white mix-blend-overlay">RC</span>
+                    </div>
+                </div>
+
+                <!-- Profile Info -->
+                <div class="flex-1 text-center md:text-left space-y-2">
+                    <div class="inline-block relative">
+                        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 drop-shadow-sm pb-1">RiverC</h1>
+                        <div class="h-1 w-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-full transform translate-y-[-0.25rem] opacity-60 blur-[1px]"></div>
+                    </div>
                     
-                    <!-- Programmatic Abstract Avatar -->
-                    <div class="relative group shrink-0">
-                        <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-75 group-hover:opacity-100 blur transition duration-300"></div>
-                        <div class="relative h-28 w-28 md:h-36 md:w-36 rounded-full border-4 border-white/80 overflow-hidden transition-transform duration-300 group-hover:scale-105 bg-white flex items-center justify-center">
-                            <canvas id="avatarCanvas" width="144" height="144" class="h-full w-full object-cover"></canvas>
-                            <span class="absolute inset-0 flex items-center justify-center text-4xl font-bold text-white mix-blend-overlay drop-shadow-md">RC</span>
-                        </div>
+                    <div class="text-gray-700 text-lg font-medium">
+                        <p>@RiverCodes</p>
+                        <p class="font-normal text-gray-600/90">Competitive Programmer & Developer</p>
+                        <p class="text-sm italic mt-1 text-gray-500">Your friendly catboy hacker :3</p>
                     </div>
 
-                    <!-- Profile Info -->
-                    <div class="flex-1 text-center md:text-left space-y-2">
-                        <div class="inline-block relative">
-                            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 pb-1">RiverC</h1>
-                            <div class="h-1 w-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-full transform translate-y-[-0.25rem] opacity-70"></div>
-                        </div>
-                        
-                        <div class="text-gray-700 text-lg font-medium">
-                            <p>@RiverCodes</p>
-                            <p class="font-normal text-gray-600">Competitive Programmer & Developer</p>
-                            <p class="text-sm italic mt-1 text-gray-500">Your friendly catboy hacker :3</p>
-                        </div>
+                    <!-- Social Links -->
+                    <div class="flex flex-wrap justify-center md:justify-start gap-2 pt-3">
+                        <a href="https://github.com/TogiFerretFerret" target="_blank" class="glass-card px-4 py-1.5 rounded-full flex items-center gap-2 hover:bg-white/60 transition-all duration-300 hover:scale-105 text-sm">
+                            <i data-lucide="github" class="w-4 h-4 text-purple-600"></i> <span class="text-gray-700 font-medium">TogiFerretFerret</span>
+                        </a>
+                        <a href="#" class="glass-card px-4 py-1.5 rounded-full flex items-center gap-2 hover:bg-white/60 transition-all duration-300 hover:scale-105 text-sm">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-pink-600"></i> <span class="text-gray-700 font-medium">Discord @rivercodes</span>
+                        </a>
+                        <a href="https://osu.ppy.sh/users/34415790" target="_blank" class="glass-card px-4 py-1.5 rounded-full flex items-center gap-2 hover:bg-white/60 transition-all duration-300 hover:scale-105 text-sm">
+                            <i data-lucide="music" class="w-4 h-4 text-orange-600"></i> <span class="text-gray-700 font-medium">osu! Riverxia</span>
+                        </a>
+                        <a href="blog" class="glass-card px-4 py-1.5 rounded-full flex items-center gap-2 hover:bg-white/60 transition-all duration-300 hover:scale-105 text-sm">
+                            <i data-lucide="book-open" class="w-4 h-4 text-teal-600"></i> <span class="text-gray-700 font-medium">Blog</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Social Links -->
-                        <div class="flex flex-wrap justify-center md:justify-start gap-2 pt-3">
-                            <a href="https://github.com/TogiFerretFerret" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-purple-200 bg-white/60 hover:bg-white hover:text-purple-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm shadow-sm backdrop-blur-sm">
-                                <i data-lucide="github" class="w-4 h-4 text-purple-600"></i>
-                                <span>TogiFerretFerret</span>
-                            </a>
-                            <a href="#" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-pink-200 bg-white/60 hover:bg-white hover:text-pink-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm shadow-sm backdrop-blur-sm">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-pink-600"></i>
-                                <span>@rivercodes</span>
-                            </a>
-                            <a href="https://osu.ppy.sh/users/34415790" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-orange-200 bg-white/60 hover:bg-white hover:text-orange-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm shadow-sm backdrop-blur-sm">
-                                <i data-lucide="music" class="w-4 h-4 text-orange-600"></i>
-                                <span>osu! Riverxia</span>
-                            </a>
-                            <a href="blog" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-teal-200 bg-white/60 hover:bg-white hover:text-teal-700 transition-all duration-300 hover:scale-105 text-gray-700 text-sm shadow-sm backdrop-blur-sm">
-                                <i data-lucide="book-open" class="w-4 h-4 text-teal-600"></i>
-                                <span>Blog</span>
-                            </a>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-3 gap-3 mb-8">
+                <div class="glass-card p-3 rounded-2xl text-center hover:bg-white/50 transition-colors">
+                    <p class="text-xl font-bold text-purple-700">2nd Place</p>
+                    <p class="text-[10px] md:text-xs text-gray-600 tracking-wide font-semibold">picoCTF</p>
+                </div>
+                <div class="glass-card p-3 rounded-2xl text-center hover:bg-white/50 transition-colors">
+                    <p class="text-2xl font-bold text-amber-700">Gold</p>
+                    <p class="text-[10px] md:text-xs text-gray-600 tracking-wide font-semibold">USACO</p>
+                </div>
+                <div class="glass-card p-3 rounded-2xl text-center hover:bg-white/50 transition-colors">
+                    <p class="text-2xl font-bold text-pink-700">50+</p>
+                    <p class="text-[10px] md:text-xs text-gray-600 tracking-wide font-semibold">Projects</p>
+                </div>
+            </div>
+
+            <!-- Liquid Tabs Navigation -->
+            <div class="mb-6">
+                <div class="glass-card relative grid grid-cols-4 p-1.5 rounded-2xl">
+                    <!-- Sliding Background -->
+                    <div id="tab-slider" class="absolute top-1.5 bottom-1.5 bg-white/70 backdrop-blur-md rounded-xl shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" style="left: 0.375rem; width: calc(25% - 0.75rem); z-index: 15;"></div>
+                    
+                    <button onclick="switchTab('about')" id="tab-btn-about" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="active">About Me</button>
+                    <button onclick="switchTab('achievements')" id="tab-btn-achievements" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">Achievements</button>
+                    <button onclick="switchTab('skills')" id="tab-btn-skills" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">Skills</button>
+                    <button onclick="switchTab('projects')" id="tab-btn-projects" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">Projects</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="min-h-[400px]">
+                
+                <!-- ABOUT TAB -->
+                <div id="content-about" class="tab-content space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    <div class="glass-card p-6 rounded-3xl">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2 text-gray-800">
+                            <i data-lucide="heart" class="h-5 w-5 text-pink-500 fill-pink-500"></i> About Me
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            rawr; <br>
+                            I'm passionate about competitive programming and software development. When I'm not solving challenging myself with new technologies and contributing to open-source projects.
+                        </p>
+                        <p class="text-gray-700 leading-relaxed mt-3">
+                            Please check out my blog, linked above with the rest of my social! I post my thoughts occasionally, sometimes they might even be ^coherent^.
+                        </p>
+                        <p class="text-gray-700 leading-relaxed mt-3">
+                            My journey in programming started when I was 7, and I've been hooked ever since. I specialize in algorithmic problems, you can find me working on personal coding projects or playing osu!. I love algorithms, data structures, and web development.
+                        </p>
+                        <div class="mt-4 p-3 bg-gray-50/40 rounded-xl border border-gray-100/50 font-mono text-sm text-gray-600 space-y-1">
+                            <p>#2 High School hacker</p>
+                            <p>#9 MS Science Bowl Team</p>
+                            <p>USACO Gold</p>
+                            <p>Cracked at offsec and programming in general</p>
+                        </div>
+                        <details class="mt-4 group">
+                            <summary class="text-gray-700 font-medium cursor-pointer flex items-center gap-2 hover:text-purple-600 transition-colors">
+                                <i data-lucide="info" class="w-4 h-4"></i> Site Features
+                            </summary>
+                            <p class="text-gray-600 text-sm leading-relaxed mt-2 pl-6">
+                                This website uses pure HTML/Tailwind. The abstract avatar above is a generated pattern on a canvas!
+                                <br>
+                                Built using nearly-caveman technology! (sorry, I'm not as cool as Vaxry (yet) Blog coming soon!
+                                <br>
+                                The favicon is also dynamically generated at load!
+                            </p>
+                        </details>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="glass-card p-6 rounded-3xl group hover:bg-white/50 transition-colors">
+                            <h3 class="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-800">
+                                <i data-lucide="zap" class="h-5 w-5 text-blue-500 group-hover:fill-blue-500 transition-colors"></i> Current Focus
+                            </h3>
+                            <p class="text-gray-700 text-sm">Currently focused on mastering advanced algorithms and exploring machine learning applications in competitive programming. Working on a personal project develop a more powerful computer interaction system relying on TARS-UI, realtime vision LLMS and prompt engineering.</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl group hover:bg-white/50 transition-colors">
+                            <h3 class="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-800">
+                                <i data-lucide="star" class="h-5 w-5 text-orange-500 group-hover:fill-orange-500 transition-colors"></i> Fun Facts
+                            </h3>
+                            <ul class="text-gray-700 text-sm space-y-2 list-disc pl-5">
+                                <li>Used to be able to solve a Rubik's cube in under 30 seconds</li>
+                                <li>Contributed to 20+ open source projects</li>
+                                <li>Ranked in the top 8% of osu! players</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Highlight Stats (Fixed Capitalization) -->
-                <div class="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-gray-200/50">
-                    <div class="text-center p-2 rounded-lg bg-purple-50/50 hover:bg-purple-100/80 transition-colors cursor-default border border-purple-100">
-                        <p class="text-xl font-bold text-purple-700">2nd Place</p>
-                        <p class="text-xs text-gray-600 tracking-wide">picoCTF</p>
+                <!-- ACHIEVEMENTS TAB -->
+                <div id="content-achievements" class="tab-content hidden space-y-4 animate-in fade-in zoom-in-95 duration-300">
+                   <div id="achievements-main-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                   <div class="glass-card p-6 rounded-3xl">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
+                            <i data-lucide="star" class="h-5 w-5 text-purple-600"></i> Additional Achievements
+                        </h3>
+                        <div id="achievements-additional-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+                   </div>
+                </div>
+
+                <!-- SKILLS TAB -->
+                <div id="content-skills" class="tab-content hidden space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    <div class="glass-card p-6 rounded-3xl">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-800">
+                            <i data-lucide="code" class="h-5 w-5 text-blue-600"></i> Technical Skills
+                        </h3>
+                        <div id="skills-technical-list" class="space-y-4"></div>
                     </div>
-                    <div class="text-center p-2 rounded-lg bg-amber-50/50 hover:bg-amber-100/80 transition-colors cursor-default border border-amber-100">
-                        <p class="text-2xl font-bold text-amber-700">Gold</p>
-                        <p class="text-xs text-gray-600 tracking-wide">USACO</p>
-                    </div>
-                    <div class="text-center p-2 rounded-lg bg-pink-50/50 hover:bg-pink-100/80 transition-colors cursor-default border border-pink-100">
-                        <p class="text-2xl font-bold text-pink-700">50+</p>
-                        <p class="text-xs text-gray-600 tracking-wide">Projects</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="glass-card p-6 rounded-3xl">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
+                                <i data-lucide="code-2" class="h-5 w-5 text-indigo-600"></i> Languages
+                            </h3>
+                            <div id="skills-languages-grid" class="grid grid-cols-2 gap-2 text-sm"></div>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
+                                <i data-lucide="zap" class="h-5 w-5 text-purple-600"></i> Frameworks
+                            </h3>
+                            <div id="skills-frameworks-grid" class="grid grid-cols-2 gap-2 text-sm"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Sliding Tabs Navigation -->
-                <div class="mt-8">
-                    <div class="relative grid grid-cols-4 p-1.5 bg-gray-100/60 backdrop-blur-sm rounded-xl shadow-inner border border-gray-200/50">
-                        <!-- Sliding Background -->
-                        <div id="tab-slider" class="absolute top-1.5 bottom-1.5 bg-white/90 rounded-lg shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" style="left: 0.375rem; width: calc(25% - 0.75rem);"></div>
-                        
-                        <button onclick="switchTab('about')" id="tab-btn-about" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="active">
-                            About Me
-                        </button>
-                        <button onclick="switchTab('achievements')" id="tab-btn-achievements" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">
-                            Achievements
-                        </button>
-                        <button onclick="switchTab('skills')" id="tab-btn-skills" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">
-                            Skills
-                        </button>
-                        <button onclick="switchTab('projects')" id="tab-btn-projects" class="tab-btn inline-flex items-center justify-center rounded-lg py-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-state="inactive">
-                            Projects
-                        </button>
-                    </div>
-
-                    <!-- Content Area -->
-                    <div class="min-h-[400px] mt-4">
-                        
-                        <!-- ABOUT TAB -->
-                        <div id="content-about" class="tab-content space-y-6 animate-in fade-in zoom-in-95 duration-300">
-                            <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white/50 backdrop-blur-sm shadow-sm">
-                                <h3 class="text-xl font-semibold mb-3 flex items-center gap-2 text-gray-800">
-                                    <i data-lucide="heart" class="h-5 w-5 text-pink-500 fill-pink-500"></i> About Me
-                                </h3>
-                                <p class="text-gray-700 leading-relaxed">
-                                    rawr; <br>
-                                    I'm passionate about competitive programming and software development. When I'm not solving challenging myself with new technologies and contributing to open-source projects.
-                                </p>
-                                <p class="text-gray-700 leading-relaxed mt-3">
-                                	Please check out my blog, linked above with the rest of my social! I post my thoughts occasionally, sometimes they might even be ^coherent^.
-								</p>
-                                <p class="text-gray-700 leading-relaxed mt-3">
-                                    My journey in programming started when I was 7, and I've been hooked ever since. I specialize in algorithmic problems, you can find me working on personal coding projects or playing osu!. I love algorithms, data structures, and web development.
-                                </p>
-                                <div class="mt-4 p-3 bg-gray-50/60 rounded-lg border border-gray-100 font-mono text-sm text-gray-600 space-y-1">
-                                    <p>#2 High School hacker</p>
-                                    <p>#9 MS Science Bowl Team</p>
-                                    <p>USACO Gold</p>
-                                    <p>Cracked at offsec and programming in general</p>
-                                </div>
-                                <details class="mt-4 group">
-                                    <summary class="text-gray-700 font-medium cursor-pointer flex items-center gap-2 hover:text-purple-600 transition-colors">
-                                        <i data-lucide="info" class="w-4 h-4"></i> Site Features
-                                    </summary>
-                                    <p class="text-gray-600 text-sm leading-relaxed mt-2 pl-6">
-                                        This website uses pure HTML/Tailwind. The abstract avatar above is a generated pattern on a canvas!
-                                        <br>
-                                        Built using nearly-caveman technology! (sorry, I'm not as cool as Vaxry (yet) Blog coming soon!
-                                        <br>
-                                        The favicon is also dynamically generated at load!
-                                    </p>
-                                </details>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-blue-200 bg-white/50 backdrop-blur-sm group hover:shadow-md transition-all duration-300">
-                                    <h3 class="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                                        <i data-lucide="zap" class="h-5 w-5 text-blue-500 group-hover:fill-blue-500 transition-colors"></i> Current Focus
-                                    </h3>
-                                    <p class="text-gray-700 text-sm">Currently focused on mastering advanced algorithms and exploring machine learning applications in competitive programming. Working on a personal project develop a more powerful computer interaction system relying on TARS-UI, realtime vision LLMS and prompt engineering.</p>
-                                </div>
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-pink-200 bg-white/50 backdrop-blur-sm group hover:shadow-md transition-all duration-300">
-                                    <h3 class="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                                        <i data-lucide="star" class="h-5 w-5 text-orange-500 group-hover:fill-orange-500 transition-colors"></i> Fun Facts
-                                    </h3>
-                                    <ul class="text-gray-700 text-sm space-y-2 list-disc pl-5">
-                                        <li>Used to be able to solve a Rubik's cube in under 30 seconds</li>
-                                        <li>Contributed to 20+ open source projects</li>
-                                        <li>Ranked in the top 8% of osu! players</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ACHIEVEMENTS TAB (Dynamically Rendered) -->
-                        <div id="content-achievements" class="tab-content hidden space-y-4 animate-in fade-in zoom-in-95 duration-300">
-                           <!-- JS will populate this -->
-                           <div id="achievements-main-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                           
-                           <!-- Additional Achievements Container -->
-                           <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white/50 backdrop-blur-sm">
-                                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
-                                    <i data-lucide="star" class="h-5 w-5 text-purple-600"></i> Additional Achievements
-                                </h3>
-                                <div id="achievements-additional-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
-                           </div>
-                        </div>
-
-                        <!-- SKILLS TAB (Dynamically Rendered) -->
-                        <div id="content-skills" class="tab-content hidden space-y-6 animate-in fade-in zoom-in-95 duration-300">
-                            <!-- Technical Skills -->
-                            <div class="relative p-6 rounded-xl overflow-hidden border border-blue-200 bg-white/50 backdrop-blur-sm">
-                                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-800">
-                                    <i data-lucide="code" class="h-5 w-5 text-blue-600"></i> Technical Skills
-                                </h3>
-                                <div id="skills-technical-list" class="space-y-4"></div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Languages -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-indigo-200 bg-white/50 backdrop-blur-sm group hover:shadow-md transition-all duration-300">
-                                    <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
-                                        <i data-lucide="code-2" class="h-5 w-5 text-indigo-600"></i> Languages
-                                    </h3>
-                                    <div id="skills-languages-grid" class="grid grid-cols-2 gap-2 text-sm"></div>
-                                </div>
-                                <!-- Frameworks -->
-                                <div class="relative p-6 rounded-xl overflow-hidden border border-purple-200 bg-white/50 backdrop-blur-sm group hover:shadow-md transition-all duration-300">
-                                    <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
-                                        <i data-lucide="zap" class="h-5 w-5 text-purple-600"></i> Frameworks
-                                    </h3>
-                                    <div id="skills-frameworks-grid" class="grid grid-cols-2 gap-2 text-sm"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- PROJECTS TAB (Dynamically Rendered) -->
-                        <div id="content-projects" class="tab-content hidden space-y-4 animate-in fade-in zoom-in-95 duration-300">
-                            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="mt-8 pt-6 border-t border-gray-100/50 flex flex-wrap justify-between items-center gap-4 text-xs text-gray-500">
-                    <p>&copy; 2026 RiverCodes. Last updated: April 2025.</p>
-                    <div class="flex gap-3">
-                        <a href="https://github.com/TogiFerretFerret" class="hover:text-purple-500 transition-colors">GitHub</a>
-                        <a href="#" class="hover:text-pink-500 transition-colors">Discord</a>
-                        <a href="https://osu.ppy.sh/users/34415790" class="hover:text-orange-500 transition-colors">osu!</a>
-                    </div>
+                <!-- PROJECTS TAB -->
+                <div id="content-projects" class="tab-content hidden animate-in fade-in zoom-in-95 duration-300">
+                    <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
 
             </div>
+
+            <!-- Footer -->
+            <div class="mt-8 pt-6 border-t border-gray-900/5 flex flex-wrap justify-between items-center gap-4 text-xs text-gray-500">
+                <p>&copy; 2026 RiverCodes. Last updated: April 2025.</p>
+                <div class="flex gap-3">
+                    <a href="https://github.com/TogiFerretFerret" class="hover:text-purple-500 transition-colors">GitHub</a>
+                    <a href="#" class="hover:text-pink-600 transition-colors">Discord</a>
+                    <a href="#" class="hover:text-orange-600 transition-colors">osu!</a>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <!-- JavaScript for Interactions, Avatar Generation, and Data Rendering -->
     <script>
         
-        // --- DATA SECTION: Add new items here! ---
+        // --- DATA SECTION: RESTORED ---
 
         const achievementsData = {
             main: [
@@ -419,7 +414,6 @@
                     desc: "Competed in the National Science Bowl competition.",
                     highlight: "Fastest response time in CS questions."
                 }
-                
             ],
             additional: [
                 { icon: "code", color: "purple", text: "Regional Hackathon Winner" },
@@ -515,7 +509,7 @@
             if (!mainGrid || !additionalGrid) return;
 
             mainGrid.innerHTML = achievementsData.main.map(item => `
-                <div class="relative p-6 rounded-xl overflow-hidden border border-${item.color}-200 bg-white/60 group hover:shadow-md hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm">
+                <div class="glass-card p-6 rounded-xl hover:bg-white/60 group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
                     <div class="relative flex gap-4">
                         <div class="bg-${item.color}-100 p-3 rounded-lg h-fit text-${item.color}-600">
                             <i data-lucide="${item.icon}" class="h-6 w-6"></i>
@@ -556,7 +550,7 @@
                         <label class="font-medium text-gray-700">${item.name}</label>
                         <span class="text-${item.color}-700 font-semibold">${item.pct}</span>
                     </div>
-                    <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-2.5 w-full bg-gray-100/50 rounded-full overflow-hidden border border-gray-200/50">
                         <div class="h-full bg-${item.color}-600 rounded-full" style="width:${item.pct}"></div>
                     </div>
                 </div>
@@ -576,7 +570,7 @@
             if (!grid) return;
 
             grid.innerHTML = projectsData.map(item => `
-                <div class="relative p-6 rounded-xl overflow-hidden border border-${item.color}-200 bg-white/60 group hover:shadow-md hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm">
+                <div class="glass-card p-6 rounded-xl hover:bg-white/60 group hover:shadow-md hover:scale-[1.02] transition-all duration-300">
                     <div class="relative flex gap-4">
                         <div class="bg-${item.color}-100 p-3 rounded-lg h-fit text-${item.color}-600">
                             <i data-lucide="${item.icon}" class="h-6 w-6"></i>
@@ -597,146 +591,71 @@
             `).join('');
         }
 
-        // Initialize Lucide Icons
-        function initIcons() {
-             lucide.createIcons();
-        }
+        function initIcons() { lucide.createIcons(); }
 
         function switchTab(tabId) {
-            // 1. Hide all contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-
-            // 2. Show selected content
-            const selectedContent = document.getElementById(`content-${tabId}`);
-            if (selectedContent) {
-                selectedContent.classList.remove('hidden');
-            }
-
-            // 3. Reset Button States (inactive)
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.setAttribute('data-state', 'inactive');
-            });
-
-            // 4. Activate current button
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.setAttribute('data-state', 'inactive'));
+            
             const activeBtn = document.getElementById(`tab-btn-${tabId}`);
             if (activeBtn) {
                 activeBtn.setAttribute('data-state', 'active');
-                
-                // 5. Move the Slider
                 const slider = document.getElementById('tab-slider');
                 const btnRect = activeBtn.getBoundingClientRect();
                 const containerRect = activeBtn.parentElement.getBoundingClientRect();
-                const relativeLeft = btnRect.left - containerRect.left;
-                
                 slider.style.width = `${btnRect.width}px`;
-                slider.style.transform = `translateX(${relativeLeft}px)`;
+                slider.style.transform = `translateX(${btnRect.left - containerRect.left}px)`;
                 slider.style.left = '0';
             }
         }
 
-        // Initialize slider position on load
         window.addEventListener('load', () => {
             generateAvatar();
             generateFavicon();
             renderAchievements();
             renderSkills();
             renderProjects();
-            
-            // Wait a tick for DOM updates before initializing icons and setting tab
             setTimeout(() => {
                 initIcons();
                 switchTab('about');
             }, 0);
         });
 
-        // Update slider on resize
         window.addEventListener('resize', () => {
             const activeBtn = document.querySelector('.tab-btn[data-state="active"]');
-            if (activeBtn) {
-                const id = activeBtn.id.replace('tab-btn-', '');
-                switchTab(id);
-            }
+            if (activeBtn) switchTab(activeBtn.id.replace('tab-btn-', ''));
         });
 
-        // Generative Abstract Pattern for Avatar
         function generateAvatar() {
             const canvas = document.getElementById('avatarCanvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-
-            ctx.clearRect(0, 0, width, height);
-
-            const gradient = ctx.createLinearGradient(0, 0, width, height);
-            const baseHues = [270, 330, 30]; 
-            const hue1 = baseHues[Math.floor(Math.random() * baseHues.length)] + Math.random() * 20 - 10;
-            const hue2 = baseHues[Math.floor(Math.random() * baseHues.length)] + Math.random() * 20 - 10;
-            
-            gradient.addColorStop(0, `hsl(${hue1}, 70%, 85%)`);
-            gradient.addColorStop(1, `hsl(${hue2}, 70%, 75%)`);
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-
-            const shapes = 12;
-            for (let i = 0; i < shapes; i++) {
+            const w = canvas.width, h = canvas.height;
+            const grad = ctx.createLinearGradient(0,0,w,h);
+            grad.addColorStop(0, '#d8b4fe'); grad.addColorStop(1, '#fbcfe8');
+            ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+            for(let i=0; i<12; i++) {
                 ctx.beginPath();
-                const x = Math.random() * width;
-                const y = Math.random() * height;
-                const size = (Math.random() * width * 0.6) + 20;
-                
-                const type = Math.random();
-                if (type > 0.66) {
-                    ctx.arc(x, y, size/2, 0, Math.PI * 2);
-                } else if (type > 0.33) {
-                    ctx.rect(x - size/2, y - size/2, size, size);
-                } else {
-                    ctx.moveTo(x, y - size/2);
-                    ctx.lineTo(x + size/2, y + size/2);
-                    ctx.lineTo(x - size/2, y + size/2);
-                    ctx.closePath();
-                }
-
-                const shapeHue = baseHues[Math.floor(Math.random() * baseHues.length)];
-                ctx.fillStyle = `hsla(${shapeHue}, 80%, 65%, ${Math.random() * 0.4 + 0.1})`;
-                ctx.fill();
+                ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.4})`;
+                const x=Math.random()*w, y=Math.random()*h, r=Math.random()*30+10;
+                ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
             }
         }
         
-        // Generate Programmatic Favicon
         function generateFavicon() {
             const canvas = document.createElement('canvas');
-            canvas.width = 64;
-            canvas.height = 64;
+            canvas.width = 64; canvas.height = 64;
             const ctx = canvas.getContext('2d');
-            
-            // Draw colorful circle background
-            const gradient = ctx.createLinearGradient(0, 0, 64, 64);
-            gradient.addColorStop(0, '#a855f7'); // purple-500
-            gradient.addColorStop(1, '#ec4899'); // pink-500
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
-            ctx.arc(32, 32, 32, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Draw RC text
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 32px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            const grad = ctx.createLinearGradient(0,0,64,64);
+            grad.addColorStop(0, '#a855f7'); grad.addColorStop(1, '#ec4899');
+            ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(32,32,32,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 32px sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText('RC', 32, 32);
-            
-            // Update favicon link
-            let link = document.querySelector("link[rel*='icon']");
-            if (!link) {
-                link = document.createElement('link');
-                link.type = 'image/x-icon';
-                link.rel = 'shortcut icon';
-                document.getElementsByTagName('head')[0].appendChild(link);
-            }
-            link.href = canvas.toDataURL("image/x-icon");
+            let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+            link.type = 'image/x-icon'; link.rel = 'shortcut icon'; link.href = canvas.toDataURL("image/x-icon");
+            document.head.appendChild(link);
         }
     </script>
 </body>
