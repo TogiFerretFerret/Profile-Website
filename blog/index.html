@@ -412,9 +412,41 @@
         const postsCache = [];
         let currentView = 'list'; // 'list' or 'post'
         let currentSearch = '';
-
+		function generateFavicon() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw colorful circle background
+            const gradient = ctx.createLinearGradient(0, 0, 64, 64);
+            gradient.addColorStop(0, '#a855f7'); // purple-500
+            gradient.addColorStop(1, '#ec4899'); // pink-500
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(32, 32, 32, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw RC text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 32px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('RC', 32, 32);
+            
+            // Update favicon link
+            let link = document.querySelector("link[rel*='icon']");
+            if (!link) {
+                link = document.createElement('link');
+                link.type = 'image/x-icon';
+                link.rel = 'shortcut icon';
+                document.getElementsByTagName('head')[0].appendChild(link);
+            }
+            link.href = canvas.toDataURL("image/x-icon");
+        }
         // Initialize
         async function init() {
+			generateFavicon();
             await loadPosts();
             
             // Check URL for specific post (e.g. ?post=1) or search query
