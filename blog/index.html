@@ -39,16 +39,29 @@
 
     <div class="w-full max-w-3xl">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
-            <div class="flex items-center gap-4">
-                <!-- Single Navigation Button -->
-                <button id="nav-btn" onclick="handleNavClick()" class="p-2 rounded-full bg-white border border-gray-200 hover:bg-gray-100 transition-colors shadow-sm" title="Go Back">
-                    <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
-                </button>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">riverxia's hellhole</h1>
-                    <p class="text-sm text-gray-500">Thoughts on code, CTFs, and tech.</p>
+        <div class="flex flex-col gap-4 mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <!-- Single Navigation Button -->
+                    <button id="nav-btn" onclick="handleNavClick()" class="p-2 rounded-full bg-white border border-gray-200 hover:bg-gray-100 transition-colors shadow-sm" title="Go Back">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">riverxia's hellhole</h1>
+                        <p class="text-sm text-gray-500">Thoughts on code, CTFs, and tech.</p>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Search Bar (Only visible in list view) -->
+            <div id="search-container" class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                </div>
+                <input type="text" id="search-input" 
+                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 sm:text-sm transition duration-150 ease-in-out" 
+                    placeholder="Search posts (e.g. tag:ctf, neovim)..."
+                    oninput="handleSearch(this.value)">
             </div>
         </div>
 
@@ -77,18 +90,24 @@
         // State
         const postsCache = [];
         let currentView = 'list'; // 'list' or 'post'
+        let currentSearch = '';
 
         // Initialize
         async function init() {
             await loadPosts();
             
-            // Check URL for specific post (e.g. ?post=1)
+            // Check URL for specific post (e.g. ?post=1) or search query
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('post');
+            const searchQuery = urlParams.get('q');
 
             if (postId) {
                 renderPost(parseInt(postId));
             } else {
+                if (searchQuery) {
+                    currentSearch = searchQuery;
+                    document.getElementById('search-input').value = searchQuery;
+                }
                 renderPostList();
             }
         }
@@ -127,9 +146,20 @@
                 metaBlock.split(/\r?\n/).forEach(line => {
                     const [key, ...value] = line.split(':');
                     if (key && value) {
-                        meta[key.trim()] = value.join(':').trim();
+                        let val = value.join(':').trim();
+                        // Parse tags if present (comma separated or list)
+                        if (key.trim() === 'tags') {
+                             // Remove brackets if present [tag1, tag2]
+                             val = val.replace(/^\[|\]$/g, '');
+                             meta[key.trim()] = val.split(',').map(t => t.trim());
+                        } else {
+                            meta[key.trim()] = val;
+                        }
                     }
                 });
+                
+                // Ensure tags exist as array
+                if (!meta.tags) meta.tags = [];
 
                 return {
                     id: id,
@@ -143,6 +173,7 @@
                     title: `Post ${id}`,
                     date: "",
                     description: markdown.slice(0, 100) + "...",
+                    tags: [],
                     content: markdown
                 };
             }
@@ -157,38 +188,116 @@
                 window.location.href = '../index.html';
             }
         }
+        
+        // Search Handler
+        function handleSearch(query) {
+            currentSearch = query;
+            renderPostList(false); // don't push state on every keystroke
+            
+            // Debounce URL update
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(() => {
+                const url = new URL(window.location);
+                if (query) {
+                    url.searchParams.set('q', query);
+                } else {
+                    url.searchParams.delete('q');
+                }
+                window.history.replaceState({}, '', url);
+            }, 500);
+        }
+        
+        function searchTag(tag) {
+            const query = `tag:${tag}`;
+            currentSearch = query;
+            
+            // Switch to list view if not already
+            if (currentView !== 'list') {
+                 // Push state handled in renderPostList
+                 // But we need to prep the input value
+                 // We can't set input value here because renderPostList might wipe/restore DOM
+                 // Actually search-container is outside content-area, so it persists.
+                 const searchInput = document.getElementById('search-input');
+                 if (searchInput) searchInput.value = query;
+                 renderPostList();
+            } else {
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) searchInput.value = query;
+                renderPostList();
+            }
+            
+            // Update URL immediately for click actions
+            const url = new URL(window.location);
+            url.searchParams.delete('post');
+            url.searchParams.set('q', query);
+            window.history.pushState({}, '', url);
+        }
 
         // Render List View
-        function renderPostList() {
+        function renderPostList(updateUrl = true) {
             const container = document.getElementById('content-area');
+            const searchContainer = document.getElementById('search-container');
             
+            if (searchContainer) searchContainer.classList.remove('hidden');
+
             // Update State
             currentView = 'list';
             
             // Update Title
             document.title = CONFIG.siteTitle;
 
-            // Update URL without reloading
-            const url = new URL(window.location);
-            url.searchParams.delete('post');
-            window.history.pushState({}, '', url);
+            if (updateUrl) {
+                // Update URL without reloading
+                const url = new URL(window.location);
+                url.searchParams.delete('post');
+                if (currentSearch) url.searchParams.set('q', currentSearch);
+                window.history.pushState({}, '', url);
+            }
+
+            // Filter Posts
+            const filteredPosts = postsCache.filter(post => {
+                if (!currentSearch) return true;
+                const lowerSearch = currentSearch.toLowerCase();
+                
+                // Tag search (tag:name)
+                if (lowerSearch.startsWith('tag:')) {
+                    const tagQuery = lowerSearch.replace('tag:', '').trim();
+                    return post.tags.some(tag => tag.toLowerCase() === tagQuery);
+                }
+                
+                // General search
+                return (
+                    post.title.toLowerCase().includes(lowerSearch) ||
+                    post.description.toLowerCase().includes(lowerSearch) ||
+                    post.tags.some(tag => tag.toLowerCase().includes(lowerSearch))
+                );
+            });
 
             let html = '<div class="space-y-4 animate-fade-in">';
             
-            postsCache.forEach(post => {
-                html += `
-                    <div onclick="renderPost(${post.id})" class="group cursor-pointer p-6 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all">
-                        <div class="flex justify-between items-start mb-2">
-                            <h2 class="text-xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">${post.title}</h2>
-                            <span class="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-1 rounded">${post.date}</span>
+            if (filteredPosts.length === 0) {
+                 html += `<div class="text-center py-12 text-gray-500">No posts found matching "${currentSearch}"</div>`;
+            } else {
+                filteredPosts.forEach(post => {
+                    const tagsHtml = post.tags.map(tag => 
+                        `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mr-2">#${tag}</span>`
+                    ).join('');
+
+                    html += `
+                        <div onclick="renderPost(${post.id})" class="group cursor-pointer p-6 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all">
+                            <div class="flex justify-between items-start mb-2">
+                                <h2 class="text-xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">${post.title}</h2>
+                                <span class="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-1 rounded">${post.date}</span>
+                            </div>
+                            <div class="mb-3">${tagsHtml}</div>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-4">${post.description}</p>
+                            <div class="flex items-center text-sm font-medium text-purple-600 group-hover:translate-x-1 transition-transform">
+                                Read Article <i data-lucide="arrow-right" class="ml-1 w-4 h-4"></i>
+                            </div>
                         </div>
-                        <p class="text-gray-600 text-sm leading-relaxed mb-4">${post.description}</p>
-                        <div class="flex items-center text-sm font-medium text-purple-600 group-hover:translate-x-1 transition-transform">
-                            Read Article <i data-lucide="arrow-right" class="ml-1 w-4 h-4"></i>
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
             
             html += '</div>';
             container.innerHTML = html;
@@ -201,6 +310,10 @@
             if (!post) return;
 
             const container = document.getElementById('content-area');
+            const searchContainer = document.getElementById('search-container');
+            
+            // Hide search bar in single post view
+            if (searchContainer) searchContainer.classList.add('hidden');
 
             // Update State
             currentView = 'post';
@@ -213,16 +326,19 @@
             url.searchParams.set('post', id);
             window.history.pushState({}, '', url);
 
+            const tagsHtml = post.tags.map(tag => 
+                `<button onclick="event.stopPropagation(); searchTag('${tag}')" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer border border-purple-100">#${tag}</button>`
+            ).join('');
+
             const html = `
                 <article class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
                     <header class="mb-8 border-b border-gray-100 pb-6">
-                        <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                            <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs font-medium">Post #${post.id}</span>
-                            <span>•</span>
+                        <div class="flex items-center flex-wrap gap-3 text-sm text-gray-500 mb-4">
                             <span>${post.date}</span>
+                            ${tagsHtml ? `<span>•</span><div class="flex gap-2">${tagsHtml}</div>` : ''}
                         </div>
                         <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">${post.title}</h1>
-                        <p class="text-lg text-gray-600 leading-relaxed">${post.description}</p>
+                        <p class="text-lg text-gray-600 leading-relaxed italic border-l-4 border-gray-200 pl-4">${post.description}</p>
                     </header>
                     <div class="prose max-w-none text-gray-800">
                         ${marked.parse(post.content)}
@@ -243,8 +359,15 @@
         window.onpopstate = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('post');
+            const searchQuery = urlParams.get('q');
+            
+            // Sync search input
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = searchQuery || '';
+            currentSearch = searchQuery || '';
+
             if (postId) renderPost(parseInt(postId));
-            else renderPostList();
+            else renderPostList(false);
         };
 
         window.addEventListener('load', init);
