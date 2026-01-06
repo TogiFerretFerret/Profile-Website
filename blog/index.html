@@ -113,7 +113,7 @@
         const provider = new GoogleAuthProvider();
 
         // Admin Email Hash (SHA-256)
-        // Calculated from "hudsonyreich@gmail.com"
+        // CHECK CONSOLE FOR THE CORRECT HASH TO PASTE HERE
         const ADMIN_EMAIL_HASH = "631ce127c536b808fb47f515d112be47a164400e47fe9e6f13bcbf0f445a1194"; 
         
         let currentUserIsAdmin = false;
@@ -133,6 +133,13 @@
                 console.log("User signed in:", user.uid, user.isAnonymous ? "(Anonymous)" : "(Google)");
                 if (user.email) {
                     const userHash = await sha256(user.email);
+                    
+                    // DEBUGGING: Log the hash so you can copy it
+                    console.log("--------------------------------------------------");
+                    console.log("Your Email Hash (Copy this to ADMIN_EMAIL_HASH):");
+                    console.log(userHash);
+                    console.log("--------------------------------------------------");
+                    
                     currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
                     if (currentUserIsAdmin) {
                         console.log("Admin privileges active.");
@@ -140,6 +147,8 @@
                         const urlParams = new URLSearchParams(window.location.search);
                         const postId = urlParams.get('post');
                         if (postId) loadComments(parseInt(postId));
+                    } else {
+                        console.log("Not admin. Hashes do not match.");
                     }
                 } else {
                     currentUserIsAdmin = false;
@@ -155,7 +164,7 @@
         window.adminLogin = function() {
             signInWithPopup(auth, provider)
                 .then((result) => {
-                    alert("Logged in. Checking privileges...");
+                    alert("Logged in! Check console for your hash.");
                 }).catch((error) => {
                     console.error("Login Failed", error);
                     alert("Login failed.");
@@ -211,7 +220,7 @@
             const isTryingReserved = reservedNames.some(r => lowerName.includes(r));
 
             if (isTryingReserved && !currentUserIsAdmin) {
-                alert("You cannot post using a reserved name.");
+                alert(`You cannot post using a reserved name. (Admin Status: ${currentUserIsAdmin})`);
                 return;
             }
 
