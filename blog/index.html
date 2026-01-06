@@ -80,6 +80,7 @@
         import { getFirestore, collection, addDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+        // TODO: Replace the following with your app's Firebase project configuration
           const firebaseConfig = {
 
     apiKey: "AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
@@ -109,7 +110,7 @@
         // CHECK CONSOLE FOR THE CORRECT HASH TO PASTE HERE
         const ADMIN_EMAIL_HASH = "faf863681b8a634b1a95cb3058937ce4e69cee4c2b3459b137c61c4d1e49f0c9"; 
         
-        let currentUserIsAdmin = false;
+        window.currentUserIsAdmin = false; // MADE GLOBAL
 
         // Helper function to hash email
         async function sha256(message) {
@@ -130,25 +131,34 @@
                 
                 if (user.isAnonymous) {
                     // Anonymous User
-                    currentUserIsAdmin = false;
+                    window.currentUserIsAdmin = false;
                     if(loginBtn) loginBtn.classList.remove('hidden');
                     if(logoutBtn) logoutBtn.classList.add('hidden');
                 } else if (user.email) {
                     // Google User
                     const userHash = await sha256(user.email);
-                    
-                    currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
+                                       
+                    window.currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
                     
                     // Show Logout, Hide Login
                     if(loginBtn) loginBtn.classList.add('hidden');
                     if(logoutBtn) logoutBtn.classList.remove('hidden');
 
-                    if (currentUserIsAdmin) {
+                    if (window.currentUserIsAdmin) {
                         console.log("Admin privileges active.");
+                        
                         // Force refresh comments to show delete buttons if viewing a post
                         const urlParams = new URLSearchParams(window.location.search);
                         const postId = urlParams.get('post');
                         if (postId) loadComments(parseInt(postId));
+                        
+                        // If we are currently viewing a post, we might want to re-render the post content
+                        // to update the comment form state (enable "Riverxia" name). 
+                        // Since renderPost is in the other script, we can call it if available.
+                        // However, renderPost requires 'id' and relies on postsCache.
+                        if (postId && window.renderPost) {
+                             window.renderPost(parseInt(postId));
+                        }
                     } else {
                         console.log("Not admin. Hashes do not match.");
                     }
@@ -156,7 +166,7 @@
             } else {
                 // User is signed out, force anonymous
                 signInAnonymously(auth).catch((error) => console.error("Auth Error", error));
-                currentUserIsAdmin = false;
+                window.currentUserIsAdmin = false;
                 if(loginBtn) loginBtn.classList.remove('hidden');
                 if(logoutBtn) logoutBtn.classList.add('hidden');
             }
@@ -222,7 +232,7 @@
 
             // Automatic Admin Username Logic
             let authorName;
-            if (currentUserIsAdmin) {
+            if (window.currentUserIsAdmin) { // Updated to window.
                 authorName = "Riverxia";
             } else {
                 authorName = nameInput.value.trim();
@@ -244,8 +254,8 @@
             const lowerName = authorName.toLowerCase();
             const isTryingReserved = reservedNames.some(r => lowerName.includes(r));
 
-            if (isTryingReserved && !currentUserIsAdmin) {
-                alert(`You cannot post using a reserved name. (Admin Status: ${currentUserIsAdmin})`);
+            if (isTryingReserved && !window.currentUserIsAdmin) { // Updated to window.
+                alert(`You cannot post using a reserved name.`);
                 return;
             }
 
@@ -265,7 +275,7 @@
                     name: authorName, // Use the determined name
                     body: bodyInput.value.trim(),
                     uid: auth.currentUser.uid,
-                    verified: currentUserIsAdmin, 
+                    verified: window.currentUserIsAdmin, // Updated to window.
                     timestamp: serverTimestamp()
                 });
                 
@@ -354,12 +364,12 @@
                         
                         <div class="mt-2 flex gap-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                              <button onclick="toggleReplyForm('${c.id}')" class="text-gray-400 hover:text-purple-600 font-medium">Reply</button>
-                             ${currentUserIsAdmin ? `<button onclick="deleteComment('${c.id}')" class="text-red-300 hover:text-red-600 font-medium">Delete</button>` : ''}
+                             ${window.currentUserIsAdmin ? `<button onclick="deleteComment('${c.id}')" class="text-red-300 hover:text-red-600 font-medium">Delete</button>` : ''} 
                         </div>
                     </div>
                     
                     <div id="reply-form-${c.id}" class="hidden mt-2 ml-4 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                         <input type="text" id="reply-name-${c.id}" placeholder="Name" class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm focus:border-purple-500 outline-none" ${currentUserIsAdmin ? 'value="Riverxia" disabled' : ''}>
+                         <input type="text" id="reply-name-${c.id}" placeholder="Name" class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm focus:border-purple-500 outline-none" ${window.currentUserIsAdmin ? 'value="Riverxia" disabled' : ''}>
                          <textarea id="reply-body-${c.id}" placeholder="Reply..." class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm h-16 focus:border-purple-500 outline-none"></textarea>
                          <button id="reply-submit-${c.id}" onclick="submitComment(${c.postId}, '${c.id}')" class="px-3 py-1 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-colors">Post Reply</button>
                     </div>
@@ -658,8 +668,8 @@
                         <div class="mb-8 bg-gray-50 p-4 rounded-xl border border-gray-200">
                             <input type="text" id="comment-name" 
                                    placeholder="Name / Alias" 
-                                   class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm ${currentUserIsAdmin ? 'bg-purple-50 text-purple-700 font-bold' : ''}" 
-                                   ${currentUserIsAdmin ? 'value="Riverxia" disabled' : ''}>
+                                   class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm ${window.currentUserIsAdmin ? 'bg-purple-50 text-purple-700 font-bold' : ''}" 
+                                   ${window.currentUserIsAdmin ? 'value="Riverxia" disabled' : ''}>
                             <textarea id="comment-body" placeholder="Write a comment..." class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm h-24"></textarea>
                             <button id="comment-submit-btn" onclick="submitComment(${post.id})" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">Post Comment</button>
                         </div>
@@ -681,6 +691,9 @@
                 window.loadComments(id);
             }
         }
+
+        // Also exposing renderPost globally so module script can call it if needed
+        window.renderPost = renderPost;
 
         function showPostList() {
             renderPostList();
