@@ -5,7 +5,8 @@ description: How I built a (somewhat) secure markdown-based blog engine that com
 tags: webdev,javascript,firebase,innovative
 ---
 # The Problem with Modern Web Dev
-Everywhere I go, I hear people ranting about the next big new framework. "Use Next.js" "Use Gatsby" "use Hugo"
+Everywhere I go, I hear people ranting about the next big new framework. "Use Next.js" "Use Gatsby" "use Hugo".
+
 Everything needs a "build step"
 You write markdown, run a command, and it spits out static HTML.
 One little issue - to do that, you need infrastructure. Actually scratch that, you basically need infrastructure for everything. 
