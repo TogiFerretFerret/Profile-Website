@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>riverxia's pile of steaming shit - blog edition</title>
-    
-    <!-- Tailwind CSS with Typography Plugin -->
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Highlight.js CSS (Theme) -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+		<!-- Highlight.js Library -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+		<!-- Tailwind CSS with Typography Plugin -->
+		<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+		
+		<!-- Lucide Icons -->
+		<script src="https://unpkg.com/lucide@latest"></script>
     <!-- Marked.js for Markdown Parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Google Fonts: Inter -->
@@ -683,6 +686,7 @@
             `;
 
             container.innerHTML = html;
+			hljs.highlightAll();
             lucide.createIcons();
             window.scrollTo(0, 0);
 
