@@ -1,6 +1,6 @@
 ---
-title: Building a Serverless, Dynamic Blog with Pure HTML and JS
+title: Why C++ Will Never Die (and why it shouldn't!)
 date: 2026-01-06
-description: How I built a (somewhat) secure markdown-based blog engine that compiles at runtime using vanilla JS and Firebase, completely skipping modern build steps or server infrastructure.
-tags: webdev,javascript,firebase,innovative
+description: It's not because it's such a perfect language...
+tags: cpp,rant,competitive programming,lambda functions
 ---
