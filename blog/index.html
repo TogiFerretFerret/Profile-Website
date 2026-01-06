@@ -51,6 +51,8 @@
                         <p class="text-sm text-gray-500">Thoughts on code, CTFs, and tech.</p>
                     </div>
                 </div>
+                <!-- Admin Login Button (Hidden/Subtle) -->
+                <button id="admin-login-btn" onclick="adminLogin()" class="text-xs text-gray-300 hover:text-purple-500 transition-colors">π</button>
             </div>
             
             <!-- Search Bar (Only visible in list view) -->
@@ -81,70 +83,190 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-      const firebaseConfig = {
-        apiKey: "AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
-        authDomain: "riverxia-dev-portfolio.firebaseapp.com",
-        projectId: "riverxia-dev-portfolio",
-        storageBucket: "riverxia-dev-portfolio.firebasestorage.app",
-        messagingSenderId: "921793007466",
-        appId: "1:921793007466:web:bd7d01052795a5b6b21f13",
-        measurementId: "G-EHB7LRJXVN"
-      };
+        import { getFirestore, collection, addDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // TODO: Replace the following with your app's Firebase project configuration
+          const firebaseConfig = {
+
+    apiKey: "AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
+
+    authDomain: "riverxia-dev-portfolio.firebaseapp.com",
+
+    projectId: "riverxia-dev-portfolio",
+
+    storageBucket: "riverxia-dev-portfolio.firebasestorage.app",
+
+    messagingSenderId: "921793007466",
+
+    appId: "1:921793007466:web:bd7d01052795a5b6b21f13",
+
+    measurementId: "G-EHB7LRJXVN"
+
+  };
+
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        // Expose functions globally so the rest of the script can use them
+        // Admin Email Hash (SHA-256)
+        // Calculated from "hudsonyreich@gmail.com"
+        const ADMIN_EMAIL_HASH = "631ce127c536b808fb47f515d112be47a164400e47fe9e6f13bcbf0f445a1194"; 
+        
+        let currentUserIsAdmin = false;
+
+        // Helper function to hash email
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        // Handle Auth State
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("User signed in:", user.uid, user.isAnonymous ? "(Anonymous)" : "(Google)");
+                if (user.email) {
+                    const userHash = await sha256(user.email);
+                    currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
+                    if (currentUserIsAdmin) {
+                        console.log("Admin privileges active.");
+                        // Force refresh comments to show delete buttons if viewing a post
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const postId = urlParams.get('post');
+                        if (postId) loadComments(parseInt(postId));
+                    }
+                } else {
+                    currentUserIsAdmin = false;
+                }
+            } else {
+                // User is signed out, force anonymous
+                signInAnonymously(auth).catch((error) => console.error("Auth Error", error));
+                currentUserIsAdmin = false;
+            }
+        });
+
+        // Admin Login Function
+        window.adminLogin = function() {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    alert("Logged in. Checking privileges...");
+                }).catch((error) => {
+                    console.error("Login Failed", error);
+                    alert("Login failed.");
+                });
+        };
+
+        // Expose functions globally
         window.loadComments = function(postId) {
             const commentsContainer = document.getElementById('comments-list');
             if(!commentsContainer) return;
             
             commentsContainer.innerHTML = '<div class="text-gray-400 text-sm italic">Loading comments...</div>';
 
-            const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("timestamp", "desc"));
+            const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("timestamp", "asc")); 
             
-            // Real-time listener
             onSnapshot(q, (querySnapshot) => {
                 const comments = [];
                 querySnapshot.forEach((doc) => {
-                    comments.push(doc.data());
+                    comments.push({ id: doc.id, ...doc.data() });
                 });
                 renderComments(comments);
+            }, (error) => {
+                 console.error("Error fetching comments: ", error);
+                 if (error.code === 'failed-precondition') {
+                     commentsContainer.innerHTML = '<div class="text-red-400 text-xs">Error loading comments (Index missing). Check console (F12) for the creation link.</div>';
+                 } else {
+                     commentsContainer.innerHTML = '<div class="text-red-400 text-xs">Error loading comments.</div>';
+                 }
             });
         };
 
-        window.submitComment = async function(postId) {
-            const nameInput = document.getElementById('comment-name');
-            const bodyInput = document.getElementById('comment-body');
-            const submitBtn = document.getElementById('comment-submit-btn');
+        window.submitComment = async function(postId, parentId = null) {
+            let nameInput, bodyInput, submitBtn;
 
-            if (!nameInput.value.trim() || !bodyInput.value.trim()) {
+            if (parentId) {
+                nameInput = document.getElementById(`reply-name-${parentId}`);
+                bodyInput = document.getElementById(`reply-body-${parentId}`);
+                submitBtn = document.getElementById(`reply-submit-${parentId}`);
+            } else {
+                nameInput = document.getElementById('comment-name');
+                bodyInput = document.getElementById('comment-body');
+                submitBtn = document.getElementById('comment-submit-btn');
+            }
+
+            if (!nameInput || !bodyInput || !nameInput.value.trim() || !bodyInput.value.trim()) {
                 alert("Please fill in both fields.");
                 return;
             }
+            
+            // Impersonation Protection
+            // 1. Prevent using "RiverCodes" (case-insensitive) if not admin
+            const reservedNames = ['rivercodes', 'riverc', 'admin', 'owner'];
+            const lowerName = nameInput.value.trim().toLowerCase();
+            const isTryingReserved = reservedNames.some(r => lowerName.includes(r));
 
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Posting...";
+            if (isTryingReserved && !currentUserIsAdmin) {
+                alert("You cannot post using a reserved name.");
+                return;
+            }
+
+            if(submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Posting...";
+            }
 
             try {
+                if (!auth.currentUser) {
+                    await signInAnonymously(auth);
+                }
+                
                 await addDoc(collection(db, "comments"), {
                     postId: postId,
+                    parentId: parentId,
                     name: nameInput.value.trim(),
                     body: bodyInput.value.trim(),
+                    uid: auth.currentUser.uid,
+                    verified: currentUserIsAdmin, // Only true if hash matched
                     timestamp: serverTimestamp()
                 });
                 
-                // Clear inputs
                 nameInput.value = '';
                 bodyInput.value = '';
+                if(parentId) {
+                     toggleReplyForm(parentId);
+                }
             } catch (e) {
                 console.error("Error adding document: ", e);
                 alert("Error posting comment. Check console.");
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Post Comment";
+                if(submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Post";
+                }
+            }
+        };
+
+        window.deleteComment = async function(commentId) {
+            if(!confirm("Are you sure you want to delete this comment?")) return;
+            
+            try {
+                await deleteDoc(doc(db, "comments", commentId));
+            } catch (e) {
+                console.error("Error deleting comment: ", e);
+                alert("Failed to delete comment.");
+            }
+        };
+
+        window.toggleReplyForm = function(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form) {
+                form.classList.toggle('hidden');
             }
         };
 
@@ -157,15 +279,284 @@
                 return;
             }
 
-            container.innerHTML = comments.map(c => `
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="font-semibold text-gray-800 text-sm">${escapeHtml(c.name)}</span>
-                        <span class="text-xs text-gray-400">${c.timestamp ? new Date(c.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+            const commentMap = {};
+            const rootComments = [];
+
+            comments.forEach(c => {
+                c.children = [];
+                commentMap[c.id] = c;
+            });
+
+            comments.forEach(c => {
+                if (c.parentId && commentMap[c.parentId]) {
+                    commentMap[c.parentId].children.push(c);
+                } else {
+                    rootComments.push(c);
+                }
+            });
+
+            function createCommentHTML(c, depth = 0) {
+                const marginLeft = depth * 20; 
+                const dateStr = c.timestamp ? new Date(c.timestamp.seconds * 1000).toLocaleDateString() : 'Just now';
+                
+                // Badge Logic
+                const verifiedBadge = c.verified ? 
+                    `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-600 text-white uppercase tracking-wider flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Owner</span>` : '';
+
+                // Style differentiation for admin
+                const borderClass = c.verified ? 'border-purple-300 bg-purple-50/50' : 'border-gray-100 bg-gray-50';
+                const nameClass = c.verified ? 'text-purple-700' : 'text-gray-800';
+
+                let html = `
+                <div class="mb-4" style="margin-left: ${marginLeft}px">
+                    <div class="p-4 rounded-lg border ${borderClass} group transition-all">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold ${nameClass} text-sm">${escapeHtml(c.name)}</span>
+                                ${verifiedBadge}
+                            </div>
+                            <span class="text-xs text-gray-400">${dateStr}</span>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed">${escapeHtml(c.body)}</p>
+                        
+                        <div class="mt-2 flex gap-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                             <button onclick="toggleReplyForm('${c.id}')" class="text-gray-400 hover:text-purple-600 font-medium">Reply</button>
+                             ${currentUserIsAdmin ? `<button onclick="deleteComment('${c.id}')" class="text-red-300 hover:text-red-600 font-medium">Delete</button>` : ''}
+                        </div>
                     </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">${escapeHtml(c.body)}</p>
+                    
+                    <div id="reply-form-${c.id}" class="hidden mt-2 ml-4 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                         <input type="text" id="reply-name-${c.id}" placeholder="Name" class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm focus:border-purple-500 outline-none">
+                         <textarea id="reply-body-${c.id}" placeholder="Reply..." class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm h-16 focus:border-purple-500 outline-none"></textarea>
+                         <button id="reply-submit-${c.id}" onclick="submitComment(${c.postId}, '${c.id}')" class="px-3 py-1 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-colors">Post Reply</button>
+                    </div>
+
+                    ${c.children.map(child => createCommentHTML(child, depth + 1)).join('')}
                 </div>
-            `).join('');
+                `;
+                return html;
+            }
+
+            container.innerHTML = rootComments.map(c => createCommentHTML(c)).join('');
+            lucide.createIcons(); // Refresh icons for badges
+        }
+
+        // Handle Auth State
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("User signed in:", user.uid, user.isAnonymous ? "(Anonymous)" : "(Google)");
+                if (user.email) {
+                    const userHash = await sha256(user.email);
+                    currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
+                    if (currentUserIsAdmin) {
+                        console.log("Admin privileges active.");
+                    }
+                } else {
+                    currentUserIsAdmin = false;
+                }
+                
+                // Refresh comments view if needed (to show delete buttons)
+                const urlParams = new URLSearchParams(window.location.search);
+                const postId = urlParams.get('post');
+                if (postId && window.lastLoadedComments) {
+                    // Re-render with new admin status
+                    // Note: window.lastLoadedComments is a hacky way to store state, usually handled by closure in renderComments
+                    // but for simplicity we rely on the snapshot listener firing or page reload.
+                    // The snapshot listener handles real-time updates, but auth state change won't trigger it.
+                    // Ideally, we'd trigger a re-render here.
+                }
+            } else {
+                // User is signed out, force anonymous
+                signInAnonymously(auth).catch((error) => console.error("Auth Error", error));
+                currentUserIsAdmin = false;
+            }
+        });
+
+        // Admin Login Function
+        window.adminLogin = function() {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    alert("Welcome back, Admin!");
+                }).catch((error) => {
+                    console.error("Login Failed", error);
+                    alert("Login failed.");
+                });
+        };
+
+        // Expose functions globally
+        window.loadComments = function(postId) {
+            const commentsContainer = document.getElementById('comments-list');
+            if(!commentsContainer) return;
+            
+            commentsContainer.innerHTML = '<div class="text-gray-400 text-sm italic">Loading comments...</div>';
+
+            const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("timestamp", "asc")); // Changed to asc for chronological thread flow
+            
+            // Real-time listener
+            onSnapshot(q, (querySnapshot) => {
+                const comments = [];
+                querySnapshot.forEach((doc) => {
+                    comments.push({ id: doc.id, ...doc.data() });
+                });
+                // Store for potential re-renders
+                window.lastLoadedComments = comments; 
+                renderComments(comments);
+            }, (error) => {
+                 console.error("Error fetching comments: ", error);
+                 if (error.code === 'failed-precondition') {
+                     commentsContainer.innerHTML = '<div class="text-red-400 text-xs">Error loading comments (Index missing). Check console (F12) for the creation link.</div>';
+                 } else {
+                     commentsContainer.innerHTML = '<div class="text-red-400 text-xs">Error loading comments.</div>';
+                 }
+            });
+        };
+
+        window.submitComment = async function(postId, parentId = null) {
+            let nameInput, bodyInput, submitBtn;
+
+            if (parentId) {
+                // Reply form elements
+                nameInput = document.getElementById(`reply-name-${parentId}`);
+                bodyInput = document.getElementById(`reply-body-${parentId}`);
+                submitBtn = document.getElementById(`reply-submit-${parentId}`);
+            } else {
+                // Main form elements
+                nameInput = document.getElementById('comment-name');
+                bodyInput = document.getElementById('comment-body');
+                submitBtn = document.getElementById('comment-submit-btn');
+            }
+
+            if (!nameInput || !bodyInput || !nameInput.value.trim() || !bodyInput.value.trim()) {
+                alert("Please fill in both fields.");
+                return;
+            }
+            
+            const tryingToSpoof = nameInput.value.trim().toLowerCase().includes('rivercodes');
+
+            if (tryingToSpoof && !currentUserIsAdmin) {
+                alert("You cannot post as 'RiverCodes' unless you are logged in as admin.");
+                return;
+            }
+
+            if(submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Posting...";
+            }
+
+            try {
+                if (!auth.currentUser) {
+                    await signInAnonymously(auth);
+                }
+                
+                await addDoc(collection(db, "comments"), {
+                    postId: postId,
+                    parentId: parentId, // Link to parent comment
+                    name: nameInput.value.trim(),
+                    body: bodyInput.value.trim(),
+                    uid: auth.currentUser.uid,
+                    verified: currentUserIsAdmin,
+                    timestamp: serverTimestamp()
+                });
+                
+                nameInput.value = '';
+                bodyInput.value = '';
+                if(parentId) {
+                     // Hide reply form after posting
+                     toggleReplyForm(parentId);
+                }
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert("Error posting comment. Check console.");
+            } finally {
+                if(submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Post";
+                }
+            }
+        };
+
+        window.deleteComment = async function(commentId) {
+            if(!confirm("Are you sure you want to delete this comment?")) return;
+            
+            try {
+                await deleteDoc(doc(db, "comments", commentId));
+            } catch (e) {
+                console.error("Error deleting comment: ", e);
+                alert("Failed to delete comment.");
+            }
+        };
+
+        window.toggleReplyForm = function(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form) {
+                form.classList.toggle('hidden');
+            }
+        };
+
+        function renderComments(comments) {
+            const container = document.getElementById('comments-list');
+            if (!container) return;
+
+            if (comments.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-sm italic">No comments yet. Be the first!</div>';
+                return;
+            }
+
+            // Organize comments into threads
+            const commentMap = {};
+            const rootComments = [];
+
+            comments.forEach(c => {
+                c.children = [];
+                commentMap[c.id] = c;
+            });
+
+            comments.forEach(c => {
+                if (c.parentId && commentMap[c.parentId]) {
+                    commentMap[c.parentId].children.push(c);
+                } else {
+                    rootComments.push(c);
+                }
+            });
+
+            // Recursive render function
+            function createCommentHTML(c, depth = 0) {
+                const marginLeft = depth * 20; // Indent replies
+                const dateStr = c.timestamp ? new Date(c.timestamp.seconds * 1000).toLocaleDateString() : 'Just now';
+                
+                let html = `
+                <div class="mb-4" style="margin-left: ${marginLeft}px">
+                    <div class="bg-gray-50 p-4 rounded-lg border ${c.verified ? 'border-purple-300 bg-purple-50' : 'border-gray-100'} group">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold ${c.verified ? 'text-purple-700' : 'text-gray-800'} text-sm">${escapeHtml(c.name)}</span>
+                                ${c.verified ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-600 text-white uppercase tracking-wider">Owner</span>' : ''}
+                            </div>
+                            <span class="text-xs text-gray-400">${dateStr}</span>
+                        </div>
+                        <p class="${c.verified ? 'text-purple-900' : 'text-gray-600'} text-sm leading-relaxed">${escapeHtml(c.body)}</p>
+                        
+                        <div class="mt-2 flex gap-3 text-xs">
+                             <button onclick="toggleReplyForm('${c.id}')" class="text-gray-400 hover:text-purple-600 font-medium">Reply</button>
+                             ${currentUserIsAdmin ? `<button onclick="deleteComment('${c.id}')" class="text-red-300 hover:text-red-600 font-medium">Delete</button>` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- Reply Form (Hidden by default) -->
+                    <div id="reply-form-${c.id}" class="hidden mt-2 ml-4 p-3 bg-white border border-gray-200 rounded-lg">
+                         <input type="text" id="reply-name-${c.id}" placeholder="Name" class="w-full mb-2 px-2 py-1 rounded border border-gray-300 text-sm">
+                         <textarea id="reply-body-${c.id}" placeholder="Reply..." class="w-full mb-2 px-2 py-1 rounded border border-gray-300 text-sm h-16"></textarea>
+                         <button id="reply-submit-${c.id}" onclick="submitComment(${c.postId}, '${c.id}')" class="px-3 py-1 bg-purple-600 text-white rounded text-xs">Post Reply</button>
+                    </div>
+
+                    <!-- Render Children -->
+                    ${c.children.map(child => createCommentHTML(child, depth + 1)).join('')}
+                </div>
+                `;
+                return html;
+            }
+
+            container.innerHTML = rootComments.map(c => createCommentHTML(c)).join('');
         }
 
         function escapeHtml(text) {
