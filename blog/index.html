@@ -235,7 +235,8 @@
             }
             
             // Impersonation Protection
-            const reservedNames = ['rivercodes', 'riverc', 'admin', 'owner'];
+            // Updated to include 'riverxia'
+            const reservedNames = ['rivercodes', 'riverc', 'riverxia', 'admin', 'owner'];
             const lowerName = nameInput.value.trim().toLowerCase();
             const isTryingReserved = reservedNames.some(r => lowerName.includes(r));
 
