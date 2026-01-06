@@ -53,3 +53,13 @@ The comment section you see below connects directly to a Firestore NoSQL databas
 * **Writes:** Anyone can write (authenticated anonymously for throttling/security)
 * **Admin:** I have a special verified badge logic that checks my email **hash** against the database to prove it's me, without exposing my email in the source code. While it is possibly this might be able to be bypassed, the admin badge is set based on poster ID, which I don't believe can be spoofed; while it might be possible to fake the username, I don't think it is possible to spoof the badge, and either way only an admin can delete posts at the **Firestore** level.
 
+## Why this Matters
+We often over-engineer simple problems (one could make a valid argument that my entire blog is overengineered).
+
+However, by stripping away the frameworks, I built a blog that is:
+
+1. **Fast:** The "compile" step happens in milliseconds on-device.
+1. **Cheap:** Hosted on Vercel (frontend) and Firebase (backend) for free.
+1. **Flexible:** I just drop a new `.md` file in the folder, increment a number in the config, and it's live.
+
+It's a "pile of steaming code" perhaps, but it's *my* pile of steaming code, and it works beautifully. 
