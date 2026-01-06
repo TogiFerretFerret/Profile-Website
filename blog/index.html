@@ -80,7 +80,6 @@
         import { getFirestore, collection, addDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // TODO: Replace the following with your app's Firebase project configuration
           const firebaseConfig = {
 
     apiKey: "AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
@@ -108,7 +107,7 @@
 
         // Admin Email Hash (SHA-256)
         // CHECK CONSOLE FOR THE CORRECT HASH TO PASTE HERE
-        const ADMIN_EMAIL_HASH = "631ce127c536b808fb47f515d112be47a164400e47fe9e6f13bcbf0f445a1194"; 
+        const ADMIN_EMAIL_HASH = "faf863681b8a634b1a95cb3058937ce4e69cee4c2b3459b137c61c4d1e49f0c9"; 
         
         let currentUserIsAdmin = false;
 
@@ -137,12 +136,6 @@
                 } else if (user.email) {
                     // Google User
                     const userHash = await sha256(user.email);
-                    
-                    // DEBUGGING: Log the hash so you can copy it
-                    console.log("--------------------------------------------------");
-                    console.log("Your Email Hash (Copy this to ADMIN_EMAIL_HASH):");
-                    console.log(userHash);
-                    console.log("--------------------------------------------------");
                     
                     currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
                     
@@ -398,7 +391,7 @@
         // CONFIGURATION
         const CONFIG = {
             postCount: 1, // UPDATE THIS NUMBER when adding new posts (post1.md, post2.md, etc.)
-            postsDir: './posts/', // Adjusted to match typical relative path structure
+            postsDir: './blog/posts/', // Adjusted to match typical relative path structure
             siteTitle: "riverxia's pile of steaming shit - blog edition" // Base title
         };
 
