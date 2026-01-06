@@ -77,6 +77,108 @@
         </footer>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      const firebaseConfig = {
+        apiKey: "AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
+        authDomain: "riverxia-dev-portfolio.firebaseapp.com",
+        projectId: "riverxia-dev-portfolio",
+        storageBucket: "riverxia-dev-portfolio.firebasestorage.app",
+        messagingSenderId: "921793007466",
+        appId: "1:921793007466:web:bd7d01052795a5b6b21f13",
+        measurementId: "G-EHB7LRJXVN"
+      };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Expose functions globally so the rest of the script can use them
+        window.loadComments = function(postId) {
+            const commentsContainer = document.getElementById('comments-list');
+            if(!commentsContainer) return;
+            
+            commentsContainer.innerHTML = '<div class="text-gray-400 text-sm italic">Loading comments...</div>';
+
+            const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("timestamp", "desc"));
+            
+            // Real-time listener
+            onSnapshot(q, (querySnapshot) => {
+                const comments = [];
+                querySnapshot.forEach((doc) => {
+                    comments.push(doc.data());
+                });
+                renderComments(comments);
+            });
+        };
+
+        window.submitComment = async function(postId) {
+            const nameInput = document.getElementById('comment-name');
+            const bodyInput = document.getElementById('comment-body');
+            const submitBtn = document.getElementById('comment-submit-btn');
+
+            if (!nameInput.value.trim() || !bodyInput.value.trim()) {
+                alert("Please fill in both fields.");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Posting...";
+
+            try {
+                await addDoc(collection(db, "comments"), {
+                    postId: postId,
+                    name: nameInput.value.trim(),
+                    body: bodyInput.value.trim(),
+                    timestamp: serverTimestamp()
+                });
+                
+                // Clear inputs
+                nameInput.value = '';
+                bodyInput.value = '';
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert("Error posting comment. Check console.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Post Comment";
+            }
+        };
+
+        function renderComments(comments) {
+            const container = document.getElementById('comments-list');
+            if (!container) return;
+
+            if (comments.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-sm italic">No comments yet. Be the first!</div>';
+                return;
+            }
+
+            container.innerHTML = comments.map(c => `
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-semibold text-gray-800 text-sm">${escapeHtml(c.name)}</span>
+                        <span class="text-xs text-gray-400">${c.timestamp ? new Date(c.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">${escapeHtml(c.body)}</p>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return text;
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+
     <script>
         lucide.createIcons();
 
@@ -213,10 +315,6 @@
             
             // Switch to list view if not already
             if (currentView !== 'list') {
-                 // Push state handled in renderPostList
-                 // But we need to prep the input value
-                 // We can't set input value here because renderPostList might wipe/restore DOM
-                 // Actually search-container is outside content-area, so it persists.
                  const searchInput = document.getElementById('search-input');
                  if (searchInput) searchInput.value = query;
                  renderPostList();
@@ -292,7 +390,7 @@
                             <div class="mb-3">${tagsHtml}</div>
                             <p class="text-gray-600 text-sm leading-relaxed mb-4">${post.description}</p>
                             <div class="flex items-center text-sm font-medium text-purple-600 group-hover:translate-x-1 transition-transform">
-                                Read post <i data-lucide="arrow-right" class="ml-1 w-4 h-4"></i>
+                                Read Post <i data-lucide="arrow-right" class="ml-1 w-4 h-4"></i>
                             </div>
                         </div>
                     `;
@@ -343,12 +441,34 @@
                     <div class="prose max-w-none text-gray-800">
                         ${marked.parse(post.content)}
                     </div>
+                    
+                    <!-- Comment Section -->
+                    <div class="mt-12 pt-8 border-t border-gray-100">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">Comments</h3>
+                        
+                        <!-- Comment Form -->
+                        <div class="mb-8 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <input type="text" id="comment-name" placeholder="Name / Alias" class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                            <textarea id="comment-body" placeholder="Write a comment..." class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm h-24"></textarea>
+                            <button id="comment-submit-btn" onclick="submitComment(${post.id})" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">Post Comment</button>
+                        </div>
+                        
+                        <!-- Comments List -->
+                        <div id="comments-list" class="space-y-4">
+                            <!-- Comments will be loaded here via JS -->
+                        </div>
+                    </div>
                 </article>
             `;
 
             container.innerHTML = html;
             lucide.createIcons();
             window.scrollTo(0, 0);
+
+            // Load comments for this post if firebase is ready
+            if (window.loadComments) {
+                window.loadComments(id);
+            }
         }
 
         function showPostList() {
