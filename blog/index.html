@@ -45,7 +45,7 @@
                     <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
                 </a>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">RiverCodes Blog</h1>
+                    <h1 class="text-2xl font-bold text-gray-900">riverxia's hellhole</h1>
                     <p class="text-sm text-gray-500">Thoughts on code, CTFs, and tech.</p>
                 </div>
             </div>
@@ -73,7 +73,8 @@
         // CONFIGURATION
         const CONFIG = {
             postCount: 2, // UPDATE THIS NUMBER when adding new posts (post1.md, post2.md, etc.)
-            postsDir: './blog/posts/'
+            postsDir: './posts/', // Adjusted to match typical relative path structure
+            siteTitle: "riverxia's pile of steaming shit - blog edition" // Base title
         };
 
         // State
@@ -116,12 +117,6 @@
         }
 
         // Simple Metadata Parser
-        // Assumes Markdown starts with a metadata block like:
-        // ---
-        // title: My Post Title
-        // date: 2025-04-15
-        // description: A short summary...
-        // ---
         function parsePostMetadata(markdown, id) {
             const metadataRegex = /^---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]+([\s\S]*)$/;
             const match = markdown.match(metadataRegex);
@@ -160,8 +155,14 @@
             const container = document.getElementById('content-area');
             const homeBtn = document.getElementById('home-btn');
             
+            // Update Title
+            document.title = CONFIG.siteTitle;
+
             // Update URL without reloading
-            window.history.pushState({}, '', window.location.pathname);
+            const url = new URL(window.location);
+            url.searchParams.delete('post');
+            window.history.pushState({}, '', url);
+
             homeBtn.classList.add('hidden');
 
             let html = '<div class="space-y-4 animate-fade-in">';
@@ -193,6 +194,9 @@
 
             const container = document.getElementById('content-area');
             const homeBtn = document.getElementById('home-btn');
+
+            // Update Title
+            document.title = `${post.title} | riverxia's pile of steaming shit`;
 
             // Update URL
             const url = new URL(window.location);
