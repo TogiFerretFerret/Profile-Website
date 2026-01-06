@@ -42,3 +42,14 @@ async function loadPosts() {
 }
 ```
 
+This also makes the site incredibly lightweight. There is no routing library, no virtual DOM, and no hydration errors. Just requests and text manipulation. And at that, all the HTML/JS pretty much is all in one file too (for... reasons) so it's even more lightweight (arguably).
+
+## Making it Social (Serverless Comments)
+A blog isn't a blog without comments, but static HTML files can't store data. To keep this "serverless" (and free!), I integrated **Google Firebase**.
+
+The comment section you see below connects directly to a Firestore NoSQL database (read: free database).
+
+* **Reads:** Open to the public.
+* **Writes:** Anyone can write (authenticated anonymously for throttling/security)
+* **Admin:** I have a special verified badge logic that checks my email **hash** against the database to prove it's me, without exposing my email in the source code. While it is possibly this might be able to be bypassed, the admin badge is set based on poster ID, which I don't believe can be spoofed; while it might be possible to fake the username, I don't think it is possible to spoof the badge, and either way only an admin can delete posts at the **Firestore** level.
+
