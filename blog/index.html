@@ -229,15 +229,28 @@
                 submitBtn = document.getElementById('comment-submit-btn');
             }
 
-            if (!nameInput || !bodyInput || !nameInput.value.trim() || !bodyInput.value.trim()) {
-                alert("Please fill in both fields.");
+            // Automatic Admin Username Logic
+            let authorName;
+            if (currentUserIsAdmin) {
+                authorName = "Riverxia";
+            } else {
+                authorName = nameInput.value.trim();
+                // Validate name for non-admins
+                if (!authorName) {
+                    alert("Please enter your name.");
+                    return;
+                }
+            }
+
+            // Validate body for everyone
+            if (!bodyInput.value.trim()) {
+                alert("Please write a comment.");
                 return;
             }
             
-            // Impersonation Protection
-            // Updated to include 'riverxia'
+            // Impersonation Protection (for non-admins)
             const reservedNames = ['rivercodes', 'riverc', 'riverxia', 'admin', 'owner'];
-            const lowerName = nameInput.value.trim().toLowerCase();
+            const lowerName = authorName.toLowerCase();
             const isTryingReserved = reservedNames.some(r => lowerName.includes(r));
 
             if (isTryingReserved && !currentUserIsAdmin) {
@@ -258,10 +271,10 @@
                 await addDoc(collection(db, "comments"), {
                     postId: postId,
                     parentId: parentId,
-                    name: nameInput.value.trim(),
+                    name: authorName, // Use the determined name
                     body: bodyInput.value.trim(),
                     uid: auth.currentUser.uid,
-                    verified: currentUserIsAdmin, // Only true if hash matched
+                    verified: currentUserIsAdmin, 
                     timestamp: serverTimestamp()
                 });
                 
