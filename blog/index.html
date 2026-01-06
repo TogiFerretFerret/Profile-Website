@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>riverxia's pile of steaming shit - blog edition</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind CSS with Typography Plugin -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Marked.js for Markdown Parsing -->
@@ -16,23 +18,12 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         
-        /* Markdown Styles */
-        .prose h1 { @apply text-3xl font-bold text-gray-900 mb-4 mt-8; }
-        .prose h2 { @apply text-2xl font-semibold text-gray-800 mb-3 mt-6; }
-        .prose h3 { @apply text-xl font-semibold text-gray-800 mb-2 mt-4; }
-        .prose p { @apply text-gray-700 leading-relaxed mb-4; }
-        .prose ul { @apply list-disc list-inside mb-4 text-gray-700; }
-        .prose ol { @apply list-decimal list-inside mb-4 text-gray-700; }
-        .prose a { @apply text-purple-600 hover:text-purple-800 underline; }
-        .prose code { @apply bg-gray-100 text-pink-600 px-1 py-0.5 rounded font-mono text-sm; }
-        .prose pre { @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4; }
-        .prose pre code { @apply bg-transparent text-gray-100 p-0; }
-        .prose blockquote { @apply border-l-4 border-purple-300 pl-4 italic text-gray-600 mb-4; }
-        .prose img { @apply rounded-lg shadow-md max-w-full h-auto my-6; }
-
-        /* Animation */
+        /* Custom Animation (Standard CSS) */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        /* Ensure code blocks look good with Typography plugin defaults */
+        .prose pre { background-color: #1f2937; color: #e5e7eb; }
     </style>
 </head>
 <body class="min-h-screen w-full flex justify-center p-4 md:p-8 bg-gray-50">
@@ -117,7 +108,7 @@
 
         // Admin Email Hash (SHA-256)
         // CHECK CONSOLE FOR THE CORRECT HASH TO PASTE HERE
-        const ADMIN_EMAIL_HASH = "faf863681b8a634b1a95cb3058937ce4e69cee4c2b3459b137c61c4d1e49f0c9"; 
+        const ADMIN_EMAIL_HASH = "631ce127c536b808fb47f515d112be47a164400e47fe9e6f13bcbf0f445a1194"; 
         
         let currentUserIsAdmin = false;
 
@@ -146,6 +137,13 @@
                 } else if (user.email) {
                     // Google User
                     const userHash = await sha256(user.email);
+                    
+                    // DEBUGGING: Log the hash so you can copy it
+                    console.log("--------------------------------------------------");
+                    console.log("Your Email Hash (Copy this to ADMIN_EMAIL_HASH):");
+                    console.log(userHash);
+                    console.log("--------------------------------------------------");
+                    
                     currentUserIsAdmin = (userHash === ADMIN_EMAIL_HASH);
                     
                     // Show Logout, Hide Login
@@ -248,7 +246,7 @@
                 return;
             }
             
-            // Impersonation Protection (for non-admins)
+            // Impersonation Protection
             const reservedNames = ['rivercodes', 'riverc', 'riverxia', 'admin', 'owner'];
             const lowerName = authorName.toLowerCase();
             const isTryingReserved = reservedNames.some(r => lowerName.includes(r));
@@ -278,7 +276,7 @@
                     timestamp: serverTimestamp()
                 });
                 
-                nameInput.value = '';
+                nameInput.value = ''; // This will be ignored for admin auto-name but good practice
                 bodyInput.value = '';
                 if(parentId) {
                      toggleReplyForm(parentId);
@@ -368,7 +366,7 @@
                     </div>
                     
                     <div id="reply-form-${c.id}" class="hidden mt-2 ml-4 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                         <input type="text" id="reply-name-${c.id}" placeholder="Name" class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm focus:border-purple-500 outline-none">
+                         <input type="text" id="reply-name-${c.id}" placeholder="Name" class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm focus:border-purple-500 outline-none" ${currentUserIsAdmin ? 'value="Riverxia" disabled' : ''}>
                          <textarea id="reply-body-${c.id}" placeholder="Reply..." class="w-full mb-2 px-2 py-1.5 rounded border border-gray-300 text-sm h-16 focus:border-purple-500 outline-none"></textarea>
                          <button id="reply-submit-${c.id}" onclick="submitComment(${c.postId}, '${c.id}')" class="px-3 py-1 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-colors">Post Reply</button>
                     </div>
@@ -400,7 +398,7 @@
         // CONFIGURATION
         const CONFIG = {
             postCount: 1, // UPDATE THIS NUMBER when adding new posts (post1.md, post2.md, etc.)
-            postsDir: './blog/posts/', // Adjusted to match typical relative path structure
+            postsDir: './posts/', // Adjusted to match typical relative path structure
             siteTitle: "riverxia's pile of steaming shit - blog edition" // Base title
         };
 
@@ -452,7 +450,8 @@
 
         // Simple Metadata Parser
         function parsePostMetadata(markdown, id) {
-            const metadataRegex = /^---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]+([\s\S]*)$/;
+            // Regex to allow leading whitespace and robust frontmatter matching
+            const metadataRegex = /^[\s\r\n]*---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]+([\s\S]*)$/;
             const match = markdown.match(metadataRegex);
 
             if (match) {
@@ -643,6 +642,7 @@
                 `<button onclick="event.stopPropagation(); searchTag('${tag}')" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer border border-purple-100">#${tag}</button>`
             ).join('');
 
+            // Using 'prose' class here activates Tailwind Typography plugin
             const html = `
                 <article class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
                     <header class="mb-8 border-b border-gray-100 pb-6">
@@ -653,7 +653,7 @@
                         <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">${post.title}</h1>
                         <p class="text-lg text-gray-600 leading-relaxed italic border-l-4 border-gray-200 pl-4">${post.description}</p>
                     </header>
-                    <div class="prose max-w-none text-gray-800">
+                    <div class="prose prose-purple lg:prose-xl max-w-none text-gray-800">
                         ${marked.parse(post.content)}
                     </div>
                     
@@ -663,7 +663,10 @@
                         
                         <!-- Comment Form -->
                         <div class="mb-8 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                            <input type="text" id="comment-name" placeholder="Name / Alias" class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                            <input type="text" id="comment-name" 
+                                   placeholder="Name / Alias" 
+                                   class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm ${currentUserIsAdmin ? 'bg-purple-50 text-purple-700 font-bold' : ''}" 
+                                   ${currentUserIsAdmin ? 'value="Riverxia" disabled' : ''}>
                             <textarea id="comment-body" placeholder="Write a comment..." class="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm h-24"></textarea>
                             <button id="comment-submit-btn" onclick="submitComment(${post.id})" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">Post Comment</button>
                         </div>
