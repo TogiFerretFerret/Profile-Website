@@ -10,7 +10,8 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 		<!-- Tailwind CSS with Typography Plugin -->
 		<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-		
+		<!-- KaTeX CSS (Math Rendering) -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 		<!-- Lucide Icons -->
 		<script src="https://unpkg.com/lucide@latest"></script>
     <!-- Marked.js for Markdown Parsing -->
@@ -27,6 +28,7 @@
         
         /* Ensure code blocks look good with Typography plugin defaults */
         .prose pre { background-color: #1f2937; color: #e5e7eb; }
+        .katex { font-size: 1.1em; }
     </style>
 </head>
 <body class="min-h-screen w-full flex justify-center p-4 md:p-8 bg-gray-50">
@@ -398,6 +400,11 @@
         }
     </script>
 
+    <!-- External Libraries: Marked, Highlight.js, KaTeX, and KaTeX Extension -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-katex-extension/lib/index.umd.js"></script>
     <script>
         lucide.createIcons();
 
@@ -407,6 +414,14 @@
             postsDir: '/blog/posts/', // Adjusted to match typical relative path structure
             siteTitle: "riverxia's pile of steaming shit - blog edition" // Base title
         };
+		 // 1. Configure Marked with KaTeX extension
+        if (window.markedKatex) {
+            marked.use(window.markedKatex({
+                throwOnError: false
+            }));
+        } else {
+            console.warn("Marked KaTeX extension not loaded correctly.");
+        }
 
         // State
         const postsCache = [];
