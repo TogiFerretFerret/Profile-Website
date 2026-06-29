@@ -1,0 +1,146 @@
+---
+title: OSINT: oshit
+date: 2026-05-31
+description: smartfella ctf fr. the best osint chain i've ever seen, a 20-hop rabbit hole.
+tags: ctf,osint,writeup
+---
+
+# the best osint ive ever seen (facts)
+
+*co-solved with n1m5n and ch1v4lry.*
+
+i say! hey! hey! hey! hey! start dash!
+
+start [x.com/mrfellasmart](https://x.com/mrfellasmart)
+tweet where first letter of each word - next lead (reddit username)
+
+[reddit.com/user/nikolai_tankman](https://www.reddit.com/user/nikolai_tankman/) -> reddit profile bio has a yt channel id
+
+[youtube channel](https://www.youtube.com/channel/UCzLAwam-FUPAnNyX6cLcPdQ)
+in the video transcript, a hidden pastbin link, encoded:
+
+71etnufhx/h/zbp.avorgfnc//:fcggu
+
+decode: Reverse the string, then apply ROT13:
+
+```
+reverse → https://pastebin.com/h/xhfunte17  (not quite)
+reverse → sptth://pastebin.com/h/xfun17e... 
+→ https://pastebin.com/u/kushagr17
+```
+
+pastebin: user kushagr17
+pfp has the string `/PQrLnkV8` which is a pastebin path->
+brainfuck
+```
+++++++++++[>+>+++>+++++++>++++++++++<<<<-]>>>>+++++++++....+++++++++.-----------------.+++++++++++++.+++++++.<+++++++++++++.++++++++++++++++++.--.>----.---.<++.-.>--.<---.>+++..++++.--------.+++.<+++.<++++++++++++++++++++++++.+.
+```
+when run -> `mmmmverySecuredpassword67`
+one of the pastes ([pastebin.com/Zw4jfeCr](https://pastebin.com/Zw4jfeCr))
+unlocks with that 
+```
+ 𒁙𓁵𓈠𓅡慫𓄠陨ꍬ𖤠𓍯頠𒁨𓅯啥𒁴阠顣𒅥啴𓉩售鹆饮ꔠ𓅩陴驨鹮驭慭縠鴠陥饲鴠啥驲马𓅡饥𓄠ꕯ啥院鱮𓁥捳褠鹨啳驭𓅳鱡啥鹷ꍬ𓈠𓁥鹭陮驴鸠啮唵驳𒁣饮捳
+```
+base 65536->
+```
+Your task, shall you choose to accept it. Find mistahenimem, I heard he released some bangers. This message will terminate in 5 seconds.
+```
+[soundcloud.com/mistahenimem](https://soundcloud.com/mistahenimem)
+
+click on track->desc
+```
+tavgebcchf lygangfabp sb qrevg fv rfyr rablerir ryvuJ
+tavgebcre gv yynp qan gutvsaht n bg nerznp n taveo hbL
+qrupgnzghb lyrgryczbp re'hbl reruj rznt n av xpvxrqvf n gfhW
+qrehgcnp tavggrt flnjyn gho fcbbpf tavfnap erufvuC naryR
+```
+rot13 & reverse
+```
+Elena Phisher chasing scoops but always getting captured
+Just a sidekick in a game where you're completely outmatched
+You bring a camera to a gunfight and call it reporting
+While everyone else is tired of constantly supporting
+```
+uncharted reference! crazy
+
+instagram: [instagram.com/elenaphisher](https://www.instagram.com/elenaphisher)
+spelled phisher instead of fisher (same as in decode)
+
+u actually need an insta account for this part
+
+```
+#9EEADi^^5@4D]8@@8=6]4@>^5@4F>6?E^5^`|'JFp6b;z6<J`~<|(~6'3_}p'$x(5!dDG~c\I<GEA!D^65:EnFDAlD92C:?8
+```
+
+comment on one of the insta posts is that
+
+rot47:
+`Rhttps://docs.google.com/document/d/1MVyuAe3jKeky1OkMWOeVb0NAVSIWdP5svO4-xkvtpPs/edit?usp=sharing`
+google doc actually has hidden text but we found it in an unintended way when someone posted the link to our team discord it showed up like this:
+```
+Google Docs
+dokument
+🤪🤪🤪🤪🤪🤪🤪🤪 2D38aqPVp1T3Fx6g42pRhpXjdMMKFhuGXHCcBb5 🤪🤪🤪🤪 🤪🤪🤪🤪 🤪🤪🤪🤪 🤪🤪🤪🤪 🤪🤪🤪🤪 V2FpdCB5b3UgZm91bmQgdGhpcyBmcj8=
+```
+cyberchef autodetects as base58
+```
+uggcf://qvfpbeq.tt/cls2PJ9MH
+```
+rot13 again
+[discord.gg/pyf2CW9ZU](https://discord.gg/pyf2CW9ZU)
+description of channel #cool-cats
+`it2ru6.png` hidden between `||`'s
+cats->catbox.moe
+[files.catbox.moe/it2ru6.png](https://files.catbox.moe/it2ru6.png)
+
+
+easy geoguess on chivalry's part
+[google maps](https://www.google.com/maps/place/43°03'41.5"N+131°54'20.2"E)
+or maybe it was pongo i dont remember
+
+taokyle post!
+[maps.app.goo.gl/Nkegm7jK8pCaRHfZA](https://maps.app.goo.gl/Nkegm7jK8pCaRHfZA)
+
+(in chinese)
+
+epic quickshot quote on the original chinese:
+```
+Qu1ck5h0t [idk], 
+ — 5/29/26, 5:11 PM
+WTF
+this is like
+really really old chinese
+```
+
+chinese and english translation:
+```
+Although I haven't personally visited this place, based on their capture-the-flag competition, I secretly believe that the Russian gas station is enough to make me cross the border. And indeed it is. The pumps storing the gas and oil are truly aptly named, and the taste is extremely sweet. Moreover, the liquefied petroleum gas stored in Chloe's freezer also made me feel exhilarated, as if millions of treasures were entering my stomach. After leaving this message, I felt like gagging, because my stomach was rumbling like a V12 engine. I also felt that this freezer was truly powerful, with an internal temperature of nearly twenty Kelvin, which made me gasp in amazement and admiration, and I firmly believed that there must be a flag inside, the very essence of the octopus cat's nexus.
+```
+
+legendary acni pull:
+[github.com/chloefreezer/whatisguthib](https://github.com/chloefreezer/whatisguthib)
+
+go into commit history, see: `227a927e3fc04ce3959a6031d1d5a01f` in one of the past commits
+this is a gist id, which my team knew from me giving them a gist chall in our in-house ctf and torturing naman with it
+
+[gist.github.com/chloefreezer/227a927e...](https://gist.github.com/chloefreezer/227a927e3fc04ce3959a6031d1d5a01f)
+
+from base85, it's a wav file (morse code)
+morse decrypt: `TOOK YOUR SWEET TIME EH? CHECK OUT THIS DIRTY PRANK I PLAYED OUT WITH NATE XD. HE GOES BY NATHAN BRAKE ON THE INTERNET. HAVE FUN`
+
+a second legendary acni pull
+[bsky.app/profile/nathanbrake.bsky.social](https://bsky.app/profile/nathanbrake.bsky.social)
+one of the posts has `kt0hur3oyig1a27nyc` sticking out
+it took us a while to figure it out
+first we thought crypto (bc ncl suckz), then telegram (we were running out of ideas)
+then i thought "character.ai" (dont ask why i thought that)
+[character.ai/chat/kt0hur3oyig1a27nyc](https://character.ai/chat/kt0hur3oyig1a27nyc)
+
+yeah that didn't work but it was on the right track, it made us THINK of ais
+
+then deepseek...
+[chat.deepseek.com/share/kt0hur3oyig1a27nyc](https://chat.deepseek.com/share/kt0hur3oyig1a27nyc)
+
+yeah it was deepseek all along who would have thought
+
+`THEM?!CTF{unch4rt3d_r3f3r3nc35_1n_4n_051nt_ch4ll3ng3_c0z_why_n0t_xD?!_congratulations}`
