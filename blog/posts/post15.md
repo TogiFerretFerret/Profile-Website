@@ -73,6 +73,7 @@ it wasn't all clean. some highlights from the trenches:
 
 - a single **missing comma** in a `CREATE TABLE` statement — valid Rust string, invalid SQL — sat there silently because all the unit tests used an in-memory store and never touched real Postgres. I added a `sqlparser`-based test that parses every DDL statement at `cargo test` time... and *it still didn't catch it*, because the parser was more lenient than Postgres and happily read the following keyword as a "custom type." the thing that actually caught it was wiring up a `make test-all` that boots real Postgres, runs the migrations, and wipes it after. moral: your DB schema is only tested by a database.
 - `api.rs` hit **2,000 lines** and I finally split it into per-domain modules. mechanical, satisfying, 0 warnings the whole way.
+- when i got so burnt out i spent the entire time watching isthatdecay instead of programming and ended up making them a custom pp counter lmao
 ## the philosophy
 
 my one rule on this project has been: **more code is fine if it buys flexibility.** YAGNI is good advice right up until you're building the thing you specifically wish existed — then the "extra" abstraction (pluggable storage backends! scriptable everything! a config for every knob!) *is* the point. I'd rather have five storage backends behind a trait than one hardcoded folder path.
