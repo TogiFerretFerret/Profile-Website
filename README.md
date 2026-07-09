@@ -64,3 +64,16 @@ Nothing to build.
 ---
 
 made with love and questionable life choices by [river](https://github.com/TogiFerretFerret) 🦊
+
+---
+bonus: dear hackclub reviewers:
+
+i would appreciate it if before you called my site simple you actually looked at it :smile:
+the blog is relatively complex, i mostly designed the site to troll around by having it be all single-files. 
+
+thought it would be funny. it was. it is. 
+
+thank you for your time and consideration!
+
+best,
+river
