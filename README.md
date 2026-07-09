@@ -80,3 +80,5 @@ river
 
 ALSO PLZ PLZ PLZ READ MY EPIC BLOG
 it's really cool i promise and i talk about cool and interesting things
+if you could read it i would really appreciate it, and plz post a comment on posts too!
+toodaloo!
