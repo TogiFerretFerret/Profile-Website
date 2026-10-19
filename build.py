@@ -74,7 +74,7 @@ def url(sub, path=""):
     return f"https://{host}/{path}"
 
 
-def page(sub, title, body, desc=""):
+def page(sub, title, body, desc="", extra=""):
     nav = "".join(f'<li><a class="{"on" if s == sub else ""}" href="{url(s)}">{n}</a></li>' for n, s in SUBS)
     btns = "".join(f'<a class="b88" style="background:{bg};color:{fg}" href="{u or "#"}">{e(n)}</a>' for n, bg, fg, u in BUTTONS)
     mq = " &#9733; ".join(["welcome to riverxia.sh", "CTF player", "competitive programmer", "osu! enjoyer", "rust haver", "thanks for visiting"] * 2)
@@ -95,10 +95,11 @@ def page(sub, title, body, desc=""):
 </aside>
 <main>
 {body}
-<footer><hr>this page is best viewed in anything, at any resolution.<br>hand-made, one tiny script (the visitor counter), no trackers. &copy; 2026 riverxia &middot; <a href="https://github.com/TogiFerretFerret/Profile-Website">source</a></footer>
+<footer><hr>this page is best viewed in anything, at any resolution.<br>hand-made, no trackers. js only for the visitor counter and blog comments. &copy; 2026 riverxia &middot; <a href="https://github.com/TogiFerretFerret/Profile-Website">source</a></footer>
 </main>
 </div>
 <script>{COUNTER_JS}</script>
+{extra}
 </body></html>
 """
 
@@ -157,11 +158,12 @@ def build(posts):
         tags = " ".join(f"<span class='tag'>{e(t)}</span>" for t in p["tags"])
         content = md.convert(p["body"].replace("/blog/assets/", "assets/"))
         (DIST / "blog" / f"{p['slug']}.html").write_text(page("blog", p["title"] + " - riverxia",
-            f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article>", desc=p["desc"]))
+            f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article><section class='box' id='comments' data-post='{re.sub(r'\D', '', p['slug'])}'><noscript>comments need javascript.</noscript></section>", desc=p["desc"], extra='<script type="module" src="comments.js"></script>'))
         rows += f"<li><span class='dim'>{p['date']}</span> <a href='{p['slug']}.html'>{e(p['title'])}</a><br><span class='dim'>{e(p['desc'])}</span></li>"
     (DIST / "blog" / "index.html").write_text(page("blog", "blog - riverxia", f"<h1>~*~ blog ~*~</h1><p><a href='rss.xml'>[rss]</a></p><section class='box'><ul class='loose'>{rows}</ul></section>"))
     feed = "".join(f"<item><title>{e(p['title'])}</title><link>{url('blog', p['slug'] + '.html')}</link><description>{e(p['desc'])}</description></item>" for p in posts)
     (DIST / "blog" / "rss.xml").write_text(f'<?xml version="1.0"?><rss version="2.0"><channel><title>riverxia</title><link>{url("blog")}</link><description>blog</description>{feed}</channel></rss>')
+    shutil.copy(ROOT / "comments.js", DIST / "blog" / "comments.js")
     shutil.copytree(ROOT / "assets", DIST / "blog" / "assets")
     for sub in ("www", "blog", "projects"):
         (DIST / sub / "404.html").write_text(page(sub, "404", "<h1>404</h1><p>nothing here. sorry!</p>"))

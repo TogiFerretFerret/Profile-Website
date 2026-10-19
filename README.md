@@ -11,6 +11,7 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
 
 ## Layout
 
+- `comments.js` — blog comments (Firestore), loaded on post pages.
 - `build.py` — static generator (Python 3 + the `markdown` package). Content data (about, awards,
   projects, ...) lives at the top of this file.
 - `style.css` — the one stylesheet, copied into each site.

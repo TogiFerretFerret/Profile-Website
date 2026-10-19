@@ -41,3 +41,14 @@ blockquote{border:2px dotted #f0f;margin-left:0;padding:.2rem 1rem;background:#1
 table{border-collapse:collapse;display:block;overflow:auto}td,th{border:2px outset #888;padding:.2rem .5rem}
 footer{text-align:center;font-size:.85rem;margin-top:2rem;color:var(--dim)}hr{border:0;border-top:3px double #ff0}
 @media(max-width:46rem){.frame{grid-template-columns:1fr}aside{border-right:0;border-bottom:5px ridge #c0c0c0}main{padding:1rem .8rem}}
+#comments h2{margin-top:.2rem}
+.cform{display:grid;gap:.4rem;margin:.4rem 0 1rem;max-width:36rem}
+.cform input,.cform textarea{font:inherit;background:#000;color:#0f0;border:2px inset #888;padding:.3rem;width:100%}
+.cform button,button.link{font:inherit;cursor:pointer}
+.cform button{justify-self:start;padding:.2rem .8rem;border:2px outset #aaa;background:#224;color:#fff}
+.cform button:hover{background:#00f;color:#ff0}.cform button:disabled{opacity:.5}
+button.link{background:none;border:0;color:var(--link);padding:0 .4rem 0 0;text-decoration:underline}
+button.link:hover{background:#00f;color:#ff0}
+.comment{border-left:3px dotted #f0f;padding:.2rem 0 .2rem .7rem;margin:.6rem 0}
+.cthread .comment{margin-left:.5rem}.cbody{white-space:pre-wrap;overflow-wrap:anywhere;margin:.2rem 0}
+.chead .tag{background:#060;color:#fff}.cact{font-size:.9rem}
