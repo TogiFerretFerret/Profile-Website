@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+"""Static build: python3 build.py [--prod]  ->  dist/{www,blog,projects}/
+--prod uses real riverxia.sh links; default uses local paths for preview.
+Each dist/<sub> is one deployable site root (see deploy.sh)."""
+import html, re, shutil, subprocess, sys
+from pathlib import Path
+import markdown
+
+ROOT = Path(__file__).parent
+POSTS = ROOT / "posts"
+DIST = ROOT / "dist"
+DOMAIN = "riverxia.sh"
+PROD = "--prod" in sys.argv
+
+SOCIALS = [
+    ("github", "https://github.com/TogiFerretFerret"),
+    ("ctftime", "https://ctftime.org/user/249194"),
+    ("osu!", "https://osu.ppy.sh/users/34415790"),
+    ("ao3", "https://archiveofourown.org/users/Riverxia"),
+]
+SUBS = [("home", "www"), ("blog", "blog"), ("projects", "projects")]
+
+ABOUT = [
+    "hi! i'm riverxia (i go by river). rawr.",
+    "i like competitive programming, cybersecurity and software development. when i'm not solving CTFs i'm poking at new tech.",
+    "started programming at 7 and never stopped. i like algorithms, data structures, and web dev. also osu! (top 200k global).",
+]
+AWARDS = [
+    ("National Cyber League 2026", "#1 HS / #5 overall. captain of the top high school team."),
+    ("Lockheed CyberQuest 2026", "1st place, full solve, 5230 pts."),
+    ("picoCTF 2026", "#14 HS / #35 global, full solve (14,500 pts)."),
+    ("picoCTF 2025", "2nd place, middle school."),
+    ("USACO Platinum", "full score on Gold, in-contest promotion."),
+    ("CMIMC Programming 2025", "1st in the DE-Shaw problem."),
+    ("MetaCTF Flash CTF 2026", "12th, full solve (individual)."),
+    ("picoMini by CMU-Africa 2025", "20th globally."),
+    ("Science Bowl MS 2024", "9th place."),
+]
+SKILLS = {
+    "languages": "Python, JS/TS, C++, Java, Rust, Go",
+    "tools": "React/Next.js, Node.js, TensorFlow, Q#, Git, Azure",
+    "areas": "algorithms, web, cybersecurity, game dev",
+}
+PROJECTS = [
+    ("cctf.rs", "2026", "CTFd rebuilt from scratch in Rust. hand-rolled SMTP/JWT, rhai scripting, per-team k8s instancing.", "Rust, Kubernetes", "post15"),
+    ("Personal Website", "2026", "this site. static, no build framework.", "HTML, CSS, Markdown", ""),
+    ("AI Vision Assistant", "2025, wip", "real-time visual analysis assistant.", "Python, TensorFlow, OpenCV", ""),
+    ("Neovim Dots", "2025-2026, wip", "custom neovim config for speed and competitive programming.", "Lua, Vimscript", ""),
+    ("Aluminum (HCHS Alt)", "2025-2026, wip", "reverse engineered Blackbaud client. closed source.", "Python, Flask, Node.js", ""),
+    ("CP Trainer", "2024", "practice algorithm problems with automated testing.", "Next.js, Node.js, PostgreSQL", ""),
+    ("osu! Analyzer", "2024, deprecated", "gameplay data analysis.", "Python, Flask, TensorFlow", ""),
+]
+BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff", SOCIALS[1][1]),
+           ("osu!", "#e4a", "#fff", SOCIALS[2][1]), ("AO3", "#900", "#fc9", SOCIALS[3][1]),
+           ("Rust", "#b7410e", "#fff", "https://www.rust-lang.org"), ("any browser", "#006", "#ff0", "")]
+
+e = html.escape
+
+
+def url(sub, path=""):
+    if not PROD:
+        return f"/{sub}/{path}"
+    host = DOMAIN if sub == "www" else f"{sub}.{DOMAIN}"
+    return f"https://{host}/{path}"
+
+
+def now_playing():
+    out = subprocess.run(["git", "log", "--format=%s", "-n", "50"], cwd=ROOT, capture_output=True, text=True).stdout
+    for line in out.splitlines():
+        m = re.search(r"Currently Listening To:\s*(.+)", line)
+        if m and m.group(1).strip(" -"):
+            return m.group(1).strip()
+    return "silence"
+
+
+def page(sub, title, body, desc=""):
+    nav = "".join(f'<li><a class="{"on" if s == sub else ""}" href="{url(s)}">{n}</a></li>' for n, s in SUBS)
+    btns = "".join(f'<a class="b88" style="background:{bg};color:{fg}" href="{u or "#"}">{e(n)}</a>' for n, bg, fg, u in BUTTONS)
+    mq = " &#9733; ".join(["welcome to riverxia.sh", "CTF player", "competitive programmer", "osu! enjoyer", "rust haver", "thanks for visiting"] * 2)
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{e(title)}</title>
+<meta name="description" content="{e(desc or title)}">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<div class="top"><div class="logo"><a href="{url('www')}">riverxia<span>.sh</span></a></div>
+<div class="marq"><span>{mq}</span></div></div>
+<div class="frame">
+<aside>
+<div class="box"><h3>~ menu ~</h3><ul class="menu">{nav}</ul></div>
+<div class="box"><h3>now playing</h3><p class="np">&#9835; {e(now_playing())}</p></div>
+<div class="box"><h3>elsewhere</h3><div class="btns">{btns}</div></div>
+<div class="box"><h3>stats</h3><p class="cnt">visitor<br><b>0013372</b></p></div>
+</aside>
+<main>
+{body}
+<footer><hr>this page is best viewed in anything, at any resolution.<br>hand-made, no js, no trackers. &copy; 2026 riverxia &middot; <a href="https://github.com/TogiFerretFerret/Profile-Website">source</a></footer>
+</main>
+</div></body></html>
+"""
+
+
+def load_posts():
+    out = []
+    for f in sorted(POSTS.glob("post*.md"), key=lambda p: int(re.sub(r"\D", "", p.stem))):
+        t = f.read_text()
+        meta, body = {}, t
+        m = re.match(r"---\n(.*?)\n---\n(.*)", t, re.S)
+        if m:
+            for line in m.group(1).splitlines():
+                if ":" in line:
+                    k, v = line.split(":", 1)
+                    meta[k.strip()] = v.strip()
+            body = m.group(2)
+        out.append(dict(slug=f.stem, title=meta.get("title", f.stem), date=meta.get("date", ""),
+                        desc=meta.get("description", ""), tags=[x.strip() for x in meta.get("tags", "").split(",") if x.strip()], body=body))
+    out.sort(key=lambda p: p["date"], reverse=True)
+    return out
+
+
+def build(posts):
+    if DIST.exists():
+        shutil.rmtree(DIST)
+    css = (ROOT / "style.css").read_text()
+    for _, sub in SUBS:
+        (DIST / sub).mkdir(parents=True)
+        (DIST / sub / "style.css").write_text(css)
+
+    aw = "".join(f"<li><b>{e(a)}</b> <span class='dim'>&mdash; {e(b)}</span></li>" for a, b in AWARDS)
+    sk = "".join(f"<li><b>{k}</b>: {e(v)}</li>" for k, v in SKILLS.items())
+    latest = "".join(f'<li><span class="dim">{p["date"]}</span> <a href="{url("blog", p["slug"] + ".html")}">{e(p["title"])}</a></li>' for p in posts[:6])
+    body = f"""<h1>~*~ hi, i'm river ~*~</h1>
+<div class="cols">
+<section class="box"><h2>about me</h2>{''.join(f'<p>{e(x)}</p>' for x in ABOUT)}</section>
+<section class="box"><h2>latest posts</h2><ul>{latest}</ul><p><a href="{url('blog')}">&gt;&gt; all posts</a> <span class='new'>NEW!</span></p></section>
+<section class="box"><h2>awards &amp; stuff</h2><ul>{aw}</ul></section>
+<section class="box"><h2>skills</h2><ul>{sk}</ul>
+<h2>site map</h2><ul><li><a href="{url('blog')}">blog</a> <span class="dim">writeups, rants, build logs</span></li>
+<li><a href="{url('projects')}">projects</a> <span class="dim">things i made</span></li></ul></section>
+</div>"""
+    (DIST / "www" / "index.html").write_text(page("www", "riverxia", body, "river's corner of the internet"))
+
+    items = ""
+    for t, y, d, s, link in PROJECTS:
+        l = f'<p><a href="{url("blog", link + ".html")}">[writeup]</a></p>' if link else ""
+        items += f"<section class='box'><h2>{e(t)}</h2><p class='dim'>{e(y)}</p><p>{e(d)}</p><p class='dim'>stack: {e(s)}</p>{l}</section>"
+    (DIST / "projects" / "index.html").write_text(page("projects", "projects - riverxia", f"<h1>~*~ projects ~*~</h1><div class='cols'>{items}</div>"))
+
+    md = markdown.Markdown(extensions=["fenced_code", "tables", "codehilite"],
+                           extension_configs={"codehilite": {"noclasses": True, "pygments_style": "native"}})
+    rows = ""
+    for p in posts:
+        md.reset()
+        tags = " ".join(f"<span class='tag'>{e(t)}</span>" for t in p["tags"])
+        content = md.convert(p["body"].replace("/blog/assets/", "assets/"))
+        (DIST / "blog" / f"{p['slug']}.html").write_text(page("blog", p["title"] + " - riverxia",
+            f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article>", desc=p["desc"]))
+        rows += f"<li><span class='dim'>{p['date']}</span> <a href='{p['slug']}.html'>{e(p['title'])}</a><br><span class='dim'>{e(p['desc'])}</span></li>"
+    (DIST / "blog" / "index.html").write_text(page("blog", "blog - riverxia", f"<h1>~*~ blog ~*~</h1><p><a href='rss.xml'>[rss]</a></p><section class='box'><ul class='loose'>{rows}</ul></section>"))
+    feed = "".join(f"<item><title>{e(p['title'])}</title><link>{url('blog', p['slug'] + '.html')}</link><description>{e(p['desc'])}</description></item>" for p in posts)
+    (DIST / "blog" / "rss.xml").write_text(f'<?xml version="1.0"?><rss version="2.0"><channel><title>riverxia</title><link>{url("blog")}</link><description>blog</description>{feed}</channel></rss>')
+    shutil.copytree(ROOT / "assets", DIST / "blog" / "assets")
+    for sub in ("www", "blog", "projects"):
+        (DIST / sub / "404.html").write_text(page(sub, "404", "<h1>404</h1><p>nothing here. sorry!</p>"))
+
+
+if __name__ == "__main__":
+    posts = load_posts()
+    build(posts)
+    print("built", len(posts), "posts")
