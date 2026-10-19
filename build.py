@@ -2,7 +2,7 @@
 """Static build: python3 build.py [--prod]  ->  dist/{www,blog,projects}/
 --prod uses real riverxia.sh links; default uses local paths for preview.
 Each dist/<sub> is one deployable site root (see deploy.sh)."""
-import html, re, shutil, subprocess, sys
+import html, re, shutil, sys
 from pathlib import Path
 import markdown
 
@@ -56,21 +56,22 @@ BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff"
 
 e = html.escape
 
+# visitor counter: one Firestore REST call per browser session (rules: see README)
+COUNTER_JS = """(function(){var P="riverxia-dev-portfolio",K="AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
+D="projects/"+P+"/databases/(default)/documents",U="https://firestore.googleapis.com/v1/",el=document.getElementById("hits");
+function show(n){el.textContent=String(n).padStart(7,"0")}
+function seen(){try{return sessionStorage.getItem("hit")}catch(x){return 1}}
+function mark(){try{sessionStorage.setItem("hit","1")}catch(x){}}
+if(seen()){fetch(U+D+"/counters/visits?key="+K).then(function(r){return r.json()}).then(function(d){show(d.fields.count.integerValue)}).catch(function(){})}
+else{fetch(U+D+":commit?key="+K,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({writes:[{transform:{document:D+"/counters/visits",fieldTransforms:[{fieldPath:"count",increment:{integerValue:"1"}}]}}]})})
+.then(function(r){return r.json()}).then(function(d){show(d.writeResults[0].transformResults[0].integerValue);mark()}).catch(function(){})}})();"""
+
 
 def url(sub, path=""):
     if not PROD:
         return f"/{sub}/{path}"
     host = DOMAIN if sub == "www" else f"{sub}.{DOMAIN}"
     return f"https://{host}/{path}"
-
-
-def now_playing():
-    out = subprocess.run(["git", "log", "--format=%s", "-n", "50"], cwd=ROOT, capture_output=True, text=True).stdout
-    for line in out.splitlines():
-        m = re.search(r"Currently Listening To:\s*(.+)", line)
-        if m and m.group(1).strip(" -"):
-            return m.group(1).strip()
-    return "silence"
 
 
 def page(sub, title, body, desc=""):
@@ -89,15 +90,16 @@ def page(sub, title, body, desc=""):
 <div class="frame">
 <aside>
 <div class="box"><h3>~ menu ~</h3><ul class="menu">{nav}</ul></div>
-<div class="box"><h3>now playing</h3><p class="np">&#9835; {e(now_playing())}</p></div>
 <div class="box"><h3>elsewhere</h3><div class="btns">{btns}</div></div>
-<div class="box"><h3>stats</h3><p class="cnt">visitor<br><b>0013372</b></p></div>
+<div class="box"><h3>stats</h3><p class="cnt">you are visitor<br><b id="hits">???????</b></p></div>
 </aside>
 <main>
 {body}
-<footer><hr>this page is best viewed in anything, at any resolution.<br>hand-made, no js, no trackers. &copy; 2026 riverxia &middot; <a href="https://github.com/TogiFerretFerret/Profile-Website">source</a></footer>
+<footer><hr>this page is best viewed in anything, at any resolution.<br>hand-made, one tiny script (the visitor counter), no trackers. &copy; 2026 riverxia &middot; <a href="https://github.com/TogiFerretFerret/Profile-Website">source</a></footer>
 </main>
-</div></body></html>
+</div>
+<script>{COUNTER_JS}</script>
+</body></html>
 """
 
 

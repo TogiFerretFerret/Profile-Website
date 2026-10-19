@@ -1,7 +1,7 @@
 # riverxia.sh
 
 Personal site of **riverxia** (river). Hand-made 90s-geocities-style pages, pre-rendered to plain
-HTML/CSS. No JavaScript, no trackers, no framework.
+HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framework.
 
 | site | what |
 |------|------|
@@ -18,7 +18,16 @@ HTML/CSS. No JavaScript, no trackers, no framework.
 - `assets/` — images used by posts.
 - `deploy.sh` — build and deploy all three sites.
 
-The "now playing" box is read from the latest `Currently Listening To:` git commit message at build time.
+The visitor counter is one Firestore REST call (`counters/visits`, project `riverxia-dev-portfolio`),
+once per browser session. Firestore rules needed:
+
+```
+match /counters/visits {
+  allow read: if true;
+  allow create: if request.resource.data.count == 1 && request.resource.data.keys().hasOnly(['count']);
+  allow update: if request.resource.data.count == resource.data.count + 1 && request.resource.data.keys().hasOnly(['count']);
+}
+```
 
 ## Develop
 
