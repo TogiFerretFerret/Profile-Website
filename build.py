@@ -42,6 +42,7 @@ SKILLS = {
     "areas": "algorithms, web, cybersecurity, game dev",
 }
 PROJECTS = [
+    ("aimrpg", "in development", "indie game i'm lead dev on. someone else's project, i run the dev side.", "Go, Postgres", ""),
     ("cctf.rs", "2026", "CTFd rebuilt from scratch in Rust. hand-rolled SMTP/JWT, rhai scripting, per-team k8s instancing.", "Rust, Kubernetes", "post15"),
     ("Personal Website", "2026", "this site. static, no build framework.", "HTML, CSS, Markdown", ""),
     ("AI Vision Assistant", "2025, wip", "real-time visual analysis assistant.", "Python, TensorFlow, OpenCV", ""),
@@ -50,6 +51,10 @@ PROJECTS = [
     ("CP Trainer", "2024", "practice algorithm problems with automated testing.", "Next.js, Node.js, PostgreSQL", ""),
     ("osu! Analyzer", "2024, deprecated", "gameplay data analysis.", "Python, Flask, TensorFlow", ""),
 ]
+PROJECT_LINKS = {
+    "aimrpg": [("website", "https://aimrpg.com"), ("steam", "https://store.steampowered.com/app/4947810")],
+    "cctf.rs": [("repo", "https://github.com/TogiFerretFerret/cctf.rs")],
+}
 BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff", SOCIALS[1][1]),
            ("osu!", "#e4a", "#fff", SOCIALS[2][1]), ("AO3", "#900", "#fc9", SOCIALS[3][1]),
            ("Rust", "#b7410e", "#fff", "https://www.rust-lang.org"), ("any browser", "#006", "#ff0", "")]
@@ -145,10 +150,13 @@ def build(posts):
     (DIST / "www" / "index.html").write_text(page("www", "riverxia", body, "river's corner of the internet"))
 
     items = ""
-    for t, y, d, s, link in PROJECTS:
-        l = f'<p><a href="{url("blog", link + ".html")}">[writeup]</a></p>' if link else ""
+    for t, y, d, s, post in PROJECTS:
+        ls = list(PROJECT_LINKS.get(t, []))
+        if post:
+            ls.append(("writeup", url("blog", post + ".html")))
+        l = "<p>" + " ".join(f'<a href="{e(u)}">[{e(n)}]</a>' for n, u in ls) + "</p>" if ls else ""
         items += f"<section class='box'><h2>{e(t)}</h2><p class='dim'>{e(y)}</p><p>{e(d)}</p><p class='dim'>stack: {e(s)}</p>{l}</section>"
-    (DIST / "projects" / "index.html").write_text(page("projects", "projects - riverxia", f"<h1>~*~ projects ~*~</h1><div class='cols'>{items}</div>"))
+    (DIST / "projects" / "index.html").write_text(page("projects", "projects - riverxia", f"<h1>projects.{DOMAIN}</h1><div class='cols'>{items}</div>"))
 
     md = markdown.Markdown(extensions=["fenced_code", "tables", "codehilite"],
                            extension_configs={"codehilite": {"noclasses": True, "pygments_style": "native"}})
