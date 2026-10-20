@@ -12,6 +12,7 @@ DIST = ROOT / "dist"
 DOMAIN = "riverxia.sh"
 PROD = "--prod" in sys.argv
 
+CONTACT = "river&#64;riverxia.sh"  # @ as an entity: mild protection from naive scrapers
 SOCIALS = [
     ("github", "https://github.com/TogiFerretFerret"),
     ("ctftime", "https://ctftime.org/user/249194"),
@@ -136,6 +137,7 @@ def page(sub, title, body, desc="", extra="", head_extra=""):
 <div class="frame">
 <aside>
 <div class="box"><h3>~ menu ~</h3><ul class="menu">{nav}</ul></div>
+<div class="box"><h3>email me</h3><p class="mailme"><a href="mailto:{CONTACT}">{CONTACT}</a></p></div>
 <div class="box"><h3>elsewhere</h3><div class="btns">{btns}</div></div>
 <div class="box"><h3>stats</h3><p class="cnt">you are visitor<br><b id="hits">???????</b></p></div>
 </aside>
@@ -185,6 +187,7 @@ def build(posts):
 <section class="box"><h2>about me</h2>{''.join(f'<p>{e(x)}</p>' for x in ABOUT)}</section>
 <section class="box"><h2>latest posts</h2><ul>{latest}</ul><p><a href="{url('blog')}">&gt;&gt; all posts</a> <span class='new'>NEW!</span></p></section>
 <section class="box"><h2>awards &amp; stuff</h2><ul>{aw}</ul></section>
+<section class="box"><h2>contact</h2><p>email me: <a href="mailto:{CONTACT}">{CONTACT}</a></p><p class="dim">writeup questions, collabs, bug reports, or just saying hi. you can also find me on github, ctftime and osu! (links on the left).</p></section>
 <section class="box"><h2>skills</h2><ul>{sk}</ul>
 <h2>site map</h2><ul><li><a href="{url('blog')}">blog</a> <span class="dim">writeups, rants, build logs</span></li>
 <li><a href="{url('projects')}">projects</a> <span class="dim">things i made</span></li></ul></section>

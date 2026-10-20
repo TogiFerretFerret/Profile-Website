@@ -57,3 +57,4 @@ button.link:hover{background:#00f;color:#ff0}
 .katex{font-size:1.1em}
 pre.wrap{white-space:pre-wrap;word-break:break-all;overflow:visible;padding:.6rem;background:#000;border:2px inset #888;color:var(--g-lime,#0f0)}
 pre.wrap code{color:inherit;font-family:"Courier New",monospace}
+.mailme{margin:0;text-align:center;word-break:break-all;font:700 .85rem "Courier New",monospace}
