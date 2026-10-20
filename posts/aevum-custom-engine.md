@@ -11,7 +11,7 @@ the aimrpgx codebase runs on strongdot, our godot fork. godot is great. we also 
 
 so we're writing our own engine. it's called **aevum**, it's a godot-derived runtime and headless toolchain, and as of this post it's eleven days old.
 
-(aimrpg is a game i'm lead dev on. it's someone else's project, and this post is about the engine side. the repos are private, so there are no links, and i'm not going into the security design here.)
+(aimrpg is a game i'm lead dev on, and i'm the one responsible for the engine's architecture and for driving its implementation. the repos are private, so there are no links.)
 
 ## why
 
@@ -114,15 +114,22 @@ so the failure wasn't "the gpu is too old". our enumeration policy was too narro
 
 ## how it's actually being built
 
-this part is the least conventional, so i'll just describe it:
+this is the part people ask about, so here it is straight.
 
-- **a small group with different specialities.** security, reverse engineering, infrastructure, physics and assets all live in a handful of heads. i'm leaving the roster out on purpose.
-- **a lot of the typing is done by coding agents.** during the busy stretches i sometimes had up to six parallel codex workers going, while i reviewed architecture, build failures and integration. i called the setup a "commit factory" and a "compute incinerator" in chat, and jokingly called myself a "1000x developer". that's a joke. commits are not the same as engineering labour, and i'm not going to compare them to it.
-- **terminal-first.** headless neovim with lsp diagnostics, bazel checks, and targeted tests as the way to tell whether something works.
-- **the recurring argument.** every time we looked at progress, someone would ask whether the *game client* work counted as *engine* work. my answer became no: runtime, platform backends, resources, rendering and extension parity are the engine, and client scenes are there to serve as integration tests.
-- **never trust a percentage.** i kept challenging optimistic completion numbers. the todo file now warns, in so many words, that component counts, cross-compilation and source size are not proof of a production game.
-- **status is not acceptance.** the agents regularly announce things like "scene implementation finished" or "transform implementation finished". that's a worker's status report, not an independent integration result.
-- **small human moments.** i was doing competitive programming and school stuff in the same stretch of days. and one build failed because two local variables in a container regression probe had the same name. the commit is literally called *"Fix duplicate local name blocking container regression compilation"*.
+**i run aevum like a small engine studio with one very opinionated architect, and the architect is me.** the design, the scope, the module boundaries and the build approach are mine. a lot of the actual typing is done by coding agents (up to six parallel codex workers at the busiest points) while i review, redirect and integrate. that's a tool choice, and it works because the thing being decided is architecture, which doesn't get outsourced.
+
+what that looks like day to day:
+
+- **i set the scope and defend it.** "the minimum engine needed" wasn't a slogan, it was a filter. the bulk import coming out in sixteen minutes is that filter in action.
+- **i refuse fake progress.** every time someone, human or otherwise, floated an optimistic completion percentage, i pushed back until the number either had a denominator or went away. the todo file now says out loud that component counts, cross-compilation and source size are not proof of a production game. that sentence exists because i kept making people prove it.
+- **i drew the line between engine and client.** the recurring argument was whether game client work counts as engine work. my answer: no. runtime, platform backends, resources, rendering and extension parity are the engine, and client scenes are integration tests. that redirected a lot of effort in the right direction.
+- **worker status isn't acceptance.** the agents regularly announce "scene implementation finished" or "transform implementation finished". that's a status report. an independent integration result is something else, and i don't confuse the two.
+- **terminal-first, no gui in the loop.** headless neovim with lsp diagnostics, bazel checks and targeted tests tell me whether something is real.
+- **a small crew with real range.** security, reverse engineering, infrastructure, physics and assets all live in a handful of heads. (i'm leaving the roster out on purpose.)
+
+i jokingly called the setup a "commit factory" and a "compute incinerator", and myself a "1000x developer". the jokes are fun. the honest version is that 1,292 commits in eleven days says the machine is running, and the interesting numbers are further down: what's actually verified on real hardware, and what's still gated.
+
+and yes, i was doing competitive programming and school stuff in the same stretch of days. one build even broke because two local variables in a container regression probe shared a name. the commit is literally called *"Fix duplicate local name blocking container regression compilation"*.
 
 ## numbers
 
@@ -131,6 +138,16 @@ this part is the least conventional, so i'll just describe it:
 - **the fun number:** `scc`'s hypothetical estimator says the whole checkout would cost **$37.8 million**, take 54.67 months and need 61 people. that's a made-up model run over vendored code, not a budget and not a productivity claim. i'm including it as a joke.
 - **the checklist:** `TODO.md` has 84 items checked and 170 unchecked. that is *not* a completion percentage. the repo itself says there's no defensible fixed denominator.
 - **the engine suite:** the latest commit message says a 108-suite native engine benchmark passed. i'll believe it fully when i've read the raw log, so i'm reporting it as "the commit says so".
+
+## what i'm proud of
+
+not the commit count. these:
+
+- **the docs tell the truth.** this repo says "this is not a production game runtime yet" in the readme, in the todo and in the validation docs. it separates "compiled" from "ran on a device" from "passed". a lot of projects can't do that about themselves.
+- **the build is declared, not assumed.** a pinned bazel, a pinned zig toolchain, an empty `PATH`, and a build graph that refuses to let a header "work by accident". that's why the missing-header failure was caught instead of lurking.
+- **the m1 bring-up produced a real diagnosis.** a gdb trace, a count of 88 formats against an assumption of 64, and a fix with bounds and retries. the boring answer ("our code was too strict") beat the exciting one ("the driver is broken").
+- **the security design has principles, not vibes.** authenticate before you trust, no deterministic nonces, fail closed, bound everything, wipe on failure.
+- **we wrote our own engine.** godot is great. we did it anyway, on purpose, with a plan.
 
 ## what isn't done
 
