@@ -18,6 +18,7 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
 - `render_math.js` + `package.json` — build-time KaTeX: `$inline$` and `$$display$$` math in posts becomes static HTML (no client-side math script).
 - `posts/*.md` — blog posts with `title/date/description/tags` front matter.
 - `assets/` — images used by posts.
+- `offline.py` — builds one self-contained `dist/blog-offline.html` with every post (css, math fonts and images embedded) for offline reading: `python3 offline.py`.
 - `deploy.sh` — build and deploy all three sites.
 
 The visitor counter is one Firestore REST call (`counters/visits`, project `riverxia-dev-portfolio`),
