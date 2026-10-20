@@ -15,7 +15,7 @@ PROD = "--prod" in sys.argv
 CONTACT = "river&#64;riverxia.sh"  # @ as an entity: mild protection from naive scrapers
 TEAMS = [
     ("idktheflag", "founded and captained (formerly)", "#58 global, #7 in the US (2026)", "https://ctftime.org/team/419270"),
-    ("B4 (Bishkek Bureau of Binary Bandits)", "member (team founded and captained by Vakuum)", "#10 global (2026)", "https://ctftime.org/team/431075"),
+    ("B4 (Bishkek Bureau of Binary Bandits)", "one of ~5 core members (team founded and captained by Vakuum)", "#10 global (2026)", "https://ctftime.org/team/431075"),
 ]
 SOCIALS = [
     ("github", "https://github.com/TogiFerretFerret"),
