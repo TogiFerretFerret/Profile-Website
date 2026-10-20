@@ -123,3 +123,42 @@ body.task-login #layout-content{padding:0!important;justify-content:center!impor
 /* round 4 */
 #layout-menu .popover-header,#layout-menu span.special-buttons,#layout-menu .header{background:#000040!important;background-color:#000040!important}
 body.task-login #login-form{transform:translateY(-12vh)}
+
+/* ---------- round 5: READABILITY. flavour stays in chrome, content is plain high-contrast ---------- */
+html,body,body *{font-family:Verdana,"DejaVu Sans",Tahoma,Arial,sans-serif}
+html,body{font-size:15px}
+h1,h2,h3,.subject,#login-form::before,#layout-sidebar>.header::after,.iframe-wrapper::before,.uc{font-family:"Comic Sans MS","Chalkboard SE",cursive!important}
+code,pre,tt,textarea.monospace,.mono{font-family:"DejaVu Sans Mono","Courier New",monospace!important}
+
+/* labels / menus */
+#layout-sidebar a,#layout-menu a,.toolbar a,.toolbar a span,#taskmenu a span,ul.listing li>a,ul.listing li>a span{color:#fff!important;font-weight:600}
+.toolbar a::before,#taskmenu a::before,ul.listing li>a::before{color:#9fe0ff!important}
+.toolbar a.disabled,.toolbar a.disabled span,.toolbar a.disabled::before{opacity:.7!important;color:#8fa6cc!important}
+#taskmenu a.selected,#taskmenu a.selected span,#taskmenu a.selected::before,ul.listing li.selected>a,ul.listing li.selected>a span,ul.listing li.selected>a::before{color:#000!important}
+#taskmenu a.compose,#taskmenu a.compose span,#taskmenu a.compose::before{color:#fff!important}
+
+/* message list: plain white-on-navy, unread = bold white, read = soft light blue */
+#layout-list,table.messagelist,table.messagelist tr{background:#0a0a2a!important}
+table.messagelist tr:nth-child(even){background:#101038!important}
+table.messagelist tr,table.messagelist td,table.messagelist td a,table.messagelist td span{color:#d4defa!important;font-weight:400!important}
+table.messagelist tr.unread,table.messagelist tr.unread td,table.messagelist tr.unread td a,table.messagelist tr.unread td span{color:#fff!important;font-weight:700!important}
+table.messagelist tr.selected,table.messagelist tr.selected td,table.messagelist tr.selected td a,table.messagelist tr.selected td span{background:#1a3fd0!important;color:#fff!important}
+table.messagelist td.subject span.subject,table.messagelist td.subject a{font-size:1.02em}
+table.messagelist tr.unread td.subject::before{color:#ff0}
+.pagenav,.pagenav *,.footer,.footer *{color:#fff!important}
+
+/* reading pane + compose body: light page, dark text (HTML mail renders correctly) */
+body.rcmBody,.rcmBody,.message-part,.message-htmlpart,div.rcmBody{background:#fffff6!important;color:#111!important}
+.rcmBody a,.message-part a{color:#0033cc!important}
+.rcmBody blockquote,.message-part blockquote{background:#f0efe0!important;color:#333!important;border-left:3px solid #8a2be2!important}
+.rcmBody code,.rcmBody pre,.message-part pre,.rcmBody tt{background:#f0efe0!important;color:#064!important}
+#composebody,.mce-content-body,textarea#composebody{background:#fffff6!important;color:#111!important;font-size:15px;line-height:1.5}
+.message-headers,.message-header,.headers-table td,.header-headers{color:#fff!important}
+.message-headers .subject,#message-header h2{color:#9f9!important}
+.message-headers a,.header-headers a{color:#9fe0ff!important}
+
+/* forms / popups */
+input,select,textarea,.form-control,.custom-select{color:#fff!important;background:#000!important;font-size:15px}
+input::placeholder,textarea::placeholder{color:#8c8!important}
+.popover,.popover a,.popupmenu a,.menu a,.ui-dialog,.ui-dialog *{color:#fff!important}
+label,.form-label,legend{color:#ffe84d!important}
