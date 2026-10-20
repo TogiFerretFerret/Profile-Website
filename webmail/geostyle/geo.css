@@ -107,9 +107,8 @@ hr{border:0;border-top:3px double var(--g-yel)}
 table.messagelist td,table.messagelist tr.selected td,table.messagelist tr.focused td{background:transparent!important}
 table.messagelist tr.selected,table.messagelist tr.selected td,table.messagelist tr.focused td{color:#fff!important}
 table.messagelist tr.selected td.subject a,table.messagelist tr.selected span{color:#fff!important}
-table.messagelist .rowactions,table.messagelist td.flags span.flag{background:#000040!important;border:2px outset #888!important}
+
 /* empty preview pane */
-iframe[src*="watermark"]{opacity:0}
 .iframe-wrapper{position:relative}
 .iframe-wrapper::before{content:"~*~ pick a message ~*~";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 1.4rem "Comic Sans MS",cursive;color:#336;text-shadow:2px 2px #000}
 .iframe-wrapper iframe{position:relative;z-index:1}
@@ -162,3 +161,51 @@ input,select,textarea,.form-control,.custom-select{color:#fff!important;backgrou
 input::placeholder,textarea::placeholder{color:#8c8!important}
 .popover,.popover a,.popupmenu a,.menu a,.ui-dialog,.ui-dialog *{color:#fff!important}
 label,.form-label,legend{color:#ffe84d!important}
+
+/* ---------- round 6: preview bug fix + list/menu cleanup ---------- */
+/* placeholder text only when no message is selected; the frame itself must stay visible otherwise */
+body:not(:has(table.messagelist tr.selected)) iframe#messagecontframe{opacity:0}
+.iframe-wrapper{background:var(--g-panel)!important}
+/* list: no hover action box overlapping date/subject, no stray checkboxes */
+table.messagelist .rowactions,table.messagelist td.subject .rowactions{display:none!important}
+table.messagelist td.selection,table.messagelist th.selection{display:none!important}
+table.messagelist td.flags span.flag span,table.messagelist td.flags{background:transparent!important}
+/* left menu: labels fit */
+#taskmenu a,#taskmenu a span,#layout-menu .special-buttons a,#layout-menu .special-buttons a span{font-size:11.5px!important;font-weight:600!important;letter-spacing:0}
+#taskmenu a.compose span.inner,#taskmenu a.compose{text-shadow:none!important}
+
+/* round 7 */
+table.messagelist td.flags span.flag,table.messagelist td.flags span.flag span,table.messagelist td.flags{background:transparent!important;border:0!important;box-shadow:none!important}
+table.messagelist td.flags span.flag span{color:#9fe0ff!important}
+table.messagelist span.size{color:#8fa6cc!important;font-size:11px}
+/* attachments */
+.leftcol,#attachment-list,.attachmentslist,.attachmentslist li{background:#000040!important;border-color:#336!important}
+.attachmentslist li{border:2px outset #888!important;border-radius:0!important}
+.attachmentslist li a,.attachmentslist li a.filename,.attachment-name{color:#fff!important;font-weight:600}
+.attachment-size{color:#9fe0ff!important}
+.attachmentslist li a.dropdown,.attachmentslist li a.button{background:#224!important;border:2px outset #aaa!important}
+/* plain text bodies a bit larger */
+.message-part pre,.rcmBody pre,div.pre,.message-part div.pre{font-size:14px!important;line-height:1.5;color:#111!important;background:transparent!important}
+/* round 8 */
+.listing-hover-menu{display:none!important}
+table.messagelist td.flags,table.messagelist td.subject{background:inherit!important}
+table.messagelist tr.selected td.flags,table.messagelist tr.selected td.subject{background:#1a3fd0!important}
+/* round 9: settings + contacts */
+.records-table td,.records-table td a,.records-table td span,#layout-list .listing li a,#layout-list ul.listing li,#layout-list table td,#layout-list table td a{color:#e6ecff!important}
+.records-table tr.selected td,.records-table tr.selected td a,.records-table tr.selected td span{background:#1a3fd0!important;color:#fff!important}
+.records-table td::before,.records-table td a::before{color:#9fe0ff!important}
+body.task-settings:not(:has(#layout-list tr.selected,#layout-list li.selected)) .iframe-wrapper iframe,
+body.task-addressbook:not(:has(#layout-list tr.selected,#layout-list li.selected)) .iframe-wrapper iframe{opacity:0}
+body:not(.task-mail) .iframe-wrapper::before{content:"~*~ pick something ~*~"}
+/* settings/contact forms inside frames: dark panel, readable */
+.propform,.formcontent,.boxcontent,fieldset.propform{color:#fff}
+.formcontent .form-group label,.propform label,fieldset legend{color:#ffe84d!important}
+/* round 10 */
+.iframe-wrapper::before{color:#6f84d8!important;text-shadow:1px 1px #000!important}
+/* round 11: framed pages (settings/contacts forms) get a solid panel; selected rows */
+html.iframe,body.iframe,body.iframe *:not(a):not(button):not(.btn):not(input):not(select):not(textarea){background-image:none}
+html.iframe,body.iframe{background-image:none!important;background-color:#000025!important}
+#layout-list table tr.selected,#layout-list table tr.focused,#layout-list table tr.selected td,#layout-list table tr.focused td,#layout-list table tr.selected td a,#layout-list table tr.focused td a,#layout-list table tr.selected td span,#layout-list table tr.focused td span{background:#1a3fd0!important;color:#fff!important}
+#layout-list table tr.selected td::before,#layout-list table tr.focused td::before,#layout-list table tr.selected td a::before,#layout-list table tr.selected td span::before{color:#fff!important}
+/* round 12: the .iframe class is on <html>, not <body> */
+html.iframe,html.iframe body{background-image:none!important;background-color:#000025!important}
