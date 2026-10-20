@@ -165,6 +165,7 @@ def build(posts):
     (DIST / "blog" / "rss.xml").write_text(f'<?xml version="1.0"?><rss version="2.0"><channel><title>riverxia</title><link>{url("blog")}</link><description>blog</description>{feed}</channel></rss>')
     shutil.copy(ROOT / "comments.js", DIST / "blog" / "comments.js")
     shutil.copytree(ROOT / "assets", DIST / "blog" / "assets")
+    shutil.copy(ROOT / "bimi.svg", DIST / "www" / "bimi.svg")  # BIMI logo (SVG Tiny PS)
     for sub in ("www", "blog", "projects"):
         (DIST / sub / "404.html").write_text(page(sub, "404", "<h1>404</h1><p>nothing here. sorry!</p>"))
 
