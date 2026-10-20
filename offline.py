@@ -27,6 +27,7 @@ def katex_css():
 
 def main():
     posts = build.load_posts()
+    slugs = {p["slug"] for p in posts}
     md = markdown.Markdown(extensions=["fenced_code", "tables", "codehilite"],
                            extension_configs={"codehilite": {"noclasses": True, "pygments_style": "native"}})
     site_css = (ROOT / "style.css").read_text()
@@ -40,6 +41,7 @@ def main():
         content = build.render_math(md.convert(text), exprs)
         for k, v in img.items():
             content = content.replace(f'src="{k}"', f'src="{v}"')
+        content = re.sub(r'href="([a-z0-9-]+)\.html"', lambda m: f'href="#post-{m.group(1)}"' if m.group(1) in slugs else m.group(0), content)
         n = p["slug"]
         tags = " ".join(f"<span class='tag'>{e(t)}</span>" for t in p["tags"])
         toc.append(f'<li><a href="#post-{n}">{e(p["title"])}</a><br><span class="dim">{p["date"]}</span></li>')
