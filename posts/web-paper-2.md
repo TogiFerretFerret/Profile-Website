@@ -1,17 +1,18 @@
 ---
 title: web: paper 2
 date: 2026-03-22
+id: 5
 description: CSS attribute selectors meet Redis LRU eviction in a 500-point side-channel challenge.
 tags: ctf,web,writeup
 ---
 
 # paper 2
 
-500 points, @ehhthing. web app where you upload files and have a headless chrome bot visit them. bot sets a 32-char hex secret as an attribute on `<body>` and we need to steal it to get the flag from `/flag`. catch: `script-src 'none'` CSP, URLBlocklist blocks everything except the challenge origin. no js, no exfil to external servers. pure css side-channel.
+500 points, @ehhthing. web app where you upload files and have a headless chrome bot visit them. bot sets a 32-char hex secret as an attribute on `<body>` and i need to steal it to get the flag from `/flag`. catch: `script-src 'none'` CSP, URLBlocklist blocks everything except the challenge origin. no js, no exfil to external servers. pure css side-channel.
 
 also this challenge made me realize i'm pansexual. anyways.
 
-server: bun + redis (512MB, `allkeys-lru`, `maxmemory-samples=5`). uploaded files live in redis with 10-min TTL. `/secret` renders `<body secret="${secret}">PAYLOAD</body>` where we control PAYLOAD. `/flag` uses `getdel` — one guess, 60-second expiry.
+server: bun + redis (512MB, `allkeys-lru`, `maxmemory-samples=5`). uploaded files live in redis with 10-min TTL. `/secret` renders `<body secret="${secret}">PAYLOAD</body>` where i control PAYLOAD. `/flag` uses `getdel` — one guess, 60-second expiry.
 
 ## the idea
 
@@ -22,7 +23,7 @@ body[secret*="ab"] #marker_ab { background: url(/paper/SOME_ID) }
 body[secret^="f"]  #prefix_f  { background: url(/paper/OTHER_ID) }
 ```
 
-matching selectors trigger http requests to load background images. non-matching ones don't. but since we can't exfil to external servers, we need to observe which requests chrome made using *only* the challenge server itself.
+matching selectors trigger http requests to load background images. non-matching ones don't. but since i can't exfil to external servers, i need to observe which requests chrome made using *only* the challenge server itself.
 
 enter redis LRU eviction.
 
@@ -47,7 +48,7 @@ LRU with `maxmemory-samples=5` is probabilistic — recently-accessed keys can s
 
 ### iframe nesting
 
-URLAllowlist only permits `https://web`. can't load external resources, but we can nest iframes within the challenge origin:
+URLAllowlist only permits `https://web`. can't load external resources, but i can nest iframes within the challenge origin:
 
 ```
 entry page (/paper/ENTRY_ID)
@@ -65,7 +66,7 @@ multiple valid paths → trigram scoring. each candidate: +10 for each detected 
 
 ### algebraic edge recovery
 
-sometimes we detect 29-30 bigrams instead of 30-31 (LRU noise). instead of brute-forcing:
+sometimes i detect 29-30 bigrams instead of 30-31 (LRU noise). instead of brute-forcing:
 
 ```python
 bal = {node: out_degree - in_degree for each node}

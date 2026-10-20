@@ -1,6 +1,7 @@
 ---
 title: cctf.rs — i rebuilt ctfd from scratch in rust
 date: 2026-07-09
+id: 15
 description: Why I wrote my own CTF platform from zero in Rust. Hand-rolled SMTP and JWT, sandboxed rhai scripting in every corner, per-team Kubernetes instancing, SSE notifications, and a fully headless API. A build log.
 tags: rust,ctf,webdev,backend
 ---

@@ -1,5 +1,5 @@
 // Comments for blog posts. Firestore collection "comments", same schema as the old blog:
-// {postId:number, parentId:string|null, name, body, uid, verified, timestamp}
+// {postId:number|string, parentId:string|null, name, body, uid, verified, timestamp}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, query, where, onSnapshot, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -18,7 +18,8 @@ const ADMIN_HASH = "faf863681b8a634b1a95cb3058937ce4e69cee4c2b3459b137c61c4d1e49
 const RESERVED = ["rivercodes", "riverc", "riverxia", "admin", "owner"];
 
 const root = document.getElementById("comments");
-const postId = Number(root.dataset.post);
+// old posts use their numeric legacy id; newer posts use the slug string
+const postId = /^\d+$/.test(root.dataset.post) ? Number(root.dataset.post) : root.dataset.post;
 let isAdmin = false;
 let comments = [];
 

@@ -1,6 +1,7 @@
 ---
 title: misc: teagod staff wifi
 date: 2026-07-05
+id: 14
 description: An enterprise WiFi RADIUS server that trusts a public CA for client auth. Grab a free Actalis S/MIME cert, present it as your EAP-TLS client cert, and you're staff.
 tags: ctf,misc,writeup
 ---
@@ -13,7 +14,7 @@ no hack no ctf. the brief: they exposed the RADIUS server used for employees' in
 udp://tearoam.teagod.tech:18120
 ```
 
-udp `18120` is `1812` (RADIUS auth) with a `0` stapled on. enterprise WiFi = 802.1X / EAP. they handed us the whole FreeRADIUS docker bundle, so this is a config-reading challenge before it's anything else.
+udp `18120` is `1812` (RADIUS auth) with a `0` stapled on. enterprise WiFi = 802.1X / EAP. they handed me the whole FreeRADIUS docker bundle, so this is a config-reading challenge before it's anything else.
 
 ## recon
 
@@ -38,7 +39,7 @@ update reply {
 
 `remove_reply_message_if_eap` normally strips `Reply-Message` on EAP — but the flag is added *after* it, so it survives. so the whole game is: **get one Access-Accept and read `Reply-Message`.**
 
-and `mods-enabled/eap` — the auth methods. PEAP/TTLS tunnel into inner MSCHAPv2/PAP, which needs a username+password we don't have and aren't meant to brute. that leaves **EAP-TLS** (client certificate, no password):
+and `mods-enabled/eap` — the auth methods. PEAP/TTLS tunnel into inner MSCHAPv2/PAP, which needs a username+password i don't have and am not meant to brute. that leaves **EAP-TLS** (client certificate, no password):
 
 ```
 tls-config tls-common {
@@ -66,9 +67,9 @@ this is a real reported class of bug — the flag even links [ZD-2025-00549](htt
 
 ## the free cert
 
-"everything required can be obtained for free." Actalis issues **free S/MIME email certificates**, and they chain exactly to *Actalis Authentication Root CA* with `clientAuth` in the EKU. that's our staff badge.
+"everything required can be obtained for free." Actalis issues **free S/MIME email certificates**, and they chain exactly to *Actalis Authentication Root CA* with `clientAuth` in the EKU. that's my staff badge.
 
-grab one at `extrassl.actalis.it/portal/uapub/freemail` — email + terms + captcha, they email a code, you download a `.p12` and they email its password. burner email is fine; the cert CN ends up being that address, nobody checks it. checking what we got:
+grab one at `extrassl.actalis.it/portal/uapub/freemail` — email + terms + captcha, they email a code, you download a `.p12` and they email its password. burner email is fine; the cert CN ends up being that address, nobody checks it. checking what i got:
 
 ```bash
 $ openssl x509 -in leaf.pem -noout -issuer -ext extendedKeyUsage
@@ -99,7 +100,7 @@ network={
 $ eapol_test -c eap.conf -a 35.206.253.234 -p 18120 -s testing123
 ```
 
-the one gotcha that ate a few tries: with `ca_cert` set, **our client** tried to validate the *server's* cert, failed ("unknown CA"), and killed the handshake before ever sending our cert. we don't care who the server is — drop `ca_cert`, don't verify the server. then:
+the one gotcha that ate a few tries: with `ca_cert` set, **my client** tried to validate the *server's* cert, failed ("unknown CA"), and killed the handshake before ever sending my cert. i don't care who the server is — drop `ca_cert`, don't verify the server. then:
 
 ```
 RADIUS message: code=2 (Access-Accept) identifier=12 length=275
@@ -108,7 +109,7 @@ RADIUS message: code=2 (Access-Accept) identifier=12 length=275
 SUCCESS
 ```
 
-the server built the chain leaf → G3 → Actalis Authentication Root CA, saw a trusted root, and let us in.
+the server built the chain leaf → G3 → Actalis Authentication Root CA, saw a trusted root, and let me in.
 
 ## why it falls over
 

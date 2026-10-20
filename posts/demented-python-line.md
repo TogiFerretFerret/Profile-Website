@@ -1,6 +1,7 @@
 ---
 title: the most demented python line i have ever written (probably)
 date: 2026-01-13
+id: 3
 description: lambdas lambda'ing all over control codes. don't you love it?
 tags: lambda functions, python, school, code golf
 ---

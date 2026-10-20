@@ -1,6 +1,7 @@
 ---
 title: osint: oshit
 date: 2026-05-31
+id: 11
 description: smartfella ctf fr. the best osint chain i've ever seen, a 20-hop rabbit hole.
 tags: ctf,osint,writeup
 ---

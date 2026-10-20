@@ -1,13 +1,14 @@
 ---
 title: crypto: baby zkp
 date: 2026-07-05
+id: 13
 description: A Schnorr proof whose response is reduced mod the wrong prime. Two stages, two RNGs — a truncated LCG cracked with a lattice, and MT19937 rebuilt from GF(2) relations on the leaked responses.
 tags: ctf,crypto,writeup
 ---
 
 # baby zkp
 
-no hack no ctf. we get a schnorr-style proof-of-knowledge over a netcat service. two stages, a different RNG each, and one bug that ties them together. beat both stages and it prints the flag.
+no hack no ctf. i get a schnorr-style proof-of-knowledge over a netcat service. two stages, a different RNG each, and one bug that ties them together. beat both stages and it prints the flag.
 
 ## the setup
 
@@ -34,13 +35,13 @@ if inp_w != w:                   # we must hand back the secret
     exit()
 ```
 
-in a real schnorr the response is `z = r + e·w mod q`, where `q` is the group order. here it's reduced mod `pp = getPrime(1024)` — a **fresh random prime with nothing to do with the group**. and we choose `e` (with `bit_length ≥ 1023`). the only leaks per round are `a = 2^r mod p` and `z`. to clear a stage we have to *recover* `w` and type it back.
+in a real schnorr the response is `z = r + e·w mod q`, where `q` is the group order. here it's reduced mod `pp = getPrime(1024)` — a **fresh random prime with nothing to do with the group**. and i choose `e` (with `bit_length ≥ 1023`). the only leaks per round are `a = 2^r mod p` and `z`. to clear a stage i have to *recover* `w` and type it back.
 
 so this is an extraction problem. and the mod-`pp` slip is what makes it possible.
 
 ## stage 1: the truncated LCG
 
-stage 1's rng is a truncated LCG with the multiplier, increment and modulus **printed for us**:
+stage 1's rng is a truncated LCG with the multiplier, increment and modulus **printed for me**:
 
 ```python
 class TLCG:
@@ -56,7 +57,7 @@ send the *same* `e` every round. then `z_i = (r_i + e·w) mod pp`, and since `e�
 
 $$z_i = s_0 + r_i \quad\Rightarrow\quad z_i - z_1 = r_i - r_1 \ \text{(exact)}$$
 
-no `pp` needed. we now know every truncated output up to one shared offset. write each full state as `x_{i+1} = 2^512·h_i + r_i` with `h_i` the unknown high half, plug into the recurrence `x_{i+2} = A·x_{i+1} + C mod p`, and every unknown (`h_i`, and the base `r_1`) is bounded by `2^512` while the modulus is `2^1024`. classic small-solutions-to-modular-relations → LLL:
+no `pp` needed. i now know every truncated output up to one shared offset. write each full state as `x_{i+1} = 2^512·h_i + r_i` with `h_i` the unknown high half, plug into the recurrence `x_{i+2} = A·x_{i+1} + C mod p`, and every unknown (`h_i`, and the base `r_1`) is bounded by `2^512` while the modulus is `2^1024`. classic small-solutions-to-modular-relations → LLL:
 
 ```python
 # c[i] = z[i]-z[0] (exact r_i - r_1); recover h_i and r_1 with a Kannan embedding
@@ -69,15 +70,15 @@ the lattice hands back the seed, step the LCG back one call (`x_1 = A^{-1}(x_2 -
 
 ## stage 2: mersenne twister
 
-stage 2 swaps the rng for `getrandbits(1024)` — plain MT19937. now `w` and `r_i` are **full** 1024-bit outputs. no smallness, so the stage-1 trick is dead, and `pp` is genuinely unrecoverable (it only ever shows up as `2^{pp} mod p`, a discrete log). so we can't touch `pp` or peel `r_i` out of `z_i` arithmetically.
+stage 2 swaps the rng for `getrandbits(1024)` — plain MT19937. now `w` and `r_i` are **full** 1024-bit outputs. no smallness, so the stage-1 trick is dead, and `pp` is genuinely unrecoverable (it only ever shows up as `2^{pp} mod p`, a discrete log). so i can't touch `pp` or peel `r_i` out of `z_i` arithmetically.
 
-but MT19937 is a linear map over GF(2). if we can pin enough **output bits**, we solve for the 19937-bit state and roll it back to output 0 = `w`. so where do clean output bits come from?
+but MT19937 is a linear map over GF(2). if i can pin enough **output bits**, i solve for the 19937-bit state and roll it back to output 0 = `w`. so where do clean output bits come from?
 
 **step 1 — recover the wrap count.** with fixed `e`, `z_i = (r_i + s0) mod pp` wraps `κ_i ∈ {0,1,2}` times. compute
 
 $$u_i = 2^{z_i}\cdot a_i^{-1} \bmod p = 2^{s_0}\cdot(2^{pp})^{-\kappa_i}$$
 
-and it collapses to just 2–3 distinct values. same value ⇒ same `κ_i`. so we can label every round by its wrap count for free.
+and it collapses to just 2–3 distinct values. same value ⇒ same `κ_i`. so i can label every round by its wrap count for free.
 
 **step 2 — clean GF(2) relations.** two facts, both borrow-free:
 

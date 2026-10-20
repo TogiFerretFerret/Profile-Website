@@ -1,6 +1,7 @@
 ---
 title: why c++ will never die (and why it shouldn't!)
 date: 2026-01-06
+id: 2
 description: it's not because it's such a perfect language...
 tags: cpp,rant,competitive programming,lambda functions
 ---

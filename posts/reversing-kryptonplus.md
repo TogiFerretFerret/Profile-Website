@@ -1,6 +1,7 @@
 ---
 title: reversing kryptonplus: tearing apart a minecraft rat
 date: 2026-05-02
+id: 9
 description: Full static analysis of a JNI-obfuscated Minecraft cheat client with a bundled RAT — custom Zig AOT compiler, IEEE 754 string encryption, and goto-spaghetti bytecode decryption.
 tags: reversing,malware,writeup
 ---
@@ -9,7 +10,7 @@ tags: reversing,malware,writeup
 
 zemi tried to crack a paid minecraft hacked client called "KryptonPlus." the jar looked legitimate: proper fabric mod structure, `fabric.mod.json` identifying it as BetterF3, all the right metadata. he ran it. he got ratted.
 
-we got the jar. we tore it apart.
+i got the jar. i tore it apart.
 
 not a skid's first malware project. full-featured cheat client (20+ modules, custom render pipeline, 45 mixin hooks) with a dual-channel C2 RAT, all compiled through a custom Java-to-native transpiler called JNT3. every string encrypted. every class name obfuscated. entire codebase AOT-compiled into platform-specific native libraries using zig.
 
@@ -100,7 +101,7 @@ all 51,000 strings encrypted. only readable strings are zig runtime errors and l
 
 ## mapping the architecture
 
-through `javap` disassembly of all 300+ classes we mapped the entire client.
+through `javap` disassembly of all 300+ classes i mapped the entire client.
 
 the RAT:
 
@@ -120,7 +121,7 @@ also a full cheat client with 20+ modules: KillAura, AimBot, ESP, Freecam, Speed
 
 ## string decryption
 
-the main challenge. without decrypting strings we can't find the C2 URLs, what data the RAT steals, command protocol, API endpoints.
+the main challenge. without decrypting strings i can't find the C2 URLs, what data the RAT steals, command protocol, API endpoints.
 
 ### the native decoder
 
@@ -134,7 +135,7 @@ operates in-place on UTF-16. `key` (0-16) selects one of 17 transformation chain
 
 ### unicorn verification
 
-we used unicorn CPU emulator to run the native x86_64 code on our aarch64 machine:
+i used unicorn CPU emulator to run the native x86_64 code on my aarch64 machine:
 
 ```python
 from unicorn import *
@@ -164,7 +165,7 @@ problem: these bootstraps are **heavily obfuscated with goto-spaghetti**. a typi
 
 ### building a JVM interpreter
 
-since we couldn't run the native library on aarch64 linux (no binary exists for our platform), we built a python-based java bytecode interpreter that:
+since i couldn't run the native library on aarch64 linux (no binary exists for my platform), i built a python-based java bytecode interpreter that:
 
 1. parses the `.class` file constant pool, methods, and bootstrap method table
 2. interprets every java bytecode: stack ops, arithmetic, bitwise, control flow including the goto spaghetti

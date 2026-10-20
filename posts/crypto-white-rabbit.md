@@ -1,13 +1,14 @@
 ---
 title: crypto: white rabbit
 date: 2026-03-26
+id: 6
 description: Known-plaintext XOR crib attack on a fake PDF to recover a 16-byte repeating key.
 tags: ctf,crypto,writeup
 ---
 
 # white rabbit
 
-metactf. we get `whiterabbit.pdf` (418,224 bytes). doesn't open as a pdf.
+metactf. i get `whiterabbit.pdf` (418,224 bytes). doesn't open as a pdf.
 
 ## not a pdf
 

@@ -1,13 +1,14 @@
 ---
-title: crypto: needle in a multivariate
+title: crypto: needle in a multivariate (sekai ctf)
 date: 2026-06-29
+id: 12
 description: A multivariate-quadratic signature with no norm check. The 200 published signatures leak the hidden basis — BKZ it back, read off the secret p·I/q·I blocks, and forge with four squares.
 tags: ctf,crypto,writeup
 ---
 
 # needle in a multivariate
 
-sekai ctf. hard crypto. we get a multivariate-quadratic signature scheme and a server that hands over the flag if we can sign `STAGE OF SEKAI`. they give us the public key, 200 example signatures, and the source.
+sekai ctf. hard crypto. i get a multivariate-quadratic signature scheme and a server that hands over the flag if i can sign `STAGE OF SEKAI`. they give me the public key, 200 example signatures, and the source.
 
 the whole thing hinges on one line in the verifier.
 
@@ -22,7 +23,7 @@ def verify(self, message, signature):
     return signature * self.pk * signature == t
 ```
 
-`pk` is a $144 \times 144$ symmetric positive-definite integer matrix `Q`. that's it. verify checks $s \cdot Q \cdot s = t$ and **nothing else**. no norm bound, no size check, no distribution check. so we don't need to produce a *legit* signature — we just need any integer vector in $\mathbb{Z}^{144}$ that hits the target quadratic value. the needle.
+`pk` is a $144 \times 144$ symmetric positive-definite integer matrix `Q`. that's it. verify checks $s \cdot Q \cdot s = t$ and **nothing else**. no norm bound, no size check, no distribution check. so i don't need to produce a *legit* signature — i just need any integer vector in $\mathbb{Z}^{144}$ that hits the target quadratic value. the needle.
 
 keygen builds a secret "nice basis" gram matrix with a very specific block structure:
 
@@ -32,7 +33,7 @@ $$
 
 `p` and `q` are two 80-bit primes ($B_1 = 2^{80}$). then it publishes $pk = U^{\top} M_{\text{struct}}\, U$ for a secret unimodular `U`, which scrambles the basis so you can't see the blocks. a real signature is $s = U^{-1} x$ where `x` are "nice" coordinates with small entries ($\sim 2^{89}$), while the published `s` entries are bigger ($\sim 2^{111}$).
 
-in nice coordinates the quadratic form is exactly $x^{\top} M_{\text{struct}}\, x$. if we could *see* that basis, forgery would be trivial. so let's see it.
+in nice coordinates the quadratic form is exactly $x^{\top} M_{\text{struct}}\, x$. if i could *see* that basis, forgery would be trivial. so let's see it.
 
 ## the signatures are the leak
 

@@ -1,6 +1,7 @@
 ---
 title: building a serverless, dynamic blog with pure html and js
 date: 2026-01-05
+id: 1
 description: how i built a (somewhat) secure markdown blog engine that compiles at runtime with vanilla js and firebase, skipping every modern build step and all server infrastructure.
 tags: webdev,javascript,firebase,innovative
 ---

@@ -48,7 +48,7 @@ SKILLS = {
 }
 PROJECTS = [
     ("aimrpg", "in development", "indie game i'm lead dev on. someone else's project, i run the dev side.", "Go, Postgres", ""),
-    ("cctf.rs", "2026", "CTFd rebuilt from scratch in Rust. hand-rolled SMTP/JWT, rhai scripting, per-team k8s instancing.", "Rust, Kubernetes", "post15"),
+    ("cctf.rs", "2026", "CTFd rebuilt from scratch in Rust. hand-rolled SMTP/JWT, rhai scripting, per-team k8s instancing.", "Rust, Kubernetes", "cctf-rs"),
     ("Personal Website", "2026", "this site. static, no build framework.", "HTML, CSS, Markdown", ""),
     ("AI Vision Assistant", "2025, wip", "real-time visual analysis assistant.", "Python, TensorFlow, OpenCV", ""),
     ("Neovim Dots", "2025-2026, wip", "custom neovim config for speed and competitive programming.", "Lua, Vimscript", ""),
@@ -157,8 +157,10 @@ def page(sub, title, body, desc="", extra="", head_extra=""):
 
 
 def load_posts():
+    """posts/<slug>.md -> url /<slug>.html. `id:` in front matter is the legacy numeric comment id (keeps old Firestore
+    comments attached); posts without one use their slug as the comment key."""
     out = []
-    for f in sorted(POSTS.glob("post*.md"), key=lambda p: int(re.sub(r"\D", "", p.stem))):
+    for f in sorted(POSTS.glob("*.md")):
         t = f.read_text()
         meta, body = {}, t
         m = re.match(r"---\n(.*?)\n---\n(.*)", t, re.S)
@@ -168,8 +170,11 @@ def load_posts():
                     k, v = line.split(":", 1)
                     meta[k.strip()] = v.strip()
             body = m.group(2)
+        legacy = int(meta["id"]) if meta.get("id", "").isdigit() else None
         out.append(dict(slug=f.stem, title=meta.get("title", f.stem), date=meta.get("date", ""),
-                        desc=meta.get("description", ""), tags=[x.strip() for x in meta.get("tags", "").split(",") if x.strip()], body=body))
+                        desc=meta.get("description", ""), tags=[x.strip() for x in meta.get("tags", "").split(",") if x.strip()],
+                        body=body, legacy_id=legacy, comment_key=str(legacy) if legacy is not None else f.stem))
+    out.sort(key=lambda p: p["legacy_id"] if p["legacy_id"] is not None else 10**6)  # same-date posts keep their old order
     out.sort(key=lambda p: p["date"], reverse=True)
     return out
 
@@ -219,12 +224,17 @@ def build(posts):
         content = render_math(md.convert(text), exprs)
         has_math = bool(exprs)
         (DIST / "blog" / f"{p['slug']}.html").write_text(page("blog", p["title"] + " - riverxia",
-            f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article><section class='box' id='comments' data-post='{re.sub(r'\D', '', p['slug'])}'><noscript>comments need javascript.</noscript></section>", desc=p["desc"], extra='<script type="module" src="comments.js"></script>',
+            f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article><section class='box' id='comments' data-post='{e(p['comment_key'])}'><noscript>comments need javascript.</noscript></section>", desc=p["desc"], extra='<script type="module" src="comments.js"></script>',
             head_extra='<link rel="stylesheet" href="katex/katex.min.css">\n' if has_math else ""))
         rows += f"<li><span class='dim'>{p['date']}</span> <a href='{p['slug']}.html'>{e(p['title'])}</a><br><span class='dim'>{e(p['desc'])}</span></li>"
     (DIST / "blog" / "index.html").write_text(page("blog", "blog - riverxia", f"<h1>~*~ blog ~*~</h1><p><a href='rss.xml'>[rss]</a></p><section class='box'><ul class='loose'>{rows}</ul></section>"))
     feed = "".join(f"<item><title>{e(p['title'])}</title><link>{url('blog', p['slug'] + '.html')}</link><description>{e(p['desc'])}</description></item>" for p in posts)
     (DIST / "blog" / "rss.xml").write_text(f'<?xml version="1.0"?><rss version="2.0"><channel><title>riverxia</title><link>{url("blog")}</link><description>blog</description>{feed}</channel></rss>')
+    redirects = []  # old /postN urls -> new slugs (cloudflare workers static assets honours _redirects)
+    for p in posts:
+        if p["legacy_id"] is not None:
+            redirects += [f"/post{p['legacy_id']} /{p['slug']} 301", f"/post{p['legacy_id']}.html /{p['slug']} 301"]
+    (DIST / "blog" / "_redirects").write_text("\n".join(redirects) + "\n")
     shutil.copy(ROOT / "comments.js", DIST / "blog" / "comments.js")
     kdist = ROOT / "node_modules" / "katex" / "dist"
     if kdist.exists():

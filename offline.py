@@ -40,7 +40,7 @@ def main():
         content = build.render_math(md.convert(text), exprs)
         for k, v in img.items():
             content = content.replace(f'src="{k}"', f'src="{v}"')
-        n = re.sub(r"\D", "", p["slug"])
+        n = p["slug"]
         tags = " ".join(f"<span class='tag'>{e(t)}</span>" for t in p["tags"])
         toc.append(f'<li><a href="#post-{n}">{e(p["title"])}</a><br><span class="dim">{p["date"]}</span></li>')
         sections.append(f'<section class="box post" id="post-{n}"><h1>{e(p["title"])}</h1>'

@@ -1,6 +1,7 @@
 ---
 title: random osu! adjacent shitpost
 date: 2026-01-16
+id: 4
 description: its a shitpost dont expect effort here
 tags: shitpost, random, competitive programming, osu!, osu
 ---

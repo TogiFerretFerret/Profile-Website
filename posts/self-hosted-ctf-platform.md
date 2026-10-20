@@ -1,6 +1,7 @@
 ---
 title: how we built a self-hosted ctf platform (from scratch-ish)
 date: 2026-03-26
+id: 8
 description: Custom CTFd deployment with Cloudflare Tunnel, per-player instancing, WebSocket bridge for nc challenges, and a theme that actually looks good.
 tags: ctf,infra,selfhost
 ---
