@@ -85,6 +85,12 @@ here's what that looks like in the git history (utc):
 
 141 commits in an hour is not something a human does. it's something a human *supervises*, with increasing panic.
 
+here's my github contribution graph for the same stretch, because i needed visual evidence that i'm not exaggerating:
+
+![my github contribution graph from sept 20 to oct 20: a quiet month, small bumps on the 14th and 16th, nothing on the 17th and 18th, then 444 and 509 contributions on the 19th and 20th](/blog/assets/contribution-graph-2026-10-20.png)
+
+a quiet month of me being a normal person with a normal number of commits, two days of nothing, and then a wall. (it counts contributions across all my repos, not just aevum, so the numbers don't match the git log above exactly.)
+
 ## the m1 day
 
 so there's this machine: an apple m1 running fedora asahi remix. we built the arm64 graphics target and launched it directly:
@@ -109,7 +115,7 @@ a gdb trace showed `vkGetPhysicalDeviceSurfaceFormatsKHR` returning **88 surface
 
 the fix was boring in the good way: bounded dynamic enumeration (up to 4,096 entries), retry if the count changes or the call returns `VK_INCOMPLETE`, and fail explicitly on garbage. after that (a 141 second build, 295 actions, 1,034 cache hits), a native wayland window opened and drew a **blue mesh** with readable text, and kept presenting through a resize sequence from 800x600 down to 320x240 and back to 1000x750.
 
-i'm not going to pretend that wasn't a good moment. it's a blue mesh. it's the best blue mesh i've ever seen. the compositor sent 995, 2,460 and 3,412 "presented" feedback events across three saved logs, and no, that's not an fps number, don't quote me on that, it's feedback events. it's also a demo fixture, not the game.
+i'd love to tell you i had a moment. i did not. cyberpunk edgerunners season 2 had come out like 13 minutes earlier, and i was significantly more hyped about that than about the blue mesh. a native vulkan renderer drawing its first pixels on a laptop gpu stack almost nobody targets, and i was thinking about anime. the mesh was fine. it's a good blue mesh. i just had other priorities. the compositor sent 995, 2,460 and 3,412 "presented" feedback events across three saved logs, and no, that's not an fps number, don't quote me on that, it's feedback events. it's also a demo fixture, not the game.
 
 ## the stuff that doesn't work
 
@@ -121,7 +127,7 @@ this is the part where i'm supposed to say the demo worked perfectly. it did not
 
 **files that exist but "don't".** on an arm64 test run, four probes failed with `file not found` for headers that were sitting right there on disk. turns out bazel refuses to let you use headers you didn't declare, which is exactly the point of a hermetic build and exactly as fun as it sounds.
 
-**a timed check is not a pass.** one arm64 `//:checks` run got interrupted at 120 seconds. the progress line said `1526/2147`, and that's bazel *actions*, not tests. it's incredibly tempting to read that as "71% green". it is not. do not do that to me.
+**a timed check is not a pass.** one arm64 `//:checks` run got cut off at 120 seconds, with four confirmed compile failures. that cutoff is my fault: i'm extremely impatient, so i capped test runs at two minutes. the progress line said `1526/2147`, and that's bazel *actions*, not tests. it's incredibly tempting to read that as "71% green". it is not. it's what a run looks like when its owner runs out of patience at 120.055 seconds. do not do that to me.
 
 there's also a commit called *"Fix duplicate local name blocking container regression compilation"*. one of the builds broke because two variables had the same name. i was also doing competitive programming and school work during this stretch of days, so that's about my speed.
 
@@ -140,7 +146,7 @@ another thing we kept saying out loud was "the most secure indie game", as a jok
 
 signed things get verified before they're trusted: native modules and module catalogs use ed25519 with a manifest that binds identity, digest, abi, architecture and version. content packages are authenticated encrypted archives. network sessions use verified tls with a signed key exchange, and messages get sealed with xchacha20-poly1305.
 
-the one rule i'm weirdly religious about: **no deterministic nonce fallback, ever.** every blob gets a fresh random nonce, and if the system's entropy source fails the publishing step aborts instead of limping along. "make the build reproducible" is a very tempting way to quietly ruin an aead.
+the one rule i'm weirdly religious about: **no deterministic nonce fallback, ever.** (at one point i spent a long time yapping at the agents about how it is not okay to have a nonce reuse issue. not okay in any amount, not even for reproducible builds. that rant is more or less where the rule comes from.) every blob gets a fresh random nonce, and if the system's entropy source fails the publishing step aborts instead of limping along. "make the build reproducible" is a very tempting way to quietly ruin an aead.
 
 rollback protection fails closed: a missing, corrupt or replayed floor file is a rejection, with no implicit "zero" default that quietly says yes. everything has size limits and key material gets wiped when stuff goes wrong.
 

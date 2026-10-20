@@ -31,7 +31,8 @@ def main():
     md = markdown.Markdown(extensions=["fenced_code", "tables", "codehilite"],
                            extension_configs={"codehilite": {"noclasses": True, "pygments_style": "native"}})
     site_css = (ROOT / "style.css").read_text()
-    img = {"assets/image1.png": data_uri(ROOT / "assets" / "image1.png", "image/png")}
+    mimes = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml", ".gif": "image/gif", ".webp": "image/webp"}
+    img = {f"assets/{f.name}": data_uri(f, mimes[f.suffix.lower()]) for f in sorted((ROOT / "assets").iterdir()) if f.suffix.lower() in mimes}
     has_math = False
     toc, sections = [], []
     for p in posts:
