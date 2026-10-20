@@ -1,0 +1,125 @@
+/* riverxia.sh webmail: 90s geocities on top of elastic */
+:root{--g-bg:#000020;--g-panel:#000030;--g-edge:#c0c0c0;--g-link:#6cf;--g-yel:#ff0;--g-lime:#0f0;--g-pink:#f0f;--g-dim:#9ad}
+html,body{background-color:#000014!important;background-image:radial-gradient(#fff 1px,transparent 1.5px),radial-gradient(#fc6 1px,transparent 1.5px)!important;background-size:37px 37px,53px 53px!important;background-position:0 0,17px 23px!important;background-attachment:fixed!important;color:#fff!important;font-family:"Times New Roman",Times,serif!important;font-size:16px}
+body *{font-family:inherit}
+a,a:visited{color:var(--g-link)}a:hover{color:var(--g-yel)!important;background:#00f}
+code,pre,tt,textarea.monospace,.mono,.message-part pre{font-family:"Courier New",monospace!important;color:var(--g-lime)}
+
+/* ---------- login ---------- */
+body.task-login #layout,body.task-login #layout-content{background:transparent!important}
+body.task-login #layout-content{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+body.task-login .formcontent,body.task-login form{background:transparent!important}
+#login-form{width:min(26rem,94vw);background:#000025ee!important;border:4px ridge var(--g-edge);padding:0 0 1rem!important;box-shadow:0 0 0 3px #000,6px 6px 0 #00f8}
+#login-form::before{content:"riverxia.sh";display:block;text-align:center;padding:.7rem 0 .4rem;font:700 2.6rem "Comic Sans MS","Chalkboard SE",cursive;color:var(--g-yel);text-shadow:2px 2px var(--g-pink),4px 4px #00f;background:linear-gradient(90deg,#300060,#000080,#600060);border-bottom:3px double var(--g-yel)}
+#login-form::after{content:"~*~ webmail ~*~";display:block;text-align:center;color:var(--g-lime);font:700 .9rem "Courier New",monospace;margin-top:.8rem}
+#login-form img#logo,#login-form .logo,#logo{display:none!important}
+#login-form .formcontent{padding:1rem 1.2rem 0}
+#login-form label,#login-form .form-label{color:var(--g-yel)!important}
+#login-form .form-control{background:#000!important;color:var(--g-lime)!important;border:2px inset #888!important;border-radius:0!important}
+#login-form .formbuttons{padding:0 1.2rem}
+body.task-login .formbuttons .button,body.task-login .formbuttons button{width:100%}
+#login-form + .footer,.task-login .support-link,.task-login .footer{color:var(--g-dim)!important}
+.task-login #bottomline,.task-login .watermark{display:none}
+
+/* ---------- app frame ---------- */
+#layout>div,#layout-sidebar,#layout-list,#layout-content,.watermark{background:var(--g-panel)!important}
+#layout-sidebar{border-right:4px ridge var(--g-edge)!important}
+#layout-list{border-right:4px ridge var(--g-edge)!important}
+.header,#layout-sidebar>.header,#layout-list>.header,#layout-content>.header,.task-login .header{background:linear-gradient(90deg,#300060,#000080,#600060)!important;border-bottom:3px double var(--g-yel)!important;color:var(--g-yel)!important}
+.header .title,.header a,.header .searchbar .input-group *{color:var(--g-yel)!important}
+#layout-sidebar>.header .header-title::before,.header .header-title{color:var(--g-yel)!important}
+#layout-sidebar>.header::after{content:"riverxia.sh";font:700 1.4rem "Comic Sans MS",cursive;color:var(--g-yel);text-shadow:2px 2px var(--g-pink);padding:0 .5rem}
+#layout-sidebar>.header img,#layout-sidebar .logo{display:none}
+.footer,#layout-sidebar>.footer{background:#000040!important;border-top:3px double var(--g-yel)!important;color:var(--g-dim)!important}
+
+/* menus / folder list */
+#taskmenu a,#layout-sidebar a,ul.listing li>a{color:var(--g-link)!important;border-radius:0!important}
+#taskmenu a.selected,ul.listing li.selected>a,#folderlist-content li.selected>a{background:var(--g-yel)!important;color:#000!important;font-weight:700}
+#taskmenu a:hover,ul.listing li>a:hover{background:#00f!important;color:var(--g-yel)!important}
+#taskmenu a::before,ul.listing li>a::before{color:inherit}
+.listing li,.listing li>a,ul.treelist li{border-color:#224!important}
+
+/* message list */
+table.messagelist,table.records-table,.scroller{background:transparent!important}
+table.messagelist tr,.records-table tr{background:#000025!important;color:#fff!important;border-bottom:1px dotted #336!important}
+table.messagelist tr:nth-child(even){background:#000032!important}
+table.messagelist tr.unread,table.messagelist tr.unread a,table.messagelist tr.unread td{font-weight:700!important;color:var(--g-yel)!important}
+table.messagelist tr.selected,table.messagelist tr.focused{background:#00c!important}
+table.messagelist tr:hover{background:#101060!important}
+table.messagelist td a,table.messagelist td span{color:inherit!important}
+table.messagelist tr.flagged td.subject a{color:#f90!important}
+.pagenav,.pagenav *{color:var(--g-yel)!important}
+.listsearch,.searchbar{background:transparent!important}
+
+/* message / content */
+#layout-content,.iframe-wrapper,#messagecontframe{background:var(--g-panel)!important}
+.message-headers,.message-header,.header-headers,.headers-table td,table.headers-table td{color:#fff!important;background:#000040!important}
+.message-headers .subject,#message-header h2,.subject{color:var(--g-lime)!important;font-family:"Comic Sans MS",cursive!important}
+.message-part,.message-htmlpart,.rcmBody,body.rcmBody{background:#000025!important;color:#fff!important}
+.rcmBody a{color:var(--g-link)!important}
+.message-part blockquote,blockquote{border-left:3px dotted var(--g-pink)!important;background:#102!important;color:#ddd!important}
+
+/* controls */
+.btn,.button,button,a.button,.toolbar a,.menu a.button,.formbuttons .btn{border-radius:0!important}
+.btn,.button,button.btn,.toolbar a.button,.btn-secondary{background:#224!important;color:#fff!important;border:2px outset #aaa!important;box-shadow:none!important}
+.btn:hover,.button:hover,.toolbar a:hover{background:#00f!important;color:var(--g-yel)!important}
+.btn.btn-primary,.btn-primary,.button.mainaction,.toolbar a.compose,.btn.mainaction,.formbuttons .mainaction{background:var(--g-yel)!important;color:#000!important;border:2px outset #ff8!important;font-weight:700}
+.btn.btn-primary:hover,.btn-primary:hover{background:#ffa!important;color:#000!important}
+.toolbar a,.toolbar a::before{color:var(--g-link)!important}
+.toolbar a.disabled,.toolbar a.disabled::before{opacity:.4}
+input,select,textarea,.form-control,.custom-select,.input-group-text{background:#000!important;color:var(--g-lime)!important;border:2px inset #888!important;border-radius:0!important;box-shadow:none!important}
+input::placeholder,textarea::placeholder{color:#3a3!important}
+label,.form-label,.col-form-label,legend{color:var(--g-yel)!important}
+
+/* popups, dialogs, menus */
+.popover,.popover .popup,.popupmenu,.ui-dialog,.ui-dialog-content,.ui-widget-content,.menu,.popup{background:#000030!important;color:#fff!important;border:3px ridge var(--g-edge)!important;border-radius:0!important;box-shadow:5px 5px 0 #00f8!important}
+.ui-dialog-titlebar,.ui-widget-header,.popover .pm-header{background:linear-gradient(90deg,#300060,#000080)!important;color:var(--g-yel)!important;border-radius:0!important}
+.popover a,.popupmenu a,.menu a{color:var(--g-link)!important}
+.popover a:hover,.popupmenu a:hover,.menu a:hover{background:#00f!important;color:var(--g-yel)!important}
+
+/* compose / editor */
+.compose-headers,#compose-content,#composebody,.mce-content-body,.editor,.mce-edit-area{background:#000025!important;color:var(--g-lime)!important}
+.mce-panel,.mce-toolbar,.tox .tox-toolbar,.tox .tox-edit-area__iframe{background:#000030!important}
+#compose-attachments,.attachmentslist li{background:#000040!important;border:2px outset #888!important}
+
+/* misc */
+.boxwarning,.boxerror,.boxconfirmation,.boxinformation,#messagestack div{border-radius:0!important;border:3px ridge var(--g-edge)!important;font-weight:700}
+.boxinformation,.boxconfirmation{background:#030!important;color:var(--g-lime)!important}
+.boxwarning{background:#430!important;color:var(--g-yel)!important}
+.boxerror{background:#400!important;color:#f66!important}
+hr{border:0;border-top:3px double var(--g-yel)}
+.badge,.count,.unreadcount{background:#f00!important;color:var(--g-yel)!important;border-radius:0!important;font-weight:700}
+::-webkit-scrollbar{width:14px;height:14px}::-webkit-scrollbar-track{background:#000020}::-webkit-scrollbar-thumb{background:#445;border:2px outset #aaa}
+
+/* ---------- round 2 fixes ---------- */
+#layout-menu{background:#000040!important;border-right:4px ridge var(--g-edge)}
+#layout-menu>*{background:transparent!important}
+#layout-menu #taskmenu{background:transparent!important}
+#layout-menu a{color:var(--g-link)!important}
+#layout-menu .footer a,#layout-menu .footer a::before{color:var(--g-dim)!important}
+#taskmenu a.compose{background:var(--g-pink)!important;color:#fff!important;border:2px outset #f8f!important;text-shadow:1px 1px #000}
+#taskmenu a.compose::before{color:#fff!important}
+#taskmenu a.selected{background:var(--g-yel)!important;color:#000!important}
+#taskmenu a.selected::before,#taskmenu a.selected span{color:#000!important}
+.toolbar a.disabled,.toolbar a.disabled::before,.toolbar a.disabled span{opacity:.55;color:#5577aa!important}
+.editor-toolbar{background:#000040!important;border-bottom:2px solid #336!important}
+.editor-toolbar a,.editor-toolbar a::before{color:var(--g-link)!important}
+table.messagelist td,table.messagelist tr.selected td,table.messagelist tr.focused td{background:transparent!important}
+table.messagelist tr.selected,table.messagelist tr.selected td,table.messagelist tr.focused td{color:#fff!important}
+table.messagelist tr.selected td.subject a,table.messagelist tr.selected span{color:#fff!important}
+table.messagelist .rowactions,table.messagelist td.flags span.flag{background:#000040!important;border:2px outset #888!important}
+/* empty preview pane */
+iframe[src*="watermark"]{opacity:0}
+.iframe-wrapper{position:relative}
+.iframe-wrapper::before{content:"~*~ pick a message ~*~";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 1.4rem "Comic Sans MS",cursive;color:#336;text-shadow:2px 2px #000}
+.iframe-wrapper iframe{position:relative;z-index:1}
+/* login: drop the dim product-name text under the form */
+body.task-login .footer,body.task-login #login-form~*{display:none}
+/* round 3 */
+.popover-header,span.special-buttons,#layout-menu .special-buttons{background:#000040!important;border:0!important}
+#login-footer,body.task-login h1.voice{display:none!important}
+body.task-login #layout-content{padding:0!important;justify-content:center!important}
+#login-form{margin:0 auto!important}
+/* round 4 */
+#layout-menu .popover-header,#layout-menu span.special-buttons,#layout-menu .header{background:#000040!important;background-color:#000040!important}
+body.task-login #login-form{transform:translateY(-12vh)}
