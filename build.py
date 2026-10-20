@@ -173,11 +173,14 @@ def load_posts():
                     meta[k.strip()] = v.strip()
             body = m.group(2)
         legacy = int(meta["id"]) if meta.get("id", "").isdigit() else None
-        out.append(dict(slug=f.stem, title=meta.get("title", f.stem), date=meta.get("date", ""),
+        # optional `time: HH:MM` orders posts that share a date (display shows only the date)
+        when = meta.get("time", "") if re.fullmatch(r"\d{1,2}:\d{2}", meta.get("time", "")) else ""
+        out.append(dict(slug=f.stem, title=meta.get("title", f.stem), date=meta.get("date", ""), time=when.zfill(5) if when else "",
                         desc=meta.get("description", ""), tags=[x.strip() for x in meta.get("tags", "").split(",") if x.strip()],
                         body=body, legacy_id=legacy, comment_key=str(legacy) if legacy is not None else f.stem))
-    out.sort(key=lambda p: p["legacy_id"] if p["legacy_id"] is not None else 10**6)  # same-date posts keep their old order
-    out.sort(key=lambda p: p["date"], reverse=True)
+    # newest first. same date: later `time:` first; posts without a time sort after those with one,
+    # then by legacy id (higher = newer), then by slug so the order is always deterministic.
+    out.sort(key=lambda p: (p["date"], p["time"], p["legacy_id"] or 0, p["slug"]), reverse=True)
     return out
 
 

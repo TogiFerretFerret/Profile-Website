@@ -1,6 +1,7 @@
 ---
 title: cf: sanae and giant robot
 date: 2026-10-20
+time: 18:45
 description: copying intervals sounds annoying. prefix sums turn it into propagating zeros with a queue and a set, which is a fancy way of saying bfs where the graph is also a set.
 tags: competitive programming,prefix sums,editorial
 ---

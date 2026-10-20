@@ -1,6 +1,7 @@
 ---
 title: cadmium — an mcp server so an ai can read my school's lms
 date: 2026-09-30
+time: 13:20
 description: a local, single-user mcp server that lets an ai assistant read my classes, assignments, grades and files and update assignment status and tasks. output in a compact text format that's 40% to 99.9% smaller than the api's json. built and live-tested against my real account in one day.
 tags: python,mcp,ai,writeup
 ---

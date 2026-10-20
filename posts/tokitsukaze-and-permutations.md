@@ -1,6 +1,7 @@
 ---
 title: cf: tokitsukaze and permutations
 date: 2026-10-20
+time: 18:46
 description: counting backwards through bubble sort with inversion sequences, where the whole answer collapses into a single product. suspiciously easy for something that took this long to see.
 tags: competitive programming,combinatorics,editorial
 ---

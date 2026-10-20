@@ -1,6 +1,7 @@
 ---
 title: bromine-tui — my school's lms in my terminal (in rust)
 date: 2026-10-20
+time: 18:23
 description: a mouse-and-keyboard terminal ui and a typed rust client for my school's lms. a persistent cache (first screen in 0.07 s warm), per-kind freshness with quiet background refresh, a feed that stays complete even though the server only returns 10 posts, and one worker thread that renews a lapsed session for all the others.
 tags: rust,tui,ratatui,writeup
 ---

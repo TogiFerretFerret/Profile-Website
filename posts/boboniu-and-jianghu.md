@@ -1,6 +1,7 @@
 ---
 title: cf: boboniu and jianghu
 date: 2026-10-20
+time: 18:44
 description: a tree dp problem about tourists and mountains that makes me wonder how i got usaco platinum. direct the roads uphill, pair incoming and outgoing edges, then run the dp on the equal-height choices.
 tags: competitive programming,trees,dp,editorial
 ---

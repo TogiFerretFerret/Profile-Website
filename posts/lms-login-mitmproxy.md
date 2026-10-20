@@ -1,6 +1,7 @@
 ---
 title: reversing my school's lms login with mitmproxy
 date: 2026-09-30
+time: 12:30
 description: my school's lms changed its sign-in endpoints and broke my hand-written client. i recorded a real browser session with mitmproxy and rebuilt the login from the capture. a b2c + google flow with a two-host cookie handoff, an api that says "expired" four different ways, and a login trick that only works because the page fails.
 tags: reversing,mitmproxy,python,writeup
 ---

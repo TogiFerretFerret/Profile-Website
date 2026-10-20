@@ -18,7 +18,9 @@ the creator is pretty open about the limits, which is what pointed me at the gap
 - rhyme computed from the actual **sounds** (the last stressed vowel onward), with near-rhymes, plus alliteration and assonance per line,
 - and **multi-stanza forms** like villanelles and terza rima.
 
-(none of this is a dig at versepad. it's a one-person tool that exists and works. i'm a chronic overbuilder, and this was an excuse to build an algorithm.)
+to be clear about the scale of what i'm comparing: **versepad's meter detector next to full prosodic is like four lines of javascript next to the v8 source.** that's a joke about *size*, not a review. versepad is one person's project, its creator calls the meter detector the most complex part of it, and it works. prosodic is just a different kind of animal: a big library with its own stanford project page and a whole constraint system behind it, and i wanted to see what happens when you put *that* behind a live editor.
+
+(none of this is a dig at versepad. i'm a chronic overbuilder, and this was an excuse to build an algorithm.)
 
 i was going to have codex build it. then i hit my usage limit. so i wrote it myself, by hand, which turned out to be the better outcome, because the interesting part is an algorithm and i wanted to get it right.
 

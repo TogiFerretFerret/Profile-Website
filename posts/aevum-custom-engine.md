@@ -1,6 +1,7 @@
 ---
 title: aevum — we wrote our own game engine because we're chudalinguses
 date: 2026-10-20
+time: 18:28
 description: a godot-derived, headless, bazel-built native runtime for aimrpgx, designed around declared builds and authenticated everything. 1,292 commits in eleven days, a vulkan driver that reported 88 surface formats to a renderer that expected 64, and an honest list of everything that still isn't done.
 tags: gamedev,engine,cpp,bazel,writeup
 ---

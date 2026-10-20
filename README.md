@@ -16,7 +16,7 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
   projects, ...) lives at the top of this file.
 - `style.css` — the one stylesheet, copied into each site.
 - `render_math.js` + `package.json` — build-time KaTeX: `$inline$` and `$$display$$` math in posts becomes static HTML (no client-side math script).
-- `posts/<slug>.md` — blog posts; the filename is the url (`blog.riverxia.sh/<slug>`). front matter: `title`, `date`, `description`, `tags`. `id:` is only set on the first 16 posts: it's their old numeric comment key, so existing comments stay attached. new posts need no `id` (comments are keyed by slug). old `/postN` urls redirect to the slugs via `dist/blog/_redirects`.
+- `posts/<slug>.md` — blog posts; the filename is the url (`blog.riverxia.sh/<slug>`). front matter: `title`, `date`, `description`, `tags`. `time: HH:MM` (optional) orders posts that share a date, newest first; the date on the page never shows it. `id:` is only set on the first 16 posts: it's their old numeric comment key, so existing comments stay attached. new posts need no `id` (comments are keyed by slug). old `/postN` urls redirect to the slugs via `dist/blog/_redirects`.
 - `assets/` — images used by posts.
 - `offline.py` — builds one self-contained `dist/blog-offline.html` with every post (css, math fonts and images embedded) for offline reading: `python3 offline.py`.
 - `deploy.sh` — build and deploy all three sites.

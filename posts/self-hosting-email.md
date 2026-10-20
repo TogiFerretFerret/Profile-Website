@@ -1,6 +1,7 @@
 ---
 title: i self-host my email now (and every wrong turn i took)
 date: 2026-10-20
+time: 00:25
 id: 16
 description: postfix, dovecot, rspamd, opendkim and roundcube on a cheap vps so i can have a real address on my own domain. the dns you actually need, and every dumb thing that broke on the way.
 tags: email,selfhosting,linux,devops,postfix
