@@ -12,15 +12,7 @@ after the [login reverse-engineering](lms-login-mitmproxy.html), i had a working
 
 so i built cadmium, a local mcp server (stdio, single user, runs on my machine) that exposes my school's lms to an ai: classes, assignments, grades, the activity feed, files. and a few write actions.
 
-yes, an ai (claude code) wrote most of the code for a tool that lets an ai read my homework. i directed, it typed. the live testing against my real account was the fun part.
-
-## where it started
-
-the starting point was a handoff doc i pasted into the session. it described a fastmcp-based `server.py` with 4 tools (`list_classes`, `get_class_info`, `get_assignments`, `get_assignment_details`), a client `apiwrapper.py` with a stray `print(te)` (which is *bad* on a stdio transport, because stdout is the protocol), a broken `authwrapper.py`, and a mostly unused `CONFIG.py`.
-
-the original brief said "read-only access, for personal use only". my first message in the session changed that: *"we aren't quite going full read-only, i want to be able to write like... assignment in-progress etc."*
-
-i also said the old code was written before i'd started CTFs, back when i was around USACO bronze. so this wasn't a patch, it was a rewrite done properly. that's the "from the ground up".
+the live testing against my real account was the fun part.
 
 ## what it does
 
@@ -94,17 +86,12 @@ errors go through a decorator so a failure reaches the model as text instead of 
 
 these are characters, not tokens (i never ran a tokenizer), and each is a single measurement on live data. "compact json" means the same projected data re-serialized, not the raw api response.
 
-## the day
-
-i started the session around 12:30 and the last python-related request was around 21:00, with long gaps. the first working login with the rewritten auth code was at about 12:55. i renamed it cadmium at 13:20. i registered it in claude desktop at 13:32, and the browser and 403 problems came right after. the file-submission safety rule landed in the afternoon, pdf-as-image viewing around 15:45, printing in the early evening (that's where the three print errors came from), and i registered it in codex at 18:43. so the honest summary is "built and tested in one day", not "built in eight hours of straight work".
-
 ## rough edges
 
-- there's no git history for this one, so the story above rests on file times and my memory of the session.
 - it's one flat directory of modules, not a package.
 - the output format has no decoder, so you can't pipe tool output into other programs.
 - sign-in depends on the userscript and on port 8420 being free. two clients signing in at once can collide.
 - duplex printing is untested on paper.
 - it stays local-only. i have no plans to publish this one.
 
-if you want something on a nicer surface than a chat window, that's the next post: a rust library and a terminal ui for the same lms.
+if you want something on a nicer surface than a chat window, that's a later post: a rust library and a terminal ui for the same lms.

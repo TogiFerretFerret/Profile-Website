@@ -14,8 +14,6 @@ so i did what you do when someone changes an api on you without telling you: i r
 
 (i'll write `<school>` for my school's hostname and `<user>` for my username. no tokens, cookies, ids or emails in here, and the raw captures stay on my machine because they contain my live session.)
 
-this was a pair-programming session with claude code: i drive, it types. i'll say where that matters.
-
 ## the setup
 
 i already had a client called bromine, part of a custom frontend i'd built for the same lms. it had two problems. the endpoints were gone, and it parsed `Set-Cookie` by array position (`split(";")[9]`, `split(";")[6]`), which is exactly as fragile as it sounds.

@@ -5,3 +5,4 @@ __pycache__/
 .env
 .wrangler/
 .deploy-stamp
+.build.lock

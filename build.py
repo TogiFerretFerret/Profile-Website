@@ -254,6 +254,9 @@ def build(posts):
 
 
 if __name__ == "__main__":
+    import fcntl  # one build at a time: two builds racing in dist/ crash each other (a second one waits here)
+    _lock = open(ROOT / ".build.lock", "w")
+    fcntl.flock(_lock, fcntl.LOCK_EX)
     posts = load_posts()
     build(posts)
     print("built", len(posts), "posts")

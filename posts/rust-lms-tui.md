@@ -10,8 +10,6 @@ tags: rust,tui,ratatui,writeup
 
 the [python server](cadmium-mcp-server.html) was built for an ai to read my lms. this one is for me: a terminal ui with a typed rust client library underneath, for the same lms. it's public and mit licensed: [blackbaud-tui](https://github.com/TogiFerretFerret/blackbaud-tui).
 
-like the others, this was built with claude code. my first message was basically *"make a rust library and start working on a full on mouse+keyboard enabled TUI for blackbaud"*, and then a lot of me steering. the architecture critique in the middle of the day was mine, and it changed the whole thing.
-
 ## what it does
 
 four views: **assignments** (grouped by due date, with status buttons and personal tasks: new, edit, link to an assignment, delete), **classes** (about, work, topics, news, files, grades, people), **feed**, and **files**. mouse and keyboard both work. flags: `--demo`, `--no-cache`, `--clear-cache`.
