@@ -49,6 +49,7 @@ SKILLS = {
 PROJECTS = [
     ("aimrpg", "in development", "indie game i'm lead dev on. someone else's project, i run the dev side.", "Go, Postgres", ""),
     ("cctf.rs", "2026", "CTFd rebuilt from scratch in Rust. hand-rolled SMTP/JWT, rhai scripting, per-team k8s instancing.", "Rust, Kubernetes", "cctf-rs"),
+    ("Prosody Writer", "2026", "realtime poetry editor: live stress, meter, rhyme, sound devices and form detection. an incremental DP over the full Prosodic library, so scansion never enumerates pronunciations.", "Python, FastAPI, Prosodic, JavaScript", "prosody-writer"),
     ("Personal Website", "2026", "this site. static, no build framework.", "HTML, CSS, Markdown", ""),
     ("AI Vision Assistant", "2025, wip", "real-time visual analysis assistant.", "Python, TensorFlow, OpenCV", ""),
     ("Neovim Dots", "2025-2026, wip", "custom neovim config for speed and competitive programming.", "Lua, Vimscript", ""),
@@ -59,6 +60,7 @@ PROJECTS = [
 PROJECT_LINKS = {
     "aimrpg": [("website", "https://aimrpg.com"), ("steam", "https://store.steampowered.com/app/4947810")],
     "cctf.rs": [("repo", "https://github.com/TogiFerretFerret/cctf.rs")],
+    "Prosody Writer": [("repo", "https://github.com/TogiFerretFerret/prosody-writer")],
 }
 BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff", SOCIALS[1][1]),
            ("osu!", "#e4a", "#fff", SOCIALS[2][1]), ("AO3", "#900", "#fc9", SOCIALS[3][1]),
