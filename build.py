@@ -13,6 +13,10 @@ DOMAIN = "riverxia.sh"
 PROD = "--prod" in sys.argv
 
 CONTACT = "river&#64;riverxia.sh"  # @ as an entity: mild protection from naive scrapers
+TEAMS = [
+    ("idktheflag", "founded and captained (formerly)", "#58 global, #7 in the US (2026)", "https://ctftime.org/team/419270"),
+    ("B4 (Bishkek Bureau of Binary Bandits)", "member (team founded and captained by Vakuum)", "#10 global (2026)", "https://ctftime.org/team/431075"),
+]
 SOCIALS = [
     ("github", "https://github.com/TogiFerretFerret"),
     ("ctftime", "https://ctftime.org/user/249194"),
@@ -180,12 +184,14 @@ def build(posts):
 
     aw = "".join(f"<li><b>{e(a)}</b> <span class='dim'>&mdash; {e(b)}</span></li>" for a, b in AWARDS)
     sk = "".join(f"<li><b>{k}</b>: {e(v)}</li>" for k, v in SKILLS.items())
+    teams = "".join(f'<li><b><a href="{u}">{e(n)}</a></b> <br><span class="dim">{e(r)} &middot; {e(k)}</span></li>' for n, r, k, u in TEAMS)
     latest = "".join(f'<li><span class="dim">{p["date"]}</span> <a href="{url("blog", p["slug"] + ".html")}">{e(p["title"])}</a></li>' for p in posts[:6])
     body = f"""<h1>~*~ hi, i'm river ~*~</h1>
 <p class="tagline">ur friendly pansexual paragirlflux genderfae hecker :3<br>aka gaslight gatekeep get shell (she/her/they/them)</p>
 <div class="cols">
 <section class="box"><h2>about me</h2>{''.join(f'<p>{e(x)}</p>' for x in ABOUT)}</section>
 <section class="box"><h2>latest posts</h2><ul>{latest}</ul><p><a href="{url('blog')}">&gt;&gt; all posts</a> <span class='new'>NEW!</span></p></section>
+<section class="box"><h2>ctf teams</h2><ul>{teams}</ul><p><a href="{SOCIALS[1][1]}">&gt;&gt; my ctftime profile</a></p></section>
 <section class="box"><h2>awards &amp; stuff</h2><ul>{aw}</ul></section>
 <section class="box"><h2>contact</h2><p>email me: <a href="mailto:{CONTACT}">{CONTACT}</a></p><p class="dim">writeup questions, collabs, bug reports, or just saying hi. you can also find me on github, ctftime and osu! (links on the left).</p></section>
 <section class="box"><h2>skills</h2><ul>{sk}</ul>
