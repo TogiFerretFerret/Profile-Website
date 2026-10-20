@@ -1,5 +1,5 @@
 ---
-title: Reversing KryptonPlus: Tearing Apart a Minecraft Rat
+title: reversing kryptonplus: tearing apart a minecraft rat
 date: 2026-05-02
 description: Full static analysis of a JNI-obfuscated Minecraft cheat client with a bundled RAT — custom Zig AOT compiler, IEEE 754 string encryption, and goto-spaghetti bytecode decryption.
 tags: reversing,malware,writeup

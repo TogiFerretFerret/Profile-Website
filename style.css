@@ -53,3 +53,7 @@ button.link:hover{background:#00f;color:#ff0}
 .cthread .comment{margin-left:.5rem}.cbody{white-space:pre-wrap;overflow-wrap:anywhere;margin:.2rem 0}
 .chead .tag{background:#060;color:#fff}.cact{font-size:.9rem}
 .tagline{text-align:center;font-style:italic;color:var(--g-pink,#f0f);margin:-.4rem 0 1.2rem}
+.math-display{overflow-x:auto;text-align:center;margin:1rem 0;padding:.2rem 0}
+.katex{font-size:1.1em}
+pre.wrap{white-space:pre-wrap;word-break:break-all;overflow:visible;padding:.6rem;background:#000;border:2px inset #888;color:var(--g-lime,#0f0)}
+pre.wrap code{color:inherit;font-family:"Courier New",monospace}

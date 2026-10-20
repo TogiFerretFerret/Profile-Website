@@ -1,5 +1,5 @@
 ---
-title: Web: Paper 2
+title: web: paper 2
 date: 2026-03-22
 description: CSS attribute selectors meet Redis LRU eviction in a 500-point side-channel challenge.
 tags: ctf,web,writeup

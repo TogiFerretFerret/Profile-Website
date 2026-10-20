@@ -1,5 +1,5 @@
 ---
-title: Crypto: White Rabbit
+title: crypto: white rabbit
 date: 2026-03-26
 description: Known-plaintext XOR crib attack on a fake PDF to recover a 16-byte repeating key.
 tags: ctf,crypto,writeup

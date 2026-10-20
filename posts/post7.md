@@ -1,5 +1,5 @@
 ---
-title: Web: BrandKit Studio
+title: web: brandkit studio
 date: 2026-03-26
 description: Double extension upload bypass on nginx + PHP-FPM to get arbitrary file read.
 tags: ctf,web,writeup

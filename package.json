@@ -1,0 +1,8 @@
+{
+  "name": "riverxia-site",
+  "private": true,
+  "description": "build-time deps only (KaTeX renders blog math to static HTML)",
+  "dependencies": {
+    "katex": "^0.16.9"
+  }
+}

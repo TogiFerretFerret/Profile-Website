@@ -1,34 +1,42 @@
 ---
-title: Building a Serverless, Dynamic Blog with Pure HTML and JS
+title: building a serverless, dynamic blog with pure html and js
 date: 2026-01-05
-description: How I built a (somewhat) secure markdown-based blog engine that compiles at runtime using vanilla JS and Firebase, completely skipping modern build steps or server infrastructure.
+description: how i built a (somewhat) secure markdown blog engine that compiles at runtime with vanilla js and firebase, skipping every modern build step and all server infrastructure.
 tags: webdev,javascript,firebase,innovative
 ---
-## The Problem with Modern Web Dev
-Everywhere I go, I hear people ranting about the next big new framework. "Use Next.js" "Use Gatsby" "use Hugo".
 
-Everything needs a "build step";
-You write markdown, run a command, and it spits out static HTML.
+# a blog with no build step
 
-One little issue - to do that, you need infrastructure. Actually scratch that, you basically need infrastructure for everything. 
+> **update (oct 2026):** this is the story of the *first* version of this blog. i've since rebuilt the whole site as plain pre-rendered html on cloudflare, with a tiny python script instead of runtime compilation. the posts are still just markdown files and the comments are still firebase, but the "compile in your browser" part below is history now. i'm leaving it up because it was a fun idea and i don't delete my crimes.
 
-Nothing is plain-ol' HTML anymore, and with compute becoming more and more expensive because every ol' AI startup can get a ton of money for doing basically nothing, 
+## the problem with modern web dev
 
-So I wanted to do something different for my blog. Something I (hope) no one had done before. 
-Pure HTML. Pure Markdown. No build step.
-(and later on, we'll talk about how I added comments while keeping it FREE [I hope])
+everywhere i go i hear people ranting about the next big framework. "use next.js." "use gatsby." "use hugo."
 
-## The "Runtime Compilation" Approach
-Instead of compiling my blog posts to HTML *before* I deploy, I decided to compile *while you are reading them*.
+everything needs a **build step**. you write markdown, run a command, and it spits out static html.
 
-The architecture is surprisingly simple but powerful. 
-1. **Storage:** All my posts are just raw `.md` files sitting in a `posts/` directory.
-1. **Fetching:** When you load the page, a simple JavaScript loop uses the `fetch()` API to grab these files. 
-1. **Parsing:** I use a client-side library (`marked.js`) to turn that raw Markdown text into HTML instantly.
+one little issue: to do that you need infrastructure. actually scratch that, you basically need infrastructure for everything now. nothing is plain-ol' html anymore, and compute keeps getting more expensive because every ai startup can raise a ton of money for doing basically nothing.
 
-Here is the core logic that powers this engine:
+so i wanted to do something different for my blog. something i (hope) nobody had done before.
+
+pure html. pure markdown. no build step.
+
+(and later on we'll talk about how i added comments while keeping it FREE. i hope.)
+
+## the "runtime compilation" approach
+
+instead of compiling my posts to html *before* i deploy, i compile them *while you're reading them*.
+
+the architecture is surprisingly simple:
+
+1. **storage:** every post is a raw `.md` file in a `posts/` folder.
+1. **fetching:** when you load the page, a javascript loop uses `fetch()` to grab those files.
+1. **parsing:** a client-side library (`marked.js`) turns the raw markdown into html instantly.
+
+here's the core of the engine:
+
 ```javascript
-// Fetch markdown files dynamically
+// fetch markdown files dynamically
 async function loadPosts() {
     const fetchPromises = [];
     for (let i = 1; i <= CONFIG.postCount; i++) {
@@ -42,24 +50,26 @@ async function loadPosts() {
 }
 ```
 
-This also makes the site incredibly lightweight. There is no routing library, no virtual DOM, and no hydration errors. Just requests and text manipulation. And at that, all the HTML/JS pretty much is all in one file too (for... reasons) so it's even more lightweight (arguably).
+this also makes the site incredibly lightweight. no routing library, no virtual dom, no hydration errors. just requests and text manipulation. and all the html/js is in one file too (for... reasons), so it's even more lightweight. (arguably.)
 
-## Making it Social (Serverless Comments)
-A blog isn't a blog without comments, but static HTML files can't store data. To keep this "serverless" (and free!), I integrated **Google Firebase**.
+## making it social (serverless comments)
 
-The comment section you see below connects directly to a Firestore NoSQL database (read: free database).
+a blog isn't a blog without comments, but static html can't store data. to keep this "serverless" (and free!) i used **google firebase**.
 
-* **Reads:** Open to the public.
-* **Writes:** Anyone can write (authenticated anonymously for throttling/security)
-* **Admin:** I have a special verified badge logic that checks my email **hash** against the database to prove it's me, without exposing my email in the source code. While it is possibly this might be able to be bypassed, the admin badge is set based on poster ID, which I don't believe can be spoofed; while it might be possible to fake the username, I don't think it is possible to spoof the badge, and either way only an admin can delete posts at the **Firestore** level.
+the comment section connects straight to a firestore nosql database (read: free database).
 
-## Why this Matters
-We often over-engineer simple problems (one could make a valid argument that my entire blog is overengineered).
+- **reads:** open to the public.
+- **writes:** anyone can write (authenticated anonymously, for throttling/security).
+- **admin:** i have a verified-badge check that compares my email **hash** against the database to prove it's me, without putting my email in the source. could this be bypassed? possibly. but the badge is set from the poster's id, which i don't believe can be spoofed. someone might fake the *username*, but i don't think they can fake the *badge*, and either way only an admin can delete things at the **firestore** level.
 
-However, by stripping away the frameworks, I built a blog that is:
+## why this matters
 
-1. **Fast:** The "compile" step happens in milliseconds on-device.
-1. **Cheap:** Hosted on Vercel (frontend) and Firebase (backend) for free.
-1. **Flexible:** I just drop a new `.md` file in the folder, increment a number in the config, and it's live.
+we over-engineer simple problems all the time. (one could make a valid argument that my entire blog is overengineered.)
 
-It's a "pile of steaming code" perhaps, but it's *my* pile of steaming code, and it works beautifully. 
+but by stripping away the frameworks i ended up with a blog that is:
+
+1. **fast:** the "compile" step takes milliseconds on your device.
+1. **cheap:** hosted on vercel (frontend) and firebase (backend) for free. *(at the time. see the update at the top.)*
+1. **flexible:** i drop a new `.md` file in the folder, bump a number in the config, and it's live.
+
+it's a pile of steaming code, perhaps. but it's *my* pile of steaming code, and it works beautifully.

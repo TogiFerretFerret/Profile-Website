@@ -2,7 +2,7 @@
 """Static build: python3 build.py [--prod]  ->  dist/{www,blog,projects}/
 --prod uses real riverxia.sh links; default uses local paths for preview.
 Each dist/<sub> is one deployable site root (see deploy.sh)."""
-import html, re, shutil, sys
+import html, json, re, shutil, subprocess, sys
 from pathlib import Path
 import markdown
 
@@ -72,6 +72,47 @@ else{fetch(U+D+":commit?key="+K,{method:"POST",headers:{"Content-Type":"applicat
 .then(function(r){return r.json()}).then(function(d){show(d.writeResults[0].transformResults[0].integerValue);mark()}).catch(function(){})}})();"""
 
 
+# --- math: $inline$ and $$display$$ are rendered to static HTML at build time with KaTeX (node) ---
+CODE_RE = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+DISPLAY_RE = re.compile(r"\$\$(.+?)\$\$", re.S)
+INLINE_RE = re.compile(r"(?<![\\$])\$(?!\s)([^$\n]+?)(?<!\s)\$(?!\d)")
+
+
+def extract_math(text):
+    """swap math for MATHXnX tokens (code spans/blocks are left alone); returns (text, [(display, latex)])."""
+    codes, exprs = [], []
+    t = CODE_RE.sub(lambda m: (codes.append(m.group(0)), f"\x01C{len(codes) - 1}\x01")[1], text)
+
+    def disp(m):
+        exprs.append((True, m.group(1).strip()))
+        return f"\n\nMATHX{len(exprs) - 1}X\n\n"
+
+    def inl(m):
+        exprs.append((False, m.group(1)))
+        return f"MATHX{len(exprs) - 1}X"
+
+    t = INLINE_RE.sub(inl, DISPLAY_RE.sub(disp, t))
+    t = re.sub(r"\x01C(\d+)\x01", lambda m: codes[int(m.group(1))], t)
+    return t, exprs
+
+
+def render_math(htmltext, exprs):
+    if not exprs:
+        return htmltext
+    out = subprocess.run(["node", str(ROOT / "render_math.js")], input=json.dumps([{"e": e, "d": d} for d, e in exprs]),
+                         capture_output=True, text=True, cwd=ROOT)
+    if out.returncode != 0:
+        sys.exit("math rendering failed (run `npm install` first):\n" + out.stderr)
+    rendered = json.loads(out.stdout)
+    for i, (d, _) in enumerate(exprs):
+        tok = f"MATHX{i}X"
+        if d:
+            htmltext = htmltext.replace(f"<p>{tok}</p>", f'<div class="math-display">{rendered[i]}</div>').replace(tok, rendered[i])
+        else:
+            htmltext = htmltext.replace(tok, rendered[i])
+    return htmltext
+
+
 def url(sub, path=""):
     if not PROD:
         return f"/{sub}/{path}"
@@ -79,7 +120,7 @@ def url(sub, path=""):
     return f"https://{host}/{path}"
 
 
-def page(sub, title, body, desc="", extra=""):
+def page(sub, title, body, desc="", extra="", head_extra=""):
     nav = "".join(f'<li><a class="{"on" if s == sub else ""}" href="{url(s)}">{n}</a></li>' for n, s in SUBS)
     btns = "".join(f'<a class="b88" style="background:{bg};color:{fg}" href="{u or "#"}">{e(n)}</a>' for n, bg, fg, u in BUTTONS)
     mq = " &#9733; ".join(["welcome to riverxia.sh", "CTF player", "competitive programmer", "osu! enjoyer", "rust haver", "thanks for visiting"] * 2)
@@ -89,7 +130,7 @@ def page(sub, title, body, desc="", extra=""):
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc or title)}">
 <link rel="stylesheet" href="style.css">
-</head><body>
+{head_extra}</head><body>
 <div class="top"><div class="logo"><a href="{url('www')}">riverxia<span>.sh</span></a></div>
 <div class="marq"><span>{mq}</span></div></div>
 <div class="frame">
@@ -165,14 +206,23 @@ def build(posts):
     for p in posts:
         md.reset()
         tags = " ".join(f"<span class='tag'>{e(t)}</span>" for t in p["tags"])
-        content = md.convert(p["body"].replace("/blog/assets/", "assets/"))
+        text, exprs = extract_math(p["body"].replace("/blog/assets/", "assets/"))
+        content = render_math(md.convert(text), exprs)
+        has_math = bool(exprs)
         (DIST / "blog" / f"{p['slug']}.html").write_text(page("blog", p["title"] + " - riverxia",
-            f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article><section class='box' id='comments' data-post='{re.sub(r'\D', '', p['slug'])}'><noscript>comments need javascript.</noscript></section>", desc=p["desc"], extra='<script type="module" src="comments.js"></script>'))
+            f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article><section class='box' id='comments' data-post='{re.sub(r'\D', '', p['slug'])}'><noscript>comments need javascript.</noscript></section>", desc=p["desc"], extra='<script type="module" src="comments.js"></script>',
+            head_extra='<link rel="stylesheet" href="katex/katex.min.css">\n' if has_math else ""))
         rows += f"<li><span class='dim'>{p['date']}</span> <a href='{p['slug']}.html'>{e(p['title'])}</a><br><span class='dim'>{e(p['desc'])}</span></li>"
     (DIST / "blog" / "index.html").write_text(page("blog", "blog - riverxia", f"<h1>~*~ blog ~*~</h1><p><a href='rss.xml'>[rss]</a></p><section class='box'><ul class='loose'>{rows}</ul></section>"))
     feed = "".join(f"<item><title>{e(p['title'])}</title><link>{url('blog', p['slug'] + '.html')}</link><description>{e(p['desc'])}</description></item>" for p in posts)
     (DIST / "blog" / "rss.xml").write_text(f'<?xml version="1.0"?><rss version="2.0"><channel><title>riverxia</title><link>{url("blog")}</link><description>blog</description>{feed}</channel></rss>')
     shutil.copy(ROOT / "comments.js", DIST / "blog" / "comments.js")
+    kdist = ROOT / "node_modules" / "katex" / "dist"
+    if kdist.exists():
+        (DIST / "blog" / "katex" / "fonts").mkdir(parents=True)
+        shutil.copy(kdist / "katex.min.css", DIST / "blog" / "katex" / "katex.min.css")
+        for f in (kdist / "fonts").glob("*.woff2"):
+            shutil.copy(f, DIST / "blog" / "katex" / "fonts" / f.name)
     shutil.copytree(ROOT / "assets", DIST / "blog" / "assets")
     shutil.copy(ROOT / "bimi.svg", DIST / "www" / "bimi.svg")  # BIMI logo (SVG Tiny PS)
     for sub in ("www", "blog", "projects"):

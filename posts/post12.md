@@ -1,5 +1,5 @@
 ---
-title: Crypto: Needle in a Multivariate
+title: crypto: needle in a multivariate
 date: 2026-06-29
 description: A multivariate-quadratic signature with no norm check. The 200 published signatures leak the hidden basis — BKZ it back, read off the secret p·I/q·I blocks, and forge with four squares.
 tags: ctf,crypto,writeup

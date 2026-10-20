@@ -1,5 +1,5 @@
 ---
-title: Misc: TEAGod Staff WiFi
+title: misc: teagod staff wifi
 date: 2026-07-05
 description: An enterprise WiFi RADIUS server that trusts a public CA for client auth. Grab a free Actalis S/MIME cert, present it as your EAP-TLS client cert, and you're staff.
 tags: ctf,misc,writeup

@@ -1,5 +1,5 @@
 ---
-title: From Dusk Till Dawn 2026 Quals
+title: from dusk till dawn 2026 quals
 date: 2026-05-09
 description: 16 solves, 6 writeups. we went hard on this one. italian CTF with rome finals for top 5.
 tags: ctf,writeup

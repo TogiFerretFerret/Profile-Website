@@ -15,6 +15,7 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
 - `build.py` — static generator (Python 3 + the `markdown` package). Content data (about, awards,
   projects, ...) lives at the top of this file.
 - `style.css` — the one stylesheet, copied into each site.
+- `render_math.js` + `package.json` — build-time KaTeX: `$inline$` and `$$display$$` math in posts becomes static HTML (no client-side math script).
 - `posts/*.md` — blog posts with `title/date/description/tags` front matter.
 - `assets/` — images used by posts.
 - `deploy.sh` — build and deploy all three sites.
@@ -34,6 +35,7 @@ match /counters/visits {
 
 ```sh
 pip install markdown
+npm install                            # KaTeX, for math in blog posts
 python3 build.py                       # local links, output in dist/
 python3 -m http.server -d dist 8000    # open http://localhost:8000/www/
 ```

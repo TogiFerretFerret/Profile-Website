@@ -1,5 +1,5 @@
 ---
-title: Crypto: Baby ZKP
+title: crypto: baby zkp
 date: 2026-07-05
 description: A Schnorr proof whose response is reduced mod the wrong prime. Two stages, two RNGs — a truncated LCG cracked with a lattice, and MT19937 rebuilt from GF(2) relations on the leaked responses.
 tags: ctf,crypto,writeup

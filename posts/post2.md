@@ -1,65 +1,77 @@
 ---
-title: Why C++ Will Never Die (and why it shouldn't!)
+title: why c++ will never die (and why it shouldn't!)
 date: 2026-01-06
-description: It's not because it's such a perfect language...
+description: it's not because it's such a perfect language...
 tags: cpp,rant,competitive programming,lambda functions
 ---
-Okay, so I get that not everyone likes C++. It's a difficult language to learn and use, and it has MANY quirks that just... piss you off.
 
-Like seriously, it's a strictly typed language that oh-so-also happens to have the `auto` type.
+# why c++ will never die
 
-But, I'm a firm believer that C++ is still good and relevant (not that I'm sure anyone was arguing otherwise) but I just wanted to talk about **MY** gripes with C++, and also what I love about it. 
+okay so i get that not everyone likes c++. it's a difficult language to learn and use, and it has MANY quirks that just... piss you off.
 
-## Lambda Functions and Auto
-You may be awfully confused why I would combine these two seemingly unrelated things in one category, but trust me, they are pretty similar. 
-In C++, there are lambda functions. Here is how most (competitive programmers) write them.
+like seriously, it's a strictly typed language that oh-so-also happens to have the `auto` type.
+
+but i'm a firm believer that c++ is still good and relevant (not that i'm sure anyone was arguing otherwise). i just wanted to talk about **MY** gripes with c++, and also what i love about it.
+
+## lambda functions and auto
+
+you may be awfully confused why i'd put these two seemingly unrelated things in one category, but trust me, they're pretty similar.
+
+in c++ there are lambda functions. here's how most (competitive programmers) write them:
+
 ```cpp
 // some stuff here
 auto lambdafunction = [&] (int a, string b) {
     return something;
 };
 ```
-or something like that. Note the semicolon at the end (very important, because we're defining a variable here!)
 
-Pretty neat, huh?
-But wait, we don't specify a return type, so how does that work?
-The magic of **`auto`**.
-It just... resolves?
+or something like that. note the semicolon at the end (very important, because we're defining a variable here!)
 
-But this is a strictly typed language! We cannot have a system that doesn't allow us to strictly type things! So what's the proper way to define this?
+pretty neat, huh?
 
-Well, to know that, we obviously need to know the return type. Let's say our return type is `size_t` (what a `vector.size()` would return)
+but wait, we don't specify a return type, so how does that work?
 
-Well, `size_t` is actually just an `unsigned long`, which is actually just a 32-bit unsigned integer (exactly like an `unsigned int`, but whatever, because a `long` is exactly the same as an `int` for some reason...)
+the magic of **`auto`**. it just... resolves?
 
-So because of that, and because `size_t` isn't actually a type we can reference (but `size_type` is? which also is an `unsigned long`?), our returned type will be unsigned long.
+but this is a strictly typed language! we cannot have a system that doesn't let us strictly type things! so what's the proper way to define this?
 
-Here's the proper syntax for defining it then (you might need to scroll to the right to see the whole block).
+well, to know that we obviously need to know the return type. let's say it's `size_t` (what a `vector.size()` would return).
+
+`size_t` is actually just an `unsigned long`, which is actually just a 32-bit unsigned integer (exactly like an `unsigned int`, but whatever, because a `long` is exactly the same as an `int` for some reason...)
+
+so because of that, and because `size_t` isn't actually a type we can reference (but `size_type` is? which is also an `unsigned long`?), our return type will be unsigned long.
+
+here's the proper syntax for defining it then (you might need to scroll right to see the whole block):
 
 ```cpp
 function<unsigned long(int,string)> lambdafunction = [&] (int a, string b) -> unsigned long {
     return something;
 };
 ```
-Wait, what? It just got like... twice as long!
 
-Yes! Yes it did!
+wait, what? it just got like... twice as long!
 
-So what's that whole `<unsigned long(int,string)>` thing? Well, I couldn't find too much documentation on it (or I didn't look hard enough), but I basically tried enough stuff until I figured it out, so I'll grace you with YOU not having to do the same thing.
+yes! yes it did!
 
-Basically, it is `<return type(parameter types in order, comma separated)>`. Except, we already define the parameter types `(int a, string b)` and the return type `-> unsigned long`! So why do we need to do it again?
+so what's that whole `<unsigned long(int,string)>` thing? i couldn't find much documentation on it (or i didn't look hard enough), so i basically tried enough stuff until it worked, and now i'm graciously sparing YOU from having to do the same.
 
-**Because C++ is redundant, and that is good.**
+basically it's `<return type(parameter types in order, comma separated)>`. except we already wrote the parameter types `(int a, string b)` and the return type `-> unsigned long`! so why do we need to do it again?
 
-Redundancy is rarely the worst solution. All it can do is catch mistakes from higher levels. So now that you've joined me in the cult of lambda functions, let's move on to talking about literally anything else!
+**because c++ is redundant, and that is good.**
 
-## Why are preprocessor macros Turing Complete again?
-Yes, I checked, preprocessor macros are apparently Turing Complete. You could basically write anything with them (in theory) with enough time and effort.
+redundancy is rarely the worst solution. all it can do is catch mistakes from higher levels. so now that you've joined me in the cult of lambda functions, let's move on to literally anything else!
 
-So why are things meant more for convenience have to be Turing Complete?
+## why are preprocessor macros turing complete again?
 
-I have no answer for you. Moving on, I just thought that was pretty cool.
+yes, i checked. preprocessor macros are apparently turing complete. you could write basically anything with them (in theory) given enough time and effort.
 
-## See you next time!
-I ran out of C++ stuff to rant about for now (at least that I could think of just now).
-See you next time!
+so why does something meant for convenience have to be turing complete?
+
+i have no answer for you. moving on, i just thought that was pretty cool.
+
+## see you next time!
+
+i ran out of c++ stuff to rant about for now (at least that i could think of just now).
+
+see you next time!
