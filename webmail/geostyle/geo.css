@@ -53,11 +53,6 @@ table.messagelist tr.flagged td.subject a{color:#f90!important}
 
 /* message / content */
 #layout-content,.iframe-wrapper,#messagecontframe{background:var(--g-panel)!important}
-.message-headers,.message-header,.header-headers,.headers-table td,table.headers-table td{color:#fff!important;background:#000040!important}
-.message-headers .subject,#message-header h2,.subject{color:var(--g-lime)!important;font-family:"Comic Sans MS",cursive!important}
-.message-part,.message-htmlpart,.rcmBody,body.rcmBody{background:#000025!important;color:#fff!important}
-.rcmBody a{color:var(--g-link)!important}
-.message-part blockquote,blockquote{border-left:3px dotted var(--g-pink)!important;background:#102!important;color:#ddd!important}
 
 /* controls */
 .btn,.button,button,a.button,.toolbar a,.menu a.button,.formbuttons .btn{border-radius:0!important}
@@ -147,14 +142,7 @@ table.messagelist tr.unread td.subject::before{color:#ff0}
 .pagenav,.pagenav *,.footer,.footer *{color:#fff!important}
 
 /* reading pane + compose body: light page, dark text (HTML mail renders correctly) */
-body.rcmBody,.rcmBody,.message-part,.message-htmlpart,div.rcmBody{background:#fffff6!important;color:#111!important}
-.rcmBody a,.message-part a{color:#0033cc!important}
-.rcmBody blockquote,.message-part blockquote{background:#f0efe0!important;color:#333!important;border-left:3px solid #8a2be2!important}
-.rcmBody code,.rcmBody pre,.message-part pre,.rcmBody tt{background:#f0efe0!important;color:#064!important}
 #composebody,.mce-content-body,textarea#composebody{background:#fffff6!important;color:#111!important;font-size:15px;line-height:1.5}
-.message-headers,.message-header,.headers-table td,.header-headers{color:#fff!important}
-.message-headers .subject,#message-header h2{color:#9f9!important}
-.message-headers a,.header-headers a{color:#9fe0ff!important}
 
 /* forms / popups */
 input,select,textarea,.form-control,.custom-select{color:#fff!important;background:#000!important;font-size:15px}
@@ -185,7 +173,7 @@ table.messagelist span.size{color:#8fa6cc!important;font-size:11px}
 .attachment-size{color:#9fe0ff!important}
 .attachmentslist li a.dropdown,.attachmentslist li a.button{background:#224!important;border:2px outset #aaa!important}
 /* plain text bodies a bit larger */
-.message-part pre,.rcmBody pre,div.pre,.message-part div.pre{font-size:14px!important;line-height:1.5;color:#111!important;background:transparent!important}
+.message-part pre,.rcmBody pre,div.pre,.message-part div.pre{font-size:14px;line-height:1.5}
 /* round 8 */
 .listing-hover-menu{display:none!important}
 table.messagelist td.flags,table.messagelist td.subject{background:inherit!important}
@@ -209,3 +197,36 @@ html.iframe,body.iframe{background-image:none!important;background-color:#000025
 #layout-list table tr.selected td::before,#layout-list table tr.focused td::before,#layout-list table tr.selected td a::before,#layout-list table tr.selected td span::before{color:#fff!important}
 /* round 12: the .iframe class is on <html>, not <body> */
 html.iframe,html.iframe body{background-image:none!important;background-color:#000025!important}
+
+/* ---------- round 13: the message view is ONE light page. mail keeps its own colors. ---------- */
+html.iframe body.task-mail.action-preview,html.iframe body.task-mail.action-show{background:#fff!important;color:#111!important}
+body.action-preview #layout-content,body.action-show #layout-content,body.action-preview .frame-content,body.action-show .frame-content,
+body.action-preview #message-content,body.action-show #message-content,body.action-preview .rightcol,body.action-show .rightcol,
+body.action-preview #messagebody,body.action-show #messagebody{background:#fff!important;color:#111}
+/* subject + header block */
+body.action-preview #message-header h2.subject,body.action-show #message-header h2.subject{color:#1a1a7a!important;font-family:"Comic Sans MS","Chalkboard SE",cursive!important}
+body.action-preview #message-header .header,body.action-show #message-header .header{background:#f1eee2!important;border:2px solid #cfc9b3!important;border-radius:0!important;color:#111!important;box-shadow:none!important}
+body.action-preview #message-header .header *,body.action-show #message-header .header *{color:#111!important}
+body.action-preview #message-header .header a,body.action-show #message-header .header a,
+body.action-preview #message-header .header a *,body.action-show #message-header .header a *{color:#0033cc!important}
+body.action-preview #message-header .header a::before,body.action-show #message-header .header a::before{color:#0033cc!important}
+body.action-preview #message-header a.extwin::before,body.action-show #message-header a.extwin::before{color:#0033cc!important}
+/* attachments */
+body.action-preview #message-content .leftcol,body.action-show #message-content .leftcol,
+body.action-preview #attachment-list,body.action-show #attachment-list{background:#fff!important}
+body.action-preview .attachmentslist li,body.action-show .attachmentslist li{background:#f1eee2!important;border:2px solid #cfc9b3!important;border-radius:0!important}
+body.action-preview .attachmentslist li a,body.action-show .attachmentslist li a,
+body.action-preview .attachment-name,body.action-show .attachment-name{color:#111!important}
+body.action-preview .attachment-size,body.action-show .attachment-size{color:#555!important}
+body.action-preview .attachmentslist li a.dropdown,body.action-show .attachmentslist li a.dropdown{background:#e6e1d0!important;border:1px solid #bbb!important}
+body.action-preview .attachmentslist li::before,body.action-show .attachmentslist li::before{color:#555!important}
+/* body defaults (mail inline styles override these) */
+body.action-preview #messagebody a,body.action-show #messagebody a{color:#0033cc}
+body.action-preview #messagebody blockquote,body.action-show #messagebody blockquote{border-left:3px solid #8a2be2;margin-left:0;padding-left:.8rem;color:#444}
+body.action-preview #messagebody code,body.action-preview #messagebody pre,body.action-preview #messagebody tt,
+body.action-show #messagebody code,body.action-show #messagebody pre,body.action-show #messagebody tt{color:#064;background:#f1eee2}
+body.action-preview #messagebody *,body.action-show #messagebody *{font-family:inherit}
+body.action-preview #messagebody pre,body.action-show #messagebody pre,body.action-preview #messagebody div.pre,body.action-show #messagebody div.pre{font-family:"DejaVu Sans Mono","Courier New",monospace}
+/* round 14 */
+body.action-preview #message-content .leftcol,body.action-show #message-content .leftcol,body.action-preview #attachment-list,body.action-show #attachment-list{border:0!important;box-shadow:none!important}
+body.action-preview #messagebody blockquote,body.action-show #messagebody blockquote{border-right:0!important;border-top:0;border-bottom:0}
