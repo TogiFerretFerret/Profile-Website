@@ -19,7 +19,7 @@ aside .box{padding:.3rem .5rem .5rem}
 h1{font:700 clamp(1.6rem,4vw,2.6rem) "Comic Sans MS",cursive;color:#0f0;text-align:center;border-top:3px double #f0f;border-bottom:3px double #f0f;padding:.2rem;margin:0 0 1rem}
 h2{font-size:1.15rem;color:#f90;background:#003;border-left:8px solid #f90;padding:.1rem .5rem;margin:.4rem 0 .6rem}h2::after{content:" \2606"}
 h3{margin:.2rem 0 .4rem;text-align:center;color:#ff0;font-size:1rem;border-bottom:1px dashed #ff0}
-.menu{list-style:none;padding:0;margin:0}.menu a{display:block;padding:.15rem .4rem;text-decoration:none;border:2px outset #aaa;margin-bottom:.3rem;background:#224;text-align:center;font-weight:700}
+.menu{list-style:none;padding:0;margin:0}.menu li{margin:0}.menu li::marker{content:""}.menu a{display:block;padding:.15rem .4rem;text-decoration:none;border:2px outset #aaa;margin-bottom:.3rem;background:#224;text-align:center;font-weight:700}
 .menu a.on{background:#ff0;color:#000;border-style:inset}.menu a:hover{background:#00f;color:#ff0}
 
 .btns{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center}
