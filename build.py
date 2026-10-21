@@ -24,7 +24,7 @@ SOCIALS = [
     ("osu!", "https://osu.ppy.sh/users/34415790"),
     ("ao3", "https://archiveofourown.org/users/Riverxia"),
 ]
-SUBS = [("home", "www"), ("blog", "blog"), ("projects", "projects"), ("uses", "uses"), ("dots", "dots"), ("paste", "paste")]
+SUBS = [("home", "www"), ("blog", "blog"), ("projects", "projects"), ("uses", "uses"), ("dots", "dots"), ("paste", "paste"), ("guestbook", "guestbook")]
 
 ABOUT = [
     "hi! i'm riverxia (i go by river). rawr. i'm a high school hacker and programmer who lives mostly in a terminal.",
@@ -244,6 +244,7 @@ def build_tui(posts):
                  "## skills", *[f"* {k}: {v}" for k, v in SKILLS.items()],
                  "## around the site", f"* {host('blog')} - writeups, rants, build logs", f"* {host('projects')} - things i made", f"* {host('uses')} - tools, languages, infra",
                  f"* {host('dots')} - hyprland rice + one-line installer (see the dots tab)",
+                 f"* {host('guestbook')} - guestbook, open to everyone: curl -d name=you -d message=hi guestbook.{DOMAIN}",
                  f"* {host('paste')} - tiny text pastebin: echo hi | curl --data-binary @- paste.{DOMAIN}"]),
         "",  # posts tab is a list, generated at runtime
         nl.join(["## ctf teams", *[f"* {n} - {r}, {k} {u}" for n, r, k, u in TEAMS], "## awards & stuff", *[f"* {a} - {b}" for a, b in AWARDS]]),
@@ -292,7 +293,8 @@ def build(posts):
 <li><a href="{url('projects')}">projects</a> <span class="dim">things i made</span></li>
 <li><a href="{url('uses')}">uses</a> <span class="dim">tools, languages, infra</span></li>
 <li><a href="{url('dots')}">dots</a> <span class="dim">hyprland rice + one-line installer</span></li>
-<li><a href="{url('paste')}">paste</a> <span class="dim">tiny text pastebin</span></li></ul></section>
+<li><a href="{url('paste')}">paste</a> <span class="dim">tiny text pastebin</span></li>
+<li><a href="{url('guestbook')}">guestbook</a> <span class="dim">say hi!</span></li></ul></section>
 <section class="box"><h2>terminal version</h2><p>prefer a terminal? this site has a tui:</p>
 <pre class="wrap"><code>curl -s riverxia.sh | bash</code></pre>
 <p class="dim">or with wget (it always saves as index.html):</p>
@@ -302,6 +304,12 @@ def build(posts):
 <p class="dim">plain bash, <a href="{url('www', 'riverxia.sh')}">read it first</a> if you like. h/l tabs, j/k move, enter reads a post, q quits.</p></section>
 </div>"""
     (DIST / "www" / "index.html").write_text(page("www", "riverxia", body, "river's corner of the internet"))
+    gb = f"""<h1>~*~ guestbook ~*~</h1><p class="tagline">sign it! no account, no approval. entries show up right away (rate limited, so be nice).</p>
+<section class="box" id="guestbook"><noscript>the guestbook form needs javascript. from a terminal: <code>curl -d name=you -d message=hi guestbook.{DOMAIN}</code></noscript></section>
+<p class="dim">terminal: <code>curl guestbook.{DOMAIN}</code> to read it, <code>curl -d name=you -d message='hi!' guestbook.{DOMAIN}</code> to sign it.</p>"""
+    (DIST / "guestbook" / "index.html").write_text(page("guestbook", "guestbook - riverxia", gb, "sign river's guestbook", extra='<script type="module" src="guestbook.js"></script>'))
+    shutil.copy(ROOT / "guestbook-client.js", DIST / "guestbook" / "guestbook.js")
+    (DIST / "www" / "_redirects").write_text(f"/guestbook https://guestbook.{DOMAIN}/ 301\n/guestbook.html https://guestbook.{DOMAIN}/ 301\n")
 
     items = ""
     for t, y, d, s, post in PROJECTS:

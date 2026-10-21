@@ -1,6 +1,6 @@
 # riverxia.sh build system.   make        -> same as `make all`
 #
-#   make all      deps + checks + production build + deploy all 6 sites + verify every page is live
+#   make all      deps + checks + production build + deploy all 7 sites + verify every page is live
 #                 (does NOT make the offline blog copy, and does NOT commit or push)
 #   make help     list every target
 #
@@ -15,14 +15,14 @@ MAKEFLAGS += --no-print-directory
 -include .env
 export
 
-SITES  := www blog projects uses dots paste
-SRC    := build.py tui/riverxia.sh dots/install.sh $(wildcard dots/shots/*) worker/front.js worker/paste.js button/riverxia.png button/riverxia.gif scripts/deploy-site.sh style.css comments.js bimi.svg render_math.js package.json $(wildcard posts/*.md assets/*)
+SITES  := www blog projects uses dots paste guestbook
+SRC    := build.py tui/riverxia.sh dots/install.sh $(wildcard dots/shots/*) worker/front.js worker/paste.js guestbook-client.js worker/guestbook.js button/riverxia.png button/riverxia.gif scripts/deploy-site.sh style.css comments.js bimi.svg render_math.js package.json $(wildcard posts/*.md assets/*)
 OFFLINE_OUT ?= $(HOME)/riverxia-blog-offline.html
 PORT   ?= 8000
 
 .PHONY: all help deps pydeps check build deploy verify preview offline push clean distclean
 
-all: deploy  ## everything: deps, checks, production build, deploy 6 sites, verify (not offline)
+all: deploy  ## everything: deps, checks, production build, deploy 7 sites, verify (not offline)
 
 help:  ## list targets
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -45,7 +45,7 @@ dist/.built: $(SRC) | deps check
 	python3 build.py --prod
 	@touch $@
 
-deploy: .deploy-stamp  ## build if needed, deploy www/blog/projects/uses/dots/paste, verify every page (skipped if nothing changed)
+deploy: .deploy-stamp  ## build if needed, deploy www/blog/projects/uses/dots/paste/guestbook, verify every page (skipped if nothing changed)
 
 .deploy-stamp: dist/.built
 	@[ -n "$${CLOUDFLARE_ACCOUNT_ID:-}" ] || { echo "CLOUDFLARE_ACCOUNT_ID is not set (see .env.example)" >&2; exit 1; }

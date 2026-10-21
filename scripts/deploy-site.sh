@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # deploy one built site (dist/<site>) as a Cloudflare Worker with static assets, then verify every page is live.
-# usage: scripts/deploy-site.sh www|blog|projects|uses|dots|paste  (called by the Makefile)
+# usage: scripts/deploy-site.sh www|blog|projects|uses|dots|paste|guestbook  (called by the Makefile)
 set -euo pipefail
 cd "$(dirname "$0")/.."
-site="${1:?usage: deploy-site.sh www|blog|projects|uses|dots|paste [verify]}"
+site="${1:?usage: deploy-site.sh www|blog|projects|uses|dots|paste|guestbook [verify]}"
 mode="${2:-deploy}"   # "verify" only checks the live pages, no upload
-case "$site" in www) host=riverxia.sh ;; blog|projects|uses|dots|paste) host="$site.riverxia.sh" ;; *) echo "unknown site: $site" >&2; exit 2 ;; esac
+case "$site" in www) host=riverxia.sh ;; blog|projects|uses|dots|paste|guestbook) host="$site.riverxia.sh" ;; *) echo "unknown site: $site" >&2; exit 2 ;; esac
 
 deploy() {
   # one wrangler config per site (generated: dist/ is rebuilt on every build).
@@ -13,6 +13,7 @@ deploy() {
   #   paste:    worker/paste.js + a KV namespace (created on first deploy)
   local kv=""
   [ "$site" = paste ] && kv="$(ensure_kv riverxia-pastes)"
+  [ "$site" = guestbook ] && kv="$(ensure_kv riverxia-guestbook)"
   python3 - "$site" "$kv" > "dist/$site.wrangler.jsonc" <<'PY'
 import json, sys
 site, kv = sys.argv[1], sys.argv[2]
@@ -23,10 +24,29 @@ if site in ("www", "dots"):
 elif site == "paste":
     cfg.update(main="../worker/paste.js", kv_namespaces=[{"binding": "PASTES", "id": kv}])
     cfg["assets"].update(binding="ASSETS", run_worker_first=True)
+elif site == "guestbook":
+    cfg.update(main="../worker/guestbook.js", kv_namespaces=[{"binding": "GB", "id": kv}])
+    cfg["assets"].update(binding="ASSETS", run_worker_first=True)
 print(json.dumps(cfg, indent=1))
 PY
   npx -y wrangler@latest deploy --config "dist/$site.wrangler.jsonc"
+  [ "$site" = guestbook ] && ensure_admin_token
   ensure_domain
+}
+
+# the guestbook admin token lives outside the repo (default ~/.config/private/guestbook-admin-token, created on first deploy)
+# and is uploaded as a worker secret once. delete entries from the page ([admin] link) or: curl -X DELETE -H "x-admin-token: $(cat file)" .../api/entries/<id>
+ensure_admin_token() {
+  local f="${GUESTBOOK_ADMIN_TOKEN_FILE:-$HOME/.config/private/guestbook-admin-token}"
+  if [ ! -s "$f" ]; then
+    mkdir -p "$(dirname "$f")"; chmod 700 "$(dirname "$f")"
+    (umask 077; python3 -c 'import secrets;print(secrets.token_urlsafe(32))' > "$f")
+    echo "created guestbook admin token at $f" >&2
+  fi
+  if ! npx -y wrangler@latest secret list --name "riverxia-$site" 2>/dev/null | grep -q ADMIN_TOKEN; then
+    npx -y wrangler@latest secret put ADMIN_TOKEN --name "riverxia-$site" < "$f" >/dev/null
+    echo "uploaded ADMIN_TOKEN secret for riverxia-$site" >&2
+  fi
 }
 
 cf_auth() {
