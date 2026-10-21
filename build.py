@@ -241,14 +241,21 @@ def build_tui(posts):
     nl = "\n\n"
     texts = [
         nl.join(["## about", *ABOUT, "## contact", f"* email: {contact}", *[f"* {n}: {u}" for n, u in SOCIALS],
-                 "## skills", *[f"* {k}: {v}" for k, v in SKILLS.items()]]),
+                 "## skills", *[f"* {k}: {v}" for k, v in SKILLS.items()],
+                 "## around the site", f"* {host('blog')} - writeups, rants, build logs", f"* {host('projects')} - things i made", f"* {host('uses')} - tools, languages, infra",
+                 f"* {host('dots')} - hyprland rice + one-line installer (see the dots tab)",
+                 f"* {host('paste')} - tiny text pastebin: echo hi | curl --data-binary @- paste.{DOMAIN}"]),
         "",  # posts tab is a list, generated at runtime
         nl.join(["## ctf teams", *[f"* {n} - {r}, {k} {u}" for n, r, k, u in TEAMS], "## awards & stuff", *[f"* {a} - {b}" for a, b in AWARDS]]),
         nl.join(["## projects", *[f"* {t} ({y}) - {d} stack: {s}" + "".join(f" [{n}: {u}]" for n, u in PROJECT_LINKS.get(t, [])) + (f" [writeup: {host('blog')}/{post}]" if post else "")
                                   for t, y, d, s, post in PROJECTS]]),
         nl.join(f"## {k}\n" + "\n".join(f"* {n} - {d}" for n, d in v) for k, v in USES.items()),
+        nl.join(["## dots", f"hyprland on apple silicon, built from scratch. gallery: {host('dots')}",
+                 "## install", f"* all of it, interactively: curl -s dots.{DOMAIN} | bash", f"* just some: curl -s dots.{DOMAIN} | bash -s -- --only nvim,ghostty,fish",
+                 "* flags: --list --dry-run --all --yes. existing configs are moved to a backup, never deleted. no sudo.",
+                 "## components", *[f"* {n} - {d} (github.com/{r})" for n, r, d, _ in DOTS]]),
     ]
-    data = ["TAB_NAMES=(home posts ctf projects uses)"]
+    data = ["TAB_NAMES=(home posts ctf projects uses dots)"]
     data += [f"TEXT_{i}={shlex.quote(t)}" for i, t in enumerate(texts)]
     for var, key in (("P_SLUG", "slug"), ("P_DATE", "date"), ("P_TITLE", "title")):
         data.append(f"{var}=(" + " ".join(shlex.quote(p[key]) for p in posts) + ")")

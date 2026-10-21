@@ -32,7 +32,8 @@ all_tags() { local t; for t in "${P_TAGS[@]}"; do tr ',' '\n' <<<"$t"; done | so
 
 if [ "${1:-}" = --plain ] || ! { [ -t 1 ] && has_tty; }; then
   echo "~*~ hi, i'm river ~*~   $SITE"
-  for i in 0 2 3 4; do
+  for i in "${!TAB_NAMES[@]}"; do
+    [ "$i" = 1 ] && continue
     echo; n="TEXT_$i"; fmt_text "${!n}" 78 0
   done
   echo; echo "## posts"
