@@ -16,7 +16,7 @@ MAKEFLAGS += --no-print-directory
 export
 
 SITES  := www blog projects uses dots paste
-SRC    := build.py tui/riverxia.sh dots/install.sh $(wildcard dots/shots/*) worker/front.js worker/paste.js scripts/deploy-site.sh style.css comments.js bimi.svg render_math.js package.json $(wildcard posts/*.md assets/*)
+SRC    := build.py tui/riverxia.sh dots/install.sh $(wildcard dots/shots/*) worker/front.js worker/paste.js button/riverxia.png button/riverxia.gif scripts/deploy-site.sh style.css comments.js bimi.svg render_math.js package.json $(wildcard posts/*.md assets/*)
 OFFLINE_OUT ?= $(HOME)/riverxia-blog-offline.html
 PORT   ?= 8000
 

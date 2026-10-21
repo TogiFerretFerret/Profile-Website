@@ -103,6 +103,9 @@ BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff"
 
 e = html.escape
 
+# my own 88x31 (drawn by a friend; source in button/). hotlinking is fine, it is 2 KB.
+BUTTON_HTML = f'<a href="https://{DOMAIN}/"><img src="https://{DOMAIN}/riverxia.gif" width="88" height="31" alt="riverxia.sh"></a>'
+
 # visitor counter: one Firestore REST call per browser session (rules: see README)
 COUNTER_JS = """(function(){var P="riverxia-dev-portfolio",K="AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
 D="projects/"+P+"/databases/(default)/documents",U="https://firestore.googleapis.com/v1/",el=document.getElementById("hits");
@@ -190,6 +193,8 @@ def page(sub, title, body, desc="", extra="", head_extra=""):
 <div class="box"><h3>~ menu ~</h3><ul class="menu">{nav}</ul></div>
 <div class="box"><h3>email me</h3><p class="mailme"><a href="mailto:{CONTACT}">{CONTACT}</a></p></div>
 <div class="box"><h3>elsewhere</h3><div class="btns">{btns}</div></div>
+<div class="box mybtn"><h3>link to me</h3><p><picture><source media="(prefers-reduced-motion: reduce)" srcset="riverxia.png"><img src="riverxia.gif" width="88" height="31" alt="riverxia.sh"></picture></p>
+<details><summary class="dim">copy the html</summary><textarea readonly rows="5" onfocus="this.select()">{e(BUTTON_HTML)}</textarea></details></div>
 <div class="box"><h3>stats</h3><p class="cnt">you are visitor<br><b id="hits">???????</b></p></div>
 </aside>
 <main>
@@ -260,6 +265,8 @@ def build(posts):
     for _, sub in SUBS:
         (DIST / sub).mkdir(parents=True)
         (DIST / sub / "style.css").write_text(css)
+        for f in ("riverxia.png", "riverxia.gif"):
+            shutil.copy(ROOT / "button" / f, DIST / sub / f)
 
     aw = "".join(f"<li><b>{e(a)}</b> <span class='dim'>&mdash; {e(b)}</span></li>" for a, b in AWARDS)
     sk = "".join(f"<li><b>{k}</b>: {e(v)}</li>" for k, v in SKILLS.items())
