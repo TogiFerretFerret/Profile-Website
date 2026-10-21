@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Static build: python3 build.py [--prod]  ->  dist/{www,blog,projects}/
+"""Static build: python3 build.py [--prod]  ->  dist/{www,blog,projects,uses}/
 --prod uses real riverxia.sh links; default uses local paths for preview.
 Each dist/<sub> is one deployable site root (see deploy.sh)."""
-import html, json, re, shutil, subprocess, sys
+import html, json, re, shlex, shutil, subprocess, sys
+from collections import Counter
 from pathlib import Path
 import markdown
 
@@ -23,12 +24,12 @@ SOCIALS = [
     ("osu!", "https://osu.ppy.sh/users/34415790"),
     ("ao3", "https://archiveofourown.org/users/Riverxia"),
 ]
-SUBS = [("home", "www"), ("blog", "blog"), ("projects", "projects")]
+SUBS = [("home", "www"), ("blog", "blog"), ("projects", "projects"), ("uses", "uses")]
 
 ABOUT = [
-    "hi! i'm riverxia (i go by river). rawr.",
-    "i like competitive programming, cybersecurity and software development. when i'm not solving CTFs i'm poking at new tech.",
-    "started programming at 7 and never stopped. i like algorithms, data structures, and web dev. also osu! (top 200k global).",
+    "hi! i'm riverxia (i go by river). rawr. i'm a high school hacker and programmer who lives mostly in a terminal.",
+    "i captain idktheflag, one of the top high school CTF teams in the US, and mostly play crypto, web and reversing. when i'm not solving CTFs i'm building things: a CTF platform in rust, a poetry editor that scans your verse as you type, a self-hosted mail server, a school LMS client for my terminal.",
+    "started programming at 7 and never stopped. competitive programming (USACO Platinum), algorithms, data structures, web dev. also osu! (top 200k global). this blog is where the writeups, rants and build logs end up.",
 ]
 AWARDS = [
     ("National Cyber League 2026", "#1 HS / #5 overall. captain of the top high school team."),
@@ -45,6 +46,19 @@ SKILLS = {
     "languages": "Python, JS/TS, C++, Java, Rust, Go",
     "tools": "React/Next.js, Node.js, TensorFlow, Q#, Git, Azure",
     "areas": "algorithms, web, cybersecurity, game dev",
+}
+USES = {
+    "desktop & shell": [("arch + hyprland", "daily driver, tiling wm (fedora userland with mostly arch components)"), ("ghostty", "terminal. i do basically everything in it"),
+                        ("fish + zoxide", "shell, and `z` instead of `cd`"), ("neovim", "custom config tuned for speed and competitive programming (see Neovim Dots on the projects page)"),
+                        ("mpv, ffmpeg, yt-dlp", "media, from the terminal")],
+    "languages & tooling": [("python + uv", "scripts, CTF tooling, this site's build"), ("rust + cargo", "cctf.rs, bromine-tui, anything that should be fast and correct"),
+                            ("c++", "competitive programming"), ("js/ts + bun", "web stuff"), ("go", "game server work"), ("git + gh", "obviously")],
+    "ctf toolbox": [("ida pro + binary ninja", "reversing, personal licenses for both"), ("pwntools, z3, sage", "the usual crypto and pwn kit"),
+                    ("binwalk, zsteg, exiftool", "forensics and stego triage"), ("netcat, curl, mitmproxy", "web and traffic poking, all from the terminal")],
+    "infra": [("cloudflare workers", "all four sites here are static-asset workers, plus dns"), ("ovh vps", "mail (postfix, dovecot, rspamd, opendkim, roundcube) and dev stacks"),
+              ("docker + kubernetes", "per-team challenge instancing for cctf.rs"), ("tailscale", "private networking between machines")],
+    "this site": [("python-markdown + pygments", "posts are markdown files, built to static html"), ("katex", "math rendered at build time, no client js"),
+                  ("make", "one command builds, checks, deploys and verifies everything")],
 }
 PROJECTS = [
     ("aimrpg", "in development", "indie game i'm lead dev on. someone else's project, i run the dev side.", "Go, Postgres", ""),
@@ -77,6 +91,16 @@ function mark(){try{sessionStorage.setItem("hit","1")}catch(x){}}
 if(seen()){fetch(U+D+"/counters/visits?key="+K).then(function(r){return r.json()}).then(function(d){show(d.fields.count.integerValue)}).catch(function(){})}
 else{fetch(U+D+":commit?key="+K,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({writes:[{transform:{document:D+"/counters/visits",fieldTransforms:[{fieldPath:"count",increment:{integerValue:"1"}}]}}]})})
 .then(function(r){return r.json()}).then(function(d){show(d.writeResults[0].transformResults[0].integerValue);mark()}).catch(function(){})}})();"""
+
+
+# blog tag filter: progressive enhancement, without js the full list just stays visible
+TAG_JS = "<script>" + """(function(){var li=[].slice.call(document.querySelectorAll("#posts li")),ch=[].slice.call(document.querySelectorAll("#tagbar a")),none=document.getElementById("none");
+function cur(){return new URLSearchParams(location.search).get("tag")||""}
+function apply(t){var n=0;li.forEach(function(x){var hide=!!t&&(","+x.dataset.tags+",").indexOf(","+t+",")<0;x.hidden=hide;if(!hide)n++});
+ch.forEach(function(a){a.classList.toggle("on",a.dataset.tag===t)});none.hidden=n>0;document.title=(t?"#"+t+" - ":"")+"blog - riverxia"}
+document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-tag]");if(!a||e.metaKey||e.ctrlKey||e.shiftKey)return;
+e.preventDefault();var t=a.dataset.tag;history.pushState(null,"",t?"?tag="+encodeURIComponent(t):location.pathname);apply(t)});
+window.addEventListener("popstate",function(){apply(cur())});apply(cur())})();""" + "</script>"
 
 
 # --- math: $inline$ and $$display$$ are rendered to static HTML at build time with KaTeX (node) ---
@@ -184,6 +208,30 @@ def load_posts():
     return out
 
 
+def build_tui(posts):
+    """dist/www/riverxia.sh: bash TUI of the site (template in tui/riverxia.sh, site data embedded as shell strings)."""
+    host = lambda sub: f"https://{DOMAIN}" if sub == "www" else f"https://{sub}.{DOMAIN}"
+    contact = html.unescape(CONTACT)
+    nl = "\n\n"
+    texts = [
+        nl.join(["## about", *ABOUT, "## contact", f"* email: {contact}", *[f"* {n}: {u}" for n, u in SOCIALS],
+                 "## skills", *[f"* {k}: {v}" for k, v in SKILLS.items()]]),
+        "",  # posts tab is a list, generated at runtime
+        nl.join(["## ctf teams", *[f"* {n} - {r}, {k} {u}" for n, r, k, u in TEAMS], "## awards & stuff", *[f"* {a} - {b}" for a, b in AWARDS]]),
+        nl.join(["## projects", *[f"* {t} ({y}) - {d} stack: {s}" + "".join(f" [{n}: {u}]" for n, u in PROJECT_LINKS.get(t, [])) + (f" [writeup: {host('blog')}/{post}]" if post else "")
+                                  for t, y, d, s, post in PROJECTS]]),
+        nl.join(f"## {k}\n" + "\n".join(f"* {n} - {d}" for n, d in v) for k, v in USES.items()),
+    ]
+    data = ["TAB_NAMES=(home posts ctf projects uses)"]
+    data += [f"TEXT_{i}={shlex.quote(t)}" for i, t in enumerate(texts)]
+    for var, key in (("P_SLUG", "slug"), ("P_DATE", "date"), ("P_TITLE", "title")):
+        data.append(f"{var}=(" + " ".join(shlex.quote(p[key]) for p in posts) + ")")
+    data.append("P_TAGS=(" + " ".join(shlex.quote(",".join(p["tags"])) for p in posts) + ")")
+    data.append(f"BLOG={shlex.quote(host('blog'))}\nSITE={shlex.quote(host('www'))}")
+    tpl = (ROOT / "tui" / "riverxia.sh").read_text()
+    (DIST / "www" / "riverxia.sh").write_text(tpl.replace("#@DATA@", "\n".join(data)))
+
+
 def build(posts):
     if DIST.exists():
         shutil.rmtree(DIST)
@@ -204,9 +252,14 @@ def build(posts):
 <section class="box"><h2>ctf teams</h2><ul>{teams}</ul><p><a href="{SOCIALS[1][1]}">&gt;&gt; my ctftime profile</a></p></section>
 <section class="box"><h2>awards &amp; stuff</h2><ul>{aw}</ul></section>
 <section class="box"><h2>contact</h2><p>email me: <a href="mailto:{CONTACT}">{CONTACT}</a></p><p class="dim">writeup questions, collabs, bug reports, or just saying hi. you can also find me on github, ctftime and osu! (links on the left).</p></section>
-<section class="box"><h2>skills</h2><ul>{sk}</ul>
-<h2>site map</h2><ul><li><a href="{url('blog')}">blog</a> <span class="dim">writeups, rants, build logs</span></li>
+<section class="box"><h2>skills</h2><ul>{sk}</ul></section>
+<section class="box"><h2>site map</h2><ul><li><a href="{url('blog')}">blog</a> <span class="dim">writeups, rants, build logs</span></li>
 <li><a href="{url('projects')}">projects</a> <span class="dim">things i made</span></li></ul></section>
+<section class="box"><h2>terminal version</h2><p>prefer a terminal? this site has a tui:</p>
+<pre class="wrap"><code>curl -s riverxia.sh | bash</code></pre>
+<p class="dim">or with wget (it always saves as index.html):</p>
+<pre class="wrap"><code>wget riverxia.sh; bash index.html</code></pre>
+<p class="dim">plain bash, <a href="{url('www', 'riverxia.sh')}">read it first</a> if you like. h/l tabs, j/k move, enter reads a post, q quits.</p></section>
 </div>"""
     (DIST / "www" / "index.html").write_text(page("www", "riverxia", body, "river's corner of the internet"))
 
@@ -219,20 +272,29 @@ def build(posts):
         items += f"<section class='box'><h2>{e(t)}</h2><p class='dim'>{e(y)}</p><p>{e(d)}</p><p class='dim'>stack: {e(s)}</p>{l}</section>"
     (DIST / "projects" / "index.html").write_text(page("projects", "projects - riverxia", f"<h1>projects.{DOMAIN}</h1><div class='cols'>{items}</div>"))
 
+    ub = "".join(f"<section class='box'><h2>{e(k)}</h2><ul>" + "".join(f"<li><b>{e(n)}</b> <span class='dim'>&mdash; {e(d)}</span></li>" for n, d in v) + "</ul></section>" for k, v in USES.items())
+    (DIST / "uses" / "index.html").write_text(page("uses", "uses - riverxia", f"<h1>uses.{DOMAIN}</h1><p class='tagline'>the tools, languages and infra i actually use</p><div class='cols'>{ub}</div>"))
+
     md = markdown.Markdown(extensions=["fenced_code", "tables", "codehilite"],
                            extension_configs={"codehilite": {"noclasses": True, "pygments_style": "native"}})
     rows = ""
     for p in posts:
         md.reset()
-        tags = " ".join(f"<span class='tag'>{e(t)}</span>" for t in p["tags"])
+        tags = " ".join(f"<a class='tag' href='{url('blog')}?tag={e(t)}'>{e(t)}</a>" for t in p["tags"])
         text, exprs = extract_math(p["body"].replace("/blog/assets/", "assets/"))
         content = render_math(md.convert(text), exprs)
         has_math = bool(exprs)
         (DIST / "blog" / f"{p['slug']}.html").write_text(page("blog", p["title"] + " - riverxia",
             f"<p><a href='{url('blog')}'>&lt;&lt; back to blog</a></p><h1>{e(p['title'])}</h1><p class='dim'>{p['date']} {tags}</p><article class='box'>{content}</article><section class='box' id='comments' data-post='{e(p['comment_key'])}'><noscript>comments need javascript.</noscript></section>", desc=p["desc"], extra='<script type="module" src="comments.js"></script>',
             head_extra='<link rel="stylesheet" href="katex/katex.min.css">\n' if has_math else ""))
-        rows += f"<li><span class='dim'>{p['date']}</span> <a href='{p['slug']}.html'>{e(p['title'])}</a><br><span class='dim'>{e(p['desc'])}</span></li>"
-    (DIST / "blog" / "index.html").write_text(page("blog", "blog - riverxia", f"<h1>~*~ blog ~*~</h1><p><a href='rss.xml'>[rss]</a></p><section class='box'><ul class='loose'>{rows}</ul></section>"))
+        chips = " ".join(f"<a class='tag' href='?tag={e(t)}' data-tag='{e(t)}'>{e(t)}</a>" for t in p["tags"])
+        rows += f"<li data-tags='{e(','.join(p['tags']))}'><span class='dim'>{p['date']}</span> <a href='{p['slug']}.html'>{e(p['title'])}</a> {chips}<br><span class='dim'>{e(p['desc'])}</span></li>"
+        (DIST / "blog" / f"{p['slug']}.md").write_text(f"# {p['title']}\n{p['date']}  [{', '.join(p['tags'])}]\n\n{p['body'].strip()}\n")
+    counts = Counter(t for p in posts for t in p["tags"])
+    tagbar = ("<div class='box' id='tagbar'><b>filter by tag:</b> <a class='tag on' href='.' data-tag=''>all</a> "
+              + " ".join(f"<a class='tag' href='?tag={e(t)}' data-tag='{e(t)}'>{e(t)} ({n})</a>" for t, n in sorted(counts.items(), key=lambda x: (-x[1], x[0])))
+              + "</div>")
+    (DIST / "blog" / "index.html").write_text(page("blog", "blog - riverxia", f"<h1>~*~ blog ~*~</h1><p><a href='rss.xml'>[rss]</a></p>{tagbar}<section class='box'><ul class='loose' id='posts'>{rows}</ul><p id='none' class='dim' hidden>no posts with that tag.</p></section>", extra=TAG_JS))
     feed = "".join(f"<item><title>{e(p['title'])}</title><link>{url('blog', p['slug'] + '.html')}</link><description>{e(p['desc'])}</description></item>" for p in posts)
     (DIST / "blog" / "rss.xml").write_text(f'<?xml version="1.0"?><rss version="2.0"><channel><title>riverxia</title><link>{url("blog")}</link><description>blog</description>{feed}</channel></rss>')
     redirects = []  # old /postN urls -> new slugs (cloudflare workers static assets honours _redirects)
@@ -249,8 +311,19 @@ def build(posts):
             shutil.copy(f, DIST / "blog" / "katex" / "fonts" / f.name)
     shutil.copytree(ROOT / "assets", DIST / "blog" / "assets")
     shutil.copy(ROOT / "bimi.svg", DIST / "www" / "bimi.svg")  # BIMI logo (SVG Tiny PS)
-    for sub in ("www", "blog", "projects"):
-        (DIST / sub / "404.html").write_text(page(sub, "404", "<h1>404</h1><p>nothing here. sorry!</p>"))
+    recent = "".join(f'<li><a href="{url("blog", p["slug"] + ".html")}">{e(p["title"])}</a></li>' for p in posts[:5])
+    nf = f"""<h1>404</h1>
+<pre class="wrap" aria-hidden="true">  ,_,     ~ page not found ~
+ (o,o)    this url went off to play osu!
+ {{`"'}}    and never came back.
+ -"-"-</pre>
+<p>whatever you were looking for isn't here (or moved). try one of these:</p>
+<ul><li><a href="{url('www')}">home</a></li><li><a href="{url('blog')}">blog</a> <span class="dim">(filterable by tag)</span></li>
+<li><a href="{url('projects')}">projects</a></li><li><a href="{url('uses')}">uses</a></li></ul>
+<h2>latest posts</h2><ul>{recent}</ul>"""
+    for _, sub in SUBS:
+        (DIST / sub / "404.html").write_text(page(sub, "404 - riverxia", nf))
+    build_tui(posts)
 
 
 if __name__ == "__main__":

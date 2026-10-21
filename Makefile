@@ -1,6 +1,6 @@
 # riverxia.sh build system.   make        -> same as `make all`
 #
-#   make all      deps + checks + production build + deploy all 3 sites + verify every page is live
+#   make all      deps + checks + production build + deploy all 4 sites + verify every page is live
 #                 (does NOT make the offline blog copy, and does NOT commit or push)
 #   make help     list every target
 #
@@ -15,14 +15,14 @@ MAKEFLAGS += --no-print-directory
 -include .env
 export
 
-SITES  := www blog projects
-SRC    := build.py style.css comments.js bimi.svg render_math.js package.json $(wildcard posts/*.md assets/*)
+SITES  := www blog projects uses
+SRC    := build.py tui/riverxia.sh worker/www.js scripts/deploy-site.sh style.css comments.js bimi.svg render_math.js package.json $(wildcard posts/*.md assets/*)
 OFFLINE_OUT ?= $(HOME)/riverxia-blog-offline.html
 PORT   ?= 8000
 
 .PHONY: all help deps pydeps check build deploy verify preview offline push clean distclean
 
-all: deploy  ## everything: deps, checks, production build, deploy 3 sites, verify (not offline)
+all: deploy  ## everything: deps, checks, production build, deploy 4 sites, verify (not offline)
 
 help:  ## list targets
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -45,7 +45,7 @@ dist/.built: $(SRC) | deps check
 	python3 build.py --prod
 	@touch $@
 
-deploy: .deploy-stamp  ## build if needed, deploy www/blog/projects, verify every page (skipped if nothing changed)
+deploy: .deploy-stamp  ## build if needed, deploy www/blog/projects/uses, verify every page (skipped if nothing changed)
 
 .deploy-stamp: dist/.built
 	@[ -n "$${CLOUDFLARE_ACCOUNT_ID:-}" ] || { echo "CLOUDFLARE_ACCOUNT_ID is not set (see .env.example)" >&2; exit 1; }

@@ -8,6 +8,7 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
 | `riverxia.sh` | home: about, awards, skills, latest posts |
 | `blog.riverxia.sh` | blog (markdown posts in `posts/`) |
 | `projects.riverxia.sh` | projects |
+| `uses.riverxia.sh` | tools, languages and infra |
 
 ## Layout
 
@@ -43,8 +44,9 @@ python3 -m http.server -d dist 8000    # open http://localhost:8000/www/
 
 ## Deploy
 
-Each of `dist/www`, `dist/blog`, `dist/projects` is its own Cloudflare Worker (static assets):
-`riverxia-www`, `riverxia-blog`, `riverxia-projects`, bound to the three hostnames.
+Each of `dist/www`, `dist/blog`, `dist/projects`, `dist/uses` is its own Cloudflare Worker (static assets):
+`riverxia-www`, `riverxia-blog`, `riverxia-projects`, `riverxia-uses`, bound to the four hostnames (deploy-site.sh attaches a missing custom domain through the CF API).
+`riverxia-www` also runs `worker/www.js` on `/`: curl/wget get the bash TUI (`tui/riverxia.sh`, built to `/riverxia.sh`), browsers get the page.
 
 ```sh
 export CLOUDFLARE_ACCOUNT_ID=...
