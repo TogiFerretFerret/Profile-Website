@@ -24,7 +24,7 @@ SOCIALS = [
     ("osu!", "https://osu.ppy.sh/users/34415790"),
     ("ao3", "https://archiveofourown.org/users/Riverxia"),
 ]
-SUBS = [("home", "www"), ("blog", "blog"), ("projects", "projects"), ("uses", "uses")]
+SUBS = [("home", "www"), ("blog", "blog"), ("projects", "projects"), ("uses", "uses"), ("dots", "dots"), ("paste", "paste")]
 
 ABOUT = [
     "hi! i'm riverxia (i go by river). rawr. i'm a high school hacker and programmer who lives mostly in a terminal.",
@@ -60,11 +60,30 @@ USES = {
     "this site": [("python-markdown + pygments", "posts are markdown files, built to static html"), ("katex", "math rendered at build time, no client js"),
                   ("make", "one command builds, checks, deploys and verifies everything")],
 }
+# (name, github repo, short description, install note). name = the ~/.config/<name> it links to.
+DOTS = [
+    ("hypr", "TogiFerretFerret/hypr", "hyprland lua config (EVA-00 // ASAHI): modules, binds, animations, a CIELAB k-means color pipeline, QML lockscreen", "built for apple silicon / asahi; needs a hyprland with lua config support"),
+    ("quickshell", "TogiFerretFerret/quickshell", "the bar, wallpaper picker, mpris + karaoke lyrics, notification daemon, weather dashboard (Material You via matugen)", "needs quickshell and matugen; wallpaper picker: touch /tmp/qs-wallpaper-picker"),
+    ("nvim", "TogiFerretFerret/nvim-dots", "neovim, from the ground up. lazy.nvim, custom dashboard", "avante.nvim needs `make BUILD_FROM_SOURCE=true` in its lazy dir"),
+    ("fish", "TogiFerretFerret/fish-config", "fish shell: tide prompt, abbreviations, zoxide, helper functions", "some functions assume my machine (playerctl, zenity, ...)"),
+    ("fastfetch", "TogiFerretFerret/fastfetch", "the NERV / MAGI fastfetch layouts, wide and narrow, with colorsync", "wants a terminal that can show images (ghostty)"),
+    ("ghostty", "TogiFerretFerret/ghostty", "terminal config plus GLSL shaders", ""),
+    ("mpv", "TogiFerretFerret/mpv", "mpv config, scripts and fonts", ""),
+    ("yazi", "TogiFerretFerret/yazi", "yazi file manager keymap and theme", ""),
+    ("rofi", "TogiFerretFerret/rofi", "launcher, clipboard and wallpaper menus", ""),
+    ("swaync", "TogiFerretFerret/swaync", "notification center theme and toggles", ""),
+    ("matugen", "TogiFerretFerret/matugen", "color templates that retheme everything from the wallpaper", "templates write into the other configs, install it alongside them"),
+]
+DOT_SHOTS = [("terminal-wide", "terminal + fastfetch (NERV layout)"), ("wallpaper-switcher-1", "wallpaper picker in quickshell"), ("dashboard-clear", "weather / calendar dashboard"),
+             ("quickshell-mpris", "mpris player"), ("quickshell-karaoke", "karaoke lyrics + cava visualizer"), ("rofi", "rofi launcher"),
+             ("nvim-dash", "neovim dashboard"), ("fastfetch-colorsync-wide", "colorsync: everything recolors from the wallpaper"), ("lockscreen", "QML lockscreen")]
 PROJECTS = [
     ("aimrpg", "in development", "indie game i'm lead dev on. someone else's project, i run the dev side.", "Go, Postgres", ""),
     ("cctf.rs", "2026", "CTFd rebuilt from scratch in Rust. hand-rolled SMTP/JWT, rhai scripting, per-team k8s instancing.", "Rust, Kubernetes", "cctf-rs"),
     ("Prosody Writer", "2026", "realtime poetry editor: live stress, meter, rhyme, sound devices and form detection. an incremental DP over the full Prosodic library, so scansion never enumerates pronunciations.", "Python, FastAPI, Prosodic, JavaScript", "prosody-writer"),
-    ("Personal Website", "2026", "this site. static, no build framework.", "HTML, CSS, Markdown", ""),
+    ("Personal Website", "2026", "this site. static, no build framework. six subdomains, a curl-able terminal version of it, and a one-line dotfiles installer.", "Python, HTML, CSS, Cloudflare Workers", ""),
+    ("paste.riverxia.sh", "2026", "tiny text pastebin: curl it, expiring pastes, delete tokens, rate limited.", "JavaScript, Cloudflare Workers KV", ""),
+    ("Hyprland dots", "2025-2026", "from-scratch hyprland rice on apple silicon: lua config, quickshell UI, CIELAB wallpaper color pipeline. installs with one curl.", "Lua, QML, Python, GLSL", ""),
     ("AI Vision Assistant", "2025, wip", "real-time visual analysis assistant.", "Python, TensorFlow, OpenCV", ""),
     ("Neovim Dots", "2025-2026, wip", "custom neovim config for speed and competitive programming.", "Lua, Vimscript", ""),
     ("Aluminum (HCHS Alt)", "2025-2026, wip", "reverse engineered Blackbaud client. closed source.", "Python, Flask, Node.js", ""),
@@ -72,6 +91,8 @@ PROJECTS = [
     ("osu! Analyzer", "2024, deprecated", "gameplay data analysis.", "Python, Flask, TensorFlow", ""),
 ]
 PROJECT_LINKS = {
+    "paste.riverxia.sh": [("try it", "https://paste.riverxia.sh")],
+    "Hyprland dots": [("gallery + installer", "https://dots.riverxia.sh"), ("repo", "https://github.com/TogiFerretFerret/dotfiles")],
     "aimrpg": [("website", "https://aimrpg.com"), ("steam", "https://store.steampowered.com/app/4947810")],
     "cctf.rs": [("repo", "https://github.com/TogiFerretFerret/cctf.rs")],
     "Prosody Writer": [("repo", "https://github.com/TogiFerretFerret/prosody-writer")],
@@ -254,11 +275,16 @@ def build(posts):
 <section class="box"><h2>contact</h2><p>email me: <a href="mailto:{CONTACT}">{CONTACT}</a></p><p class="dim">writeup questions, collabs, bug reports, or just saying hi. you can also find me on github, ctftime and osu! (links on the left).</p></section>
 <section class="box"><h2>skills</h2><ul>{sk}</ul></section>
 <section class="box"><h2>site map</h2><ul><li><a href="{url('blog')}">blog</a> <span class="dim">writeups, rants, build logs</span></li>
-<li><a href="{url('projects')}">projects</a> <span class="dim">things i made</span></li></ul></section>
+<li><a href="{url('projects')}">projects</a> <span class="dim">things i made</span></li>
+<li><a href="{url('uses')}">uses</a> <span class="dim">tools, languages, infra</span></li>
+<li><a href="{url('dots')}">dots</a> <span class="dim">hyprland rice + one-line installer</span></li>
+<li><a href="{url('paste')}">paste</a> <span class="dim">tiny text pastebin</span></li></ul></section>
 <section class="box"><h2>terminal version</h2><p>prefer a terminal? this site has a tui:</p>
 <pre class="wrap"><code>curl -s riverxia.sh | bash</code></pre>
 <p class="dim">or with wget (it always saves as index.html):</p>
 <pre class="wrap"><code>wget riverxia.sh; bash index.html</code></pre>
+<p>and my dotfiles, one line:</p>
+<pre class="wrap"><code>curl -s dots.{DOMAIN} | bash</code></pre>
 <p class="dim">plain bash, <a href="{url('www', 'riverxia.sh')}">read it first</a> if you like. h/l tabs, j/k move, enter reads a post, q quits.</p></section>
 </div>"""
     (DIST / "www" / "index.html").write_text(page("www", "riverxia", body, "river's corner of the internet"))
@@ -271,6 +297,36 @@ def build(posts):
         l = "<p>" + " ".join(f'<a href="{e(u)}">[{e(n)}]</a>' for n, u in ls) + "</p>" if ls else ""
         items += f"<section class='box'><h2>{e(t)}</h2><p class='dim'>{e(y)}</p><p>{e(d)}</p><p class='dim'>stack: {e(s)}</p>{l}</section>"
     (DIST / "projects" / "index.html").write_text(page("projects", "projects - riverxia", f"<h1>projects.{DOMAIN}</h1><div class='cols'>{items}</div>"))
+
+    shots = "".join(f"<figure class='shot'><a href='shots/{f}.webp'><img src='shots/{f}.webp' alt='{e(c)}' loading='lazy'></a><figcaption class='dim'>{e(c)}</figcaption></figure>" for f, c in DOT_SHOTS)
+    comps = "".join(f"<li><b><a href='https://github.com/{r}'>{e(n)}</a></b> <span class='dim'>&mdash; {e(d)}</span>" + (f"<br><span class='dim'>note: {e(note)}</span>" if note else "") + "</li>" for n, r, d, note in DOTS)
+    dots_body = f"""<h1>dots.{DOMAIN}</h1><p class="tagline">hyprland on apple silicon, built from scratch. nothing copied from anyone else.</p>
+<section class="box"><h2>install</h2><p>pick what you want, it asks first:</p><pre class="wrap"><code>curl -s dots.{DOMAIN} | bash</code></pre>
+<p class="dim">or just some of it (no questions beyond the confirm):</p><pre class="wrap"><code>curl -s dots.{DOMAIN} | bash -s -- --only nvim,ghostty,fish</code></pre>
+<p class="dim">wget: <code>wget dots.{DOMAIN}; bash index.html</code>. flags: <code>--list</code> <code>--dry-run</code> <code>--all</code> <code>--yes</code>.
+it shallow-clones each repo into <code>~/.local/share/riverxia-dots</code> and symlinks it into <code>~/.config</code>. anything already there is <b>moved</b> to a timestamped backup, never deleted. no sudo, no package installs.
+<a href="{url('dots', 'dots.sh')}">read the script first</a>, please.</p>
+<p class="dim">heads up: these were written for one machine (an M-series macbook running asahi). expect to adjust monitors, paths and packages.</p></section>
+<section class="box"><h2>components</h2><ul>{comps}</ul>
+<p class="dim">sddm (NERV theme) needs root so the installer skips it: <a href="https://github.com/TogiFerretFerret/nerv-sddm">nerv-sddm</a>. everything also lives together in <a href="https://github.com/TogiFerretFerret/dotfiles">dotfiles</a>.</p></section>
+<h2>screenshots</h2><div class="shots">{shots}</div>"""
+    (DIST / "dots" / "index.html").write_text(page("dots", "dots - riverxia", dots_body, "river's hyprland dotfiles and a one-line installer"))
+    inst = (ROOT / "dots" / "install.sh").read_text()
+    data = ["C_NAME=(" + " ".join(shlex.quote(n) for n, *_ in DOTS) + ")", "C_REPO=(" + " ".join(shlex.quote(r) for _, r, *_ in DOTS) + ")",
+            "C_DESC=(" + " ".join(shlex.quote(d) for _, _, d, _ in DOTS) + ")", "C_NOTE=(" + " ".join(shlex.quote(n) for *_, n in DOTS) + ")"]
+    (DIST / "dots" / "dots.sh").write_text(inst.replace("#@DATA@", "\n".join(data)))
+    shutil.copytree(ROOT / "dots" / "shots", DIST / "dots" / "shots")
+
+    paste_body = f"""<h1>paste.{DOMAIN}</h1><p class="tagline">a tiny text pastebin. pastes expire; nothing lives forever.</p>
+<section class="box"><h2>new paste</h2><form method="post" action="/" class="cform"><textarea name="c" rows="14" required placeholder="paste text here" maxlength="262144"></textarea>
+<label>expires in <select name="ttl"><option value="1h">1 hour</option><option value="1d">1 day</option><option value="7d" selected>7 days</option><option value="30d">30 days</option></select></label>
+<button type="submit">paste it</button></form></section>
+<section class="box"><h2>from a terminal</h2><pre class="wrap"><code>echo hello | curl --data-binary @- paste.{DOMAIN}
+curl -T notes.txt "paste.{DOMAIN}?ttl=1d"
+some-command 2>&1 | curl --data-binary @- paste.{DOMAIN}</code></pre>
+<p class="dim">you get the url back. the delete token comes back in the <code>x-delete-token</code> header (<code>curl -i</code> to see it): <code>curl -X DELETE -H 'x-delete-token: ...' url</code>.
+text only, 256 KiB max, 30 pastes per hour per ip, ttl one of 1h 1d 7d 30d. raw: <code>/raw/&lt;id&gt;</code>. don't paste secrets, i can read the database.</p></section>"""
+    (DIST / "paste" / "index.html").write_text(page("paste", "paste - riverxia", paste_body, "text pastebin on cloudflare workers kv"))
 
     ub = "".join(f"<section class='box'><h2>{e(k)}</h2><ul>" + "".join(f"<li><b>{e(n)}</b> <span class='dim'>&mdash; {e(d)}</span></li>" for n, d in v) + "</ul></section>" for k, v in USES.items())
     (DIST / "uses" / "index.html").write_text(page("uses", "uses - riverxia", f"<h1>uses.{DOMAIN}</h1><p class='tagline'>the tools, languages and infra i actually use</p><div class='cols'>{ub}</div>"))

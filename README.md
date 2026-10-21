@@ -9,6 +9,8 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
 | `blog.riverxia.sh` | blog (markdown posts in `posts/`) |
 | `projects.riverxia.sh` | projects |
 | `uses.riverxia.sh` | tools, languages and infra |
+| `dots.riverxia.sh` | dotfiles gallery + `curl -s dots.riverxia.sh \| bash` installer (dots/install.sh) |
+| `paste.riverxia.sh` | text pastebin on Workers KV (worker/paste.js) |
 
 ## Layout
 
@@ -45,8 +47,8 @@ python3 -m http.server -d dist 8000    # open http://localhost:8000/www/
 ## Deploy
 
 Each of `dist/www`, `dist/blog`, `dist/projects`, `dist/uses` is its own Cloudflare Worker (static assets):
-`riverxia-www`, `riverxia-blog`, `riverxia-projects`, `riverxia-uses`, bound to the four hostnames (deploy-site.sh attaches a missing custom domain through the CF API).
-`riverxia-www` also runs `worker/www.js` on `/`: curl/wget get the bash TUI (`tui/riverxia.sh`, built to `/riverxia.sh`), browsers get the page.
+`riverxia-www`, `riverxia-blog`, `riverxia-projects`, `riverxia-uses`, `riverxia-dots`, `riverxia-paste`, bound to the six hostnames (deploy-site.sh attaches a missing custom domain through the CF API).
+`riverxia-www` and `riverxia-dots` also run `worker/front.js` on `/`: curl/wget get the bash script (`tui/riverxia.sh` or `dots/install.sh`), browsers get the page. `riverxia-paste` is `worker/paste.js` with a KV namespace `riverxia-pastes` (created by deploy-site.sh).
 
 ```sh
 export CLOUDFLARE_ACCOUNT_ID=...
