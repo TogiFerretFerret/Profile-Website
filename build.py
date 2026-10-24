@@ -98,8 +98,7 @@ PROJECT_LINKS = {
     "Prosody Writer": [("repo", "https://github.com/TogiFerretFerret/prosody-writer")],
 }
 BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff", SOCIALS[1][1]),
-           ("osu!", "#e4a", "#fff", SOCIALS[2][1]), ("AO3", "#900", "#fc9", SOCIALS[3][1]),
-           ("any browser", "#006", "#ff0", "")]
+           ("osu!", "#e4a", "#fff", SOCIALS[2][1]), ("AO3", "#900", "#fc9", SOCIALS[3][1])]
 
 e = html.escape
 
