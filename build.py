@@ -99,7 +99,7 @@ PROJECT_LINKS = {
 }
 BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff", SOCIALS[1][1]),
            ("osu!", "#e4a", "#fff", SOCIALS[2][1]), ("AO3", "#900", "#fc9", SOCIALS[3][1]),
-           ("Rust", "#b7410e", "#fff", "https://www.rust-lang.org"), ("any browser", "#006", "#ff0", "")]
+           ("any browser", "#006", "#ff0", "")]
 
 e = html.escape
 
