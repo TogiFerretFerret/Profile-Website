@@ -18,6 +18,8 @@ receiving mail is easy. **sending** mail is where it gets spicy, because you're 
 
 (everything below uses `example.com` as a placeholder. no i'm not leaking my server, go away)
 
+> **update (oct 24):** i eventually took my own advice from the end of this post and moved my *outgoing* mail onto a relay. the whole story is in the update at the bottom.
+
 ## the stack
 
 - **postfix** — takes mail from the internet, sends mail out
@@ -102,7 +104,7 @@ only the outgoing helo changes, the banner and tls name stay the same. next test
 ## checklist for the next unfortunate soul
 
 1. make sure your provider allows outbound port 25 *before* you start. some block it.
-2. sort the PTR/helo thing first. it's the #1 reason for spam-foldering.
+2. sort the PTR/helo thing first. it's the #1 reason for spam-foldering. (or skip the whole problem and relay your outgoing mail, see the update below.)
 3. publish spf, dkim and dmarc, then **test each one** instead of trusting that you typed them right.
 4. send a test to a gmail address and hit "show original". you want `SPF: PASS`, `DKIM: PASS`, `DMARC: PASS`.
 5. back up configs before editing, and run `postfix check` and `doveconf -n` before restarting anything.
@@ -113,3 +115,44 @@ only the outgoing helo changes, the banner and tls name stay the same. next test
 for one mailbox at tiny volume: yes, it's a great weekend project and i learned a ton about how email actually works. for anything business-critical: no, use a hosted provider, or relay your outgoing mail through one and only self-host the receiving side.
 
 but my inbox is mine now and that's pretty cool. 
+
+## update (oct 24): i took my own advice
+
+at the end of this post i said that for anything serious you should relay your outgoing mail through a hosted provider and only self-host the receiving side. five days later i did exactly that, because i'm a hypocrite, and also because it turns out "i don't control the PTR on this vps" is a pretty fragile foundation for your email.
+
+i was already on cloudflare for my sites, and paying for workers gets you email sending over plain smtp. so i pointed postfix at it. the new split:
+
+- **inbound is still entirely mine:** mx record, my server, dovecot, rspamd, my webmail.
+- **outbound for my own domain is a rented lane:** postfix hands the message to the relay instead of delivering it directly.
+
+the wiring, with placeholder names:
+
+```
+# master.cf: a separate smtp transport just for the relay
+relay-cf  unix  -  -  n  -  -  smtp
+  -o smtp_tls_wrappermode=yes
+  -o smtp_tls_security_level=encrypt
+  -o smtp_sasl_auth_enable=yes
+  -o smtp_sasl_password_maps=hash:/etc/postfix/sasl_passwd
+  -o smtp_sasl_security_options=noanonymous
+
+# main.cf
+sender_dependent_default_transport_maps = hash:/etc/postfix/sender_transport
+
+# /etc/postfix/sender_transport  (then: postmap it)
+@example.com   relay-cf:[smtp.relay.example]:465
+```
+
+a few gotchas, in the order they would have bitten me:
+
+**keep the relay in its own transport.** port 465 is implicit tls, so it needs `smtp_tls_wrappermode = yes`. set that globally and every normal port-25 delivery to the rest of the internet breaks. a dedicated transport keeps the blast radius to one destination.
+
+**only relay domains the provider knows about.** relays generally only accept mail from domains you've onboarded with them. my box also sends mail for a second domain that isn't onboarded, so i routed *only my own domain* through the relay and left the other one sending directly. otherwise i'd have been betting that domain's verification emails on a relay that probably wouldn't accept them.
+
+**the "password" is an api token.** it lives in `sasl_passwd`, owned by root, mode 600, run through `postmap`. it is not in any config i'd ever commit.
+
+**the dns got fixed for me.** onboarding added a bounce subdomain with its own spf record, and a dkim key for my domain. with relaxed dmarc alignment that's how mail coming from a completely different ip can still pass dmarc, even though my root spf record only lists my own server. (i haven't gone through the headers to see which signature gmail credited, so i'm not making claims about that.)
+
+the result: a test message to gmail came back `250 2.0.0 Ok` from the relay and **did not go to spam**. no ptr, no helo gymnastics, and the thing that was blocking my own mail is now someone else's problem.
+
+so it's not *purely* self-hosted anymore, and i'm fine with that. the mailbox, the spam filtering, the webmail and every message i receive are still mine. only the last hop out is rented. the helo fix above still matters for anything that sends directly, so i left it in.
