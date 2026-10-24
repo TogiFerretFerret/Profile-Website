@@ -11,7 +11,7 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
 | `uses.riverxia.sh` | tools, languages and infra |
 | `dots.riverxia.sh` | dotfiles gallery + `curl -s dots.riverxia.sh \| bash` installer (dots/install.sh) |
 | `paste.riverxia.sh` | text pastebin on Workers KV (worker/paste.js) |
-| `guestbook.riverxia.sh` | open guestbook on Workers KV (worker/guestbook.js) |
+| `guestbook.riverxia.sh` | open guestbook on a Durable Object (worker/guestbook.js) |
 
 ## Layout
 
@@ -36,10 +36,12 @@ match /counters/visits {
 }
 ```
 
-The guestbook is `worker/guestbook.js` on `guestbook.riverxia.sh` (Workers KV `riverxia-guestbook`, no Firebase). Anyone can sign and
-entries appear immediately; abuse is limited per hashed ip (3/hour, 30s apart), plus a global 100/hour cap, length limits, reserved names, a
-2-link cap and a honeypot. Admin delete: click `[admin]` on the page and paste the token from `~/.config/private/guestbook-admin-token`
-(created and uploaded as the `ADMIN_TOKEN` worker secret by deploy-site.sh), or `curl -X DELETE -H "x-admin-token: ..." https://guestbook.riverxia.sh/api/entries/<id>`.
+The guestbook is `worker/guestbook.js` on `guestbook.riverxia.sh`: one SQLite Durable Object (class `Guestbook`) holds the entries and the rate-limit
+counters, so a signed entry is readable immediately (KV listings lag by up to a minute, which is why it moved off KV). Anyone can sign and
+entries appear right away; abuse is limited per hashed ip (3/hour, 30s apart), plus a global 100/hour cap, length limits, reserved names, a
+2-link cap and a honeypot. Admin delete: click `[admin]` on the page and sign in with the same Google login as the blog comments. The client sends its Firebase ID token and the
+worker verifies it (RS256 signature against Google's securetoken keys, audience, issuer, expiry) and checks `sha256(email)`. Firebase Auth must list
+`guestbook.riverxia.sh` under authorized domains for the popup login to work.
 The client is `guestbook-client.js`. From a terminal: `curl guestbook.riverxia.sh`, `curl -d name=you -d message=hi guestbook.riverxia.sh`.
 
 ## Develop

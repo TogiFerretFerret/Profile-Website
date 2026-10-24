@@ -13,7 +13,6 @@ deploy() {
   #   paste:    worker/paste.js + a KV namespace (created on first deploy)
   local kv=""
   [ "$site" = paste ] && kv="$(ensure_kv riverxia-pastes)"
-  [ "$site" = guestbook ] && kv="$(ensure_kv riverxia-guestbook)"
   python3 - "$site" "$kv" > "dist/$site.wrangler.jsonc" <<'PY'
 import json, sys
 site, kv = sys.argv[1], sys.argv[2]
@@ -25,28 +24,12 @@ elif site == "paste":
     cfg.update(main="../worker/paste.js", kv_namespaces=[{"binding": "PASTES", "id": kv}])
     cfg["assets"].update(binding="ASSETS", run_worker_first=True)
 elif site == "guestbook":
-    cfg.update(main="../worker/guestbook.js", kv_namespaces=[{"binding": "GB", "id": kv}])
+    cfg.update(main="../worker/guestbook.js", durable_objects={"bindings": [{"name": "GB", "class_name": "Guestbook"}]}, migrations=[{"tag": "v1", "new_sqlite_classes": ["Guestbook"]}])
     cfg["assets"].update(binding="ASSETS", run_worker_first=True)
 print(json.dumps(cfg, indent=1))
 PY
   npx -y wrangler@latest deploy --config "dist/$site.wrangler.jsonc"
-  [ "$site" = guestbook ] && ensure_admin_token
   ensure_domain
-}
-
-# the guestbook admin token lives outside the repo (default ~/.config/private/guestbook-admin-token, created on first deploy)
-# and is uploaded as a worker secret once. delete entries from the page ([admin] link) or: curl -X DELETE -H "x-admin-token: $(cat file)" .../api/entries/<id>
-ensure_admin_token() {
-  local f="${GUESTBOOK_ADMIN_TOKEN_FILE:-$HOME/.config/private/guestbook-admin-token}"
-  if [ ! -s "$f" ]; then
-    mkdir -p "$(dirname "$f")"; chmod 700 "$(dirname "$f")"
-    (umask 077; python3 -c 'import secrets;print(secrets.token_urlsafe(32))' > "$f")
-    echo "created guestbook admin token at $f" >&2
-  fi
-  if ! npx -y wrangler@latest secret list --name "riverxia-$site" 2>/dev/null | grep -q ADMIN_TOKEN; then
-    npx -y wrangler@latest secret put ADMIN_TOKEN --name "riverxia-$site" < "$f" >/dev/null
-    echo "uploaded ADMIN_TOKEN secret for riverxia-$site" >&2
-  fi
 }
 
 cf_auth() {

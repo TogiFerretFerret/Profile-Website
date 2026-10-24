@@ -1,12 +1,18 @@
 // client for guestbook.riverxia.sh (talks to worker/guestbook.js on the same origin). all text goes in with textContent.
+// admin = the same firebase google login as the blog comments; the worker verifies the id token before deleting anything.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+const auth = getAuth(initializeApp({
+  apiKey: "AIzaSyC1dC4f5h8_WeOQnvrblH3VJ8pdeU4Iey4",
+  authDomain: "riverxia-dev-portfolio.firebaseapp.com",
+  projectId: "riverxia-dev-portfolio",
+  appId: "1:921793007466:web:bd7d01052795a5b6b21f13",
+}));
+const ADMIN_HASH = "faf863681b8a634b1a95cb3058937ce4e69cee4c2b3459b137c61c4d1e49f0c9"; // sha256 of admin email
+const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, "0")).join("");
 const $ = (tag, props = {}, ...kids) => { const el = Object.assign(document.createElement(tag), props); kids.forEach(k => el.append(k)); return el; };
-const store = {
-  get: k => { try { return sessionStorage.getItem(k); } catch { return null; } },
-  set: (k, v) => { try { sessionStorage.setItem(k, v); } catch {} },
-  del: k => { try { sessionStorage.removeItem(k); } catch {} },
-};
 const root = document.getElementById("guestbook");
-let cursor = null, admin = store.get("gb-admin");
+let cursor = null, admin = false;
 
 function entry(e) {
   const head = $("div", { className: "chead" }, $("b", { textContent: e.name }), $("span", { className: "dim", textContent: " " + new Date(e.t).toLocaleDateString() }));
@@ -16,8 +22,9 @@ function entry(e) {
     const del = $("button", { type: "button", className: "link", textContent: "[delete]" });
     del.onclick = async () => {
       if (!confirm("delete this entry?")) return;
-      const r = await fetch("/api/entries/" + encodeURIComponent(e.id), { method: "DELETE", headers: { "x-admin-token": admin } });
-      if (r.ok) box.remove(); else alert("delete failed (wrong token?)");
+      const tok = await auth.currentUser.getIdToken();
+      const r = await fetch("/api/entries/" + encodeURIComponent(e.id), { method: "DELETE", headers: { authorization: "Bearer " + tok } });
+      if (r.ok) box.remove(); else alert("delete failed: " + ((await r.json().catch(() => ({}))).error || r.status));
     };
     box.append($("div", { className: "cact" }, del));
   }
@@ -66,13 +73,16 @@ function form() {
 
 function mount() {
   const adm = $("button", { type: "button", className: "link", textContent: admin ? "[log out]" : "[admin]" });
-  adm.onclick = () => {
-    if (admin) { store.del("gb-admin"); admin = null; } else { const t = prompt("admin token"); if (!t) return; admin = t; store.set("gb-admin", t); }
-    mount(); load(true);
-  };
+  adm.onclick = () => (auth.currentUser ? signOut(auth) : signInWithPopup(auth, new GoogleAuthProvider()).catch(() => alert("login failed.")));
   const more = $("button", { type: "button", id: "gbmore", hidden: true, textContent: "load more" });
   more.onclick = () => load(false);
   root.replaceChildren($("h2", { textContent: "sign the guestbook" }), form(), $("h2", { textContent: "entries" }),
     $("div", { id: "gblist" }), more, $("p", { className: "dim" }, adm));
 }
 mount(); load(true);
+// re-render only when the admin state actually changes
+onAuthStateChanged(auth, async user => {
+  const now = !!user?.email && (await sha256(user.email)) === ADMIN_HASH;
+  if (now === admin) return;
+  admin = now; mount(); load(true);
+});
