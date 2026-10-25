@@ -2,9 +2,10 @@
 """Static build: python3 build.py [--prod]  ->  dist/{www,blog,projects,uses}/
 --prod uses real riverxia.sh links; default uses local paths for preview.
 Each dist/<sub> is one deployable site root (see deploy.sh)."""
-import html, json, re, shlex, shutil, subprocess, sys
+import datetime, html, json, os, re, shlex, shutil, subprocess, sys
 from collections import Counter
 from pathlib import Path
+from zoneinfo import ZoneInfo
 import markdown
 
 ROOT = Path(__file__).parent
