@@ -8,7 +8,7 @@ tags: competitive programming,trees,dp,editorial
 
 # boboniu and jianghu
 
-this is a codeforces problem about tourists, mountains and a tree, and it's the kind of problem that makes me wonder how i got usaco platinum. (i got promoted mid-contest, which i still assume was a bug in the grader that nobody has noticed.)
+this is a codeforces problem about tourists, mountains and a tree, and it's the kind of problem that makes me wonder how i got usaco platinum. 
 
 the answer is a tree dp. i'll explain it slowly, mostly for my own benefit.
 
@@ -38,4 +38,4 @@ try every $j$, add the corresponding child costs and $t_v\max(I_v,O_v)$, and min
 
 $O(n\log n)$ time, $O(n)$ space. use an iterative traversal so a chain of $200000$ mountains doesn't murder the stack. (recursion depth 200,000 is a very efficient way to find out how much you trust your language runtime.)
 
-so that's it. a sort, a loop, and some casing on parent directions. i will not be taking questions about how this relates to my usaco division.
+so that's it. a sort, a loop, and some casing on parent directions. 
