@@ -20,7 +20,7 @@ SRC    := build.py tui/riverxia.sh dots/install.sh $(wildcard dots/shots/*) work
 OFFLINE_OUT ?= $(HOME)/riverxia-blog-offline.html
 PORT   ?= 8000
 
-.PHONY: all help deps pydeps check build deploy verify preview offline push clean distclean
+.PHONY: all help deps pydeps check build deploy verify preview offline push clean distclean publish FORCE
 
 all: deploy  ## everything: deps, checks, production build, deploy 7 sites, verify (not offline)
 
@@ -41,7 +41,13 @@ check:  ## fast pre-deploy sanity checks: front matter, images, no credentials
 
 build: dist/.built  ## production build into dist/ (skipped if nothing changed)
 
-dist/.built: $(SRC) | deps check
+# the build also depends on today's date: a post scheduled for a future day stays hidden, and the first
+# `make all` on (or after) its day sees .today change, rebuilds, and publishes it. .today only changes when the date does.
+TODAY := $(shell TZ=America/New_York date +%F)
+.today: FORCE
+	@[ "$$(cat .today 2>/dev/null)" = "$(TODAY)" ] || echo "$(TODAY)" > .today
+
+dist/.built: $(SRC) .today | deps check
 	python3 build.py --prod
 	@touch $@
 
@@ -53,11 +59,14 @@ deploy: .deploy-stamp  ## build if needed, deploy www/blog/projects/uses/dots/pa
 	@for s in $(SITES); do scripts/deploy-site.sh $$s; done
 	@touch $@
 
+publish:  ## deploy a fresh clone of origin/main, never your working tree (this is what the daily timer runs)
+	scripts/publish-scheduled.sh
+
 verify:  ## check every page on the live sites answers 200 (no upload)
 	@for s in $(SITES); do scripts/deploy-site.sh $$s verify; done
 
 preview: | deps  ## local preview at http://localhost:8000/www/ (rebuilds with local links; PORT=n to change)
-	python3 build.py
+	INCLUDE_FUTURE=1 python3 build.py
 	@rm -f dist/.built .deploy-stamp
 	@echo "open http://localhost:$(PORT)/www/  (ctrl-c to stop)"
 	python3 -m http.server -d dist $(PORT)
@@ -71,7 +80,7 @@ push:  ## git push origin main (not part of `make all`)
 	git push origin main
 
 clean:  ## remove build output and stamps
-	rm -rf dist .deploy-stamp __pycache__
+	rm -rf dist .deploy-stamp .today __pycache__
 
 distclean: clean  ## clean + remove node_modules
 	rm -rf node_modules

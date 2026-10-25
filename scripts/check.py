@@ -4,8 +4,9 @@
   - no duplicate slugs or legacy ids, and every referenced local image exists
   - nothing that looks like a credential in the files that get published or committed
 """
-import re, sys
+import datetime, re, sys
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 problems = []
@@ -14,6 +15,8 @@ def bad(msg):
     problems.append(msg)
 
 ids = {}
+scheduled = []
+today = datetime.datetime.now(ZoneInfo("America/New_York")).date().isoformat()
 for f in sorted((ROOT / "posts").glob("*.md")):
     t = f.read_text()
     m = re.match(r"---\n(.*?)\n---\n", t, re.S)
@@ -29,6 +32,8 @@ for f in sorted((ROOT / "posts").glob("*.md")):
             bad(f"{f.name}: front matter is missing '{key}'")
     if meta.get("date") and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", meta["date"]):
         bad(f"{f.name}: date must be YYYY-MM-DD, got {meta['date']!r}")
+    if meta.get("date", "") > today:
+        scheduled.append(f"{f.stem} ({meta['date']})")
     if meta.get("time") and not re.fullmatch(r"\d{1,2}:\d{2}", meta["time"]):
         bad(f"{f.name}: time must be HH:MM, got {meta['time']!r}")
     if meta.get("id"):
@@ -67,4 +72,4 @@ for f in targets:
 if problems:
     print("check FAILED:", *problems, sep="\n  - ")
     sys.exit(1)
-print(f"check ok ({len(ids)} legacy ids, {len(list((ROOT / 'posts').glob('*.md')))} posts)")
+print(f"check ok ({len(ids)} legacy ids, {len(list((ROOT / 'posts').glob('*.md')))} posts)" + (f"; scheduled, hidden until their date: {', '.join(scheduled)}" if scheduled else ""))

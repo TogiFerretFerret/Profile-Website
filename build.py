@@ -12,6 +12,11 @@ POSTS = ROOT / "posts"
 DIST = ROOT / "dist"
 DOMAIN = "riverxia.sh"
 PROD = "--prod" in sys.argv
+# scheduled posts: a post whose `date:` is after today (America/New_York) is hidden until that day.
+# INCLUDE_FUTURE=1 shows them anyway (the preview target does).
+TODAY = datetime.datetime.now(ZoneInfo("America/New_York")).date().isoformat()
+INCLUDE_FUTURE = os.environ.get("INCLUDE_FUTURE") == "1"
+HIDDEN = []  # slugs held back as scheduled; filled by load_posts
 
 CONTACT = "river&#64;riverxia.sh"  # @ as an entity: mild protection from naive scrapers
 TEAMS = [
@@ -227,6 +232,10 @@ def load_posts():
         out.append(dict(slug=f.stem, title=meta.get("title", f.stem), date=meta.get("date", ""), time=when.zfill(5) if when else "",
                         desc=meta.get("description", ""), tags=[x.strip() for x in meta.get("tags", "").split(",") if x.strip()],
                         body=body, legacy_id=legacy, comment_key=str(legacy) if legacy is not None else f.stem))
+    HIDDEN.clear()
+    if not INCLUDE_FUTURE:
+        HIDDEN.extend(p["slug"] for p in out if p["date"] > TODAY)
+        out = [p for p in out if p["date"] <= TODAY]
     # newest first. same date: later `time:` first; posts without a time sort after those with one,
     # then by legacy id (higher = newer), then by slug so the order is always deterministic.
     out.sort(key=lambda p: (p["date"], p["time"], p["legacy_id"] or 0, p["slug"]), reverse=True)
@@ -409,4 +418,4 @@ if __name__ == "__main__":
     fcntl.flock(_lock, fcntl.LOCK_EX)
     posts = load_posts()
     build(posts)
-    print("built", len(posts), "posts")
+    print("built", len(posts), "posts" + (f" ({len(HIDDEN)} scheduled, hidden until their date: {', '.join(HIDDEN)})" if HIDDEN else ""))
