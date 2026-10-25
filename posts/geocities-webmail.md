@@ -1,6 +1,7 @@
 ---
 title: i themed my webmail like geocities and the whole inbox went invisible
-date: 2026-10-26
+date: 2026-10-24
+time: 20:20
 description: turning roundcube into a 1997 homepage, and the css selector that matched an attribute roundcube never changes, which hid every email i opened. plus the white reading pane, the starfield that leaked into forms, and a screenshot method that doesn't need my real inbox.
 tags: css,roundcube,webdev,debugging,design
 ---

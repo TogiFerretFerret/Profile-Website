@@ -1,6 +1,7 @@
 ---
 title: my email went out unsigned for 14 hours and nothing complained
 date: 2026-10-24
+time: 20:00
 description: i added spam filtering to my mail server and one postfix setting quietly stopped dkim from signing everything sent through webmail. no errors, no bounces, mail still arrived. here is how it hid, how i found it, and the one-line fix.
 tags: email,postfix,dkim,debugging,devops
 ---

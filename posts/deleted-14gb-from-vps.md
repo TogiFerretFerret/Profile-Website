@@ -1,6 +1,7 @@
 ---
 title: i deleted 14 gb from my vps in one sitting
-date: 2026-10-27
+date: 2026-10-24
+time: 20:30
 description: a login banner said the disk was 21% full and i asked "what's using 20%?". the answer was one log database, some docker layers, an old stack and two gigabytes of journal. how i found it, what i checked before deleting, and what i backed up first.
 tags: linux,docker,devops,sysadmin,disk
 ---
