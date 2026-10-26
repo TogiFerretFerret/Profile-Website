@@ -91,7 +91,7 @@ PROJECTS = [
     ("paste.riverxia.sh", "2026", "tiny text pastebin: curl it, expiring pastes, delete tokens, rate limited.", "JavaScript, Cloudflare Workers KV", ""),
     ("Hyprland dots", "2025-2026", "from-scratch hyprland rice on apple silicon: lua config, quickshell UI, CIELAB wallpaper color pipeline. installs with one curl.", "Lua, QML, Python, GLSL", ""),
     ("AI Vision Assistant", "2025, wip", "real-time visual analysis assistant.", "Python, TensorFlow, OpenCV", ""),
-    ("Neovim Dots", "2025-2026, wip", "custom neovim config for speed and competitive programming.", "Lua, Vimscript", ""),
+    ("Neovim Dots", "2025-2026, wip", "custom neovim config for speed and competitive programming.", "Lua, Vimscript", "nvim-is-the-goat"),
     ("Aluminum (HCHS Alt)", "2025-2026, wip", "reverse engineered Blackbaud client. closed source.", "Python, Flask, Node.js", ""),
     ("CP Trainer", "2024", "practice algorithm problems with automated testing.", "Next.js, Node.js, PostgreSQL", ""),
     ("osu! Analyzer", "2024, deprecated", "gameplay data analysis.", "Python, Flask, TensorFlow", ""),
@@ -102,6 +102,7 @@ PROJECT_LINKS = {
     "aimrpg": [("website", "https://aimrpg.com"), ("steam", "https://store.steampowered.com/app/4947810")],
     "cctf.rs": [("repo", "https://github.com/TogiFerretFerret/cctf.rs")],
     "Prosody Writer": [("repo", "https://github.com/TogiFerretFerret/prosody-writer")],
+    "Neovim Dots": [("repo", "https://github.com/TogiFerretFerret/nvim-dots")],
 }
 BUTTONS = [("GitHub", "#000", "#fff", SOCIALS[0][1]), ("CTFtime", "#900", "#fff", SOCIALS[1][1]),
            ("osu!", "#e4a", "#fff", SOCIALS[2][1]), ("AO3", "#900", "#fc9", SOCIALS[3][1])]
