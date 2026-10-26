@@ -99,7 +99,7 @@ here's the bit that makes people stare. my config includes:
 - **tetris** and **minesweeper**, both inside neovim
 - a **typing test**
 - an **epub reader**
-- **synced lyrics in the statusline** (a local lualine plugin, and the commit that added it is literally named `LYRICS`)
+- **synced lyrics in the statusline**: a 160-line lualine plugin of mine that shows the current line of the song from `lrcsnc`, wired in as a statusline component. the commit that added it is literally named `LYRICS`
 - **discord rich presence**, using my own plugin, `presencectl.nvim`
 - a **pomodoro timer** wired into telescope
 
