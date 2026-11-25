@@ -10,18 +10,17 @@ case "$site" in www) host=riverxia.sh ;; blog|projects|uses|dots|paste|guestbook
 deploy() {
   # one wrangler config per site (generated: dist/ is rebuilt on every build).
   #   www/dots: worker/front.js on "/" serves the bash script to curl/wget (env.SCRIPT)
-  #   paste:    worker/paste.js + a KV namespace (created on first deploy)
-  local kv=""
-  [ "$site" = paste ] && kv="$(ensure_kv riverxia-pastes)"
-  python3 - "$site" "$kv" > "dist/$site.wrangler.jsonc" <<'PY'
+  #   paste:    worker/paste.js on a SQLite Durable Object
+  #   guestbook: worker/guestbook.js on a SQLite Durable Object
+  python3 - "$site" > "dist/$site.wrangler.jsonc" <<'PY'
 import json, sys
-site, kv = sys.argv[1], sys.argv[2]
+site = sys.argv[1]
 cfg = {"name": f"riverxia-{site}", "compatibility_date": "2026-10-01", "assets": {"directory": f"./{site}", "not_found_handling": "404-page"}}
 if site in ("www", "dots"):
     cfg.update(main="../worker/front.js", vars={"SCRIPT": "/riverxia.sh" if site == "www" else "/dots.sh"})
     cfg["assets"].update(binding="ASSETS", run_worker_first=["/"])
 elif site == "paste":
-    cfg.update(main="../worker/paste.js", kv_namespaces=[{"binding": "PASTES", "id": kv}])
+    cfg.update(main="../worker/paste.js", durable_objects={"bindings": [{"name": "PASTES", "class_name": "PasteStore"}]}, migrations=[{"tag": "v1", "new_sqlite_classes": ["PasteStore"]}])
     cfg["assets"].update(binding="ASSETS", run_worker_first=True)
 elif site == "guestbook":
     cfg.update(main="../worker/guestbook.js", durable_objects={"bindings": [{"name": "GB", "class_name": "Guestbook"}]}, migrations=[{"tag": "v1", "new_sqlite_classes": ["Guestbook"]}])
@@ -37,17 +36,6 @@ cf_auth() {
   else printf '%s\n' -H "X-Auth-Email: $CLOUDFLARE_EMAIL" -H "X-Auth-Key: $CLOUDFLARE_API_KEY"; fi
 }
 
-# id of the KV namespace with this title, creating it if missing
-ensure_kv() {
-  local title=$1 api=https://api.cloudflare.com/client/v4 auth id
-  mapfile -t auth < <(cf_auth)
-  id="$(curl -fsS "${auth[@]}" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces?per_page=100" | TITLE="$title" python3 -c 'import sys,json,os;print(next((n["id"] for n in json.load(sys.stdin)["result"] if n["title"]==os.environ["TITLE"]),""))')"
-  if [ -z "$id" ]; then
-    id="$(curl -fsS -X POST "${auth[@]}" -H 'Content-Type: application/json' "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" --data "{\"title\":\"$title\"}" | python3 -c 'import sys,json;print(json.load(sys.stdin)["result"]["id"])')"
-    echo "created KV namespace $title" >&2
-  fi
-  printf '%s' "$id"
-}
 
 # attach $host to the worker as a custom domain (creates the dns record + cert). no-op when it is already attached.
 ensure_domain() {

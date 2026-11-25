@@ -58,7 +58,7 @@ function form() {
         body: JSON.stringify({ name: name.value, message: msg.value, website: site.value, hp: trap.value }) });
       const j = await r.json().catch(() => ({}));
       if (r.ok) {
-        // kv listings are eventually consistent (up to ~a minute), so show the new entry right away instead of reloading
+        // show the new entry right away instead of reloading
         const list = document.getElementById("gblist");
         if (!list.querySelector(".gbe")) list.replaceChildren();
         list.prepend(entry({ id: j.id, name: name.value.trim(), message: msg.value.trim(), website: site.value.trim() || null, t: Date.now() }));

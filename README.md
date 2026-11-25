@@ -10,7 +10,7 @@ HTML/CSS. One tiny inline script (the visitor counter), no trackers, no framewor
 | `projects.riverxia.sh` | projects |
 | `uses.riverxia.sh` | tools, languages and infra |
 | `dots.riverxia.sh` | dotfiles gallery + `curl -s dots.riverxia.sh \| bash` installer (dots/install.sh) |
-| `paste.riverxia.sh` | text pastebin on Workers KV (worker/paste.js) |
+| `paste.riverxia.sh` | text pastebin on a Durable Object (worker/paste.js) |
 | `guestbook.riverxia.sh` | open guestbook on a Durable Object (worker/guestbook.js) |
 
 ## Layout
@@ -46,18 +46,29 @@ The client is `guestbook-client.js`. From a terminal: `curl guestbook.riverxia.s
 
 ## Develop
 
+You can use either **Buck2** or **Make**:
+
+### Using Buck2:
 ```sh
-pip install markdown
-npm install                            # KaTeX, for math in blog posts
-python3 build.py                       # local links, output in dist/
-python3 -m http.server -d dist 8000    # open http://localhost:8000/www/
+buck2 run :check       # sanity check posts, tags, front matter
+buck2 run :build       # build static assets + compile Rust server
+buck2 run :test        # run full end-to-end local test suite
+buck2 run :preview     # launch single Rust backend for local browsing (http://localhost:8000/)
+```
+
+### Using Make / Cargo:
+```sh
+make check
+make build
+make test
+make preview           # opens single Rust backend at http://localhost:8000/
 ```
 
 ## Deploy
 
 Each of `dist/www`, `dist/blog`, `dist/projects`, `dist/uses` is its own Cloudflare Worker (static assets):
 `riverxia-www`, `riverxia-blog`, `riverxia-projects`, `riverxia-uses`, `riverxia-dots`, `riverxia-paste`, `riverxia-guestbook`, bound to the seven hostnames (deploy-site.sh attaches a missing custom domain through the CF API).
-`riverxia-www` and `riverxia-dots` also run `worker/front.js` on `/`: curl/wget get the bash script (`tui/riverxia.sh` or `dots/install.sh`), browsers get the page. `riverxia-paste` is `worker/paste.js` with a KV namespace `riverxia-pastes` (created by deploy-site.sh).
+`riverxia-www` and `riverxia-dots` also run `worker/front.js` on `/`: curl/wget get the bash script (`tui/riverxia.sh` or `dots/install.sh`), browsers get the page. `riverxia-paste` is `worker/paste.js` with a SQLite Durable Object `PasteStore`.
 
 ```sh
 export CLOUDFLARE_ACCOUNT_ID=...

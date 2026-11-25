@@ -88,7 +88,7 @@ PROJECTS = [
     ("cctf.rs", "2026", "CTFd rebuilt from scratch in Rust. hand-rolled SMTP/JWT, rhai scripting, per-team k8s instancing.", "Rust, Kubernetes", "cctf-rs"),
     ("Prosody Writer", "2026", "realtime poetry editor: live stress, meter, rhyme, sound devices and form detection. an incremental DP over the full Prosodic library, so scansion never enumerates pronunciations.", "Python, FastAPI, Prosodic, JavaScript", "prosody-writer"),
     ("Personal Website", "2026", "this site. static, no build framework. six subdomains, a curl-able terminal version of it, and a one-line dotfiles installer.", "Python, HTML, CSS, Cloudflare Workers", ""),
-    ("paste.riverxia.sh", "2026", "tiny text pastebin: curl it, expiring pastes, delete tokens, rate limited.", "JavaScript, Cloudflare Workers KV", ""),
+    ("paste.riverxia.sh", "2026", "tiny text pastebin: curl it, expiring pastes, delete tokens, rate limited.", "JavaScript, Cloudflare Durable Objects", ""),
     ("Hyprland dots", "2025-2026", "from-scratch hyprland rice on apple silicon: lua config, quickshell UI, CIELAB wallpaper color pipeline. installs with one curl.", "Lua, QML, Python, GLSL", ""),
     ("AI Vision Assistant", "2025, wip", "real-time visual analysis assistant.", "Python, TensorFlow, OpenCV", ""),
     ("Neovim Dots", "2025-2026, wip", "custom neovim config for speed and competitive programming.", "Lua, Vimscript", "nvim-is-the-goat"),
@@ -358,7 +358,7 @@ curl -T notes.txt "paste.{DOMAIN}?ttl=1d"
 some-command 2>&1 | curl --data-binary @- paste.{DOMAIN}</code></pre>
 <p class="dim">you get the url back. the delete token comes back in the <code>x-delete-token</code> header (<code>curl -i</code> to see it): <code>curl -X DELETE -H 'x-delete-token: ...' url</code>.
 text only, 256 KiB max, 30 pastes per hour per ip, ttl one of 1h 1d 7d 30d. raw: <code>/raw/&lt;id&gt;</code>. don't paste secrets, i can read the database.</p></section>"""
-    (DIST / "paste" / "index.html").write_text(page("paste", "paste - riverxia", paste_body, "text pastebin on cloudflare workers kv"))
+    (DIST / "paste" / "index.html").write_text(page("paste", "paste - riverxia", paste_body, "text pastebin on cloudflare durable objects"))
 
     ub = "".join(f"<section class='box'><h2>{e(k)}</h2><ul>" + "".join(f"<li><b>{e(n)}</b> <span class='dim'>&mdash; {e(d)}</span></li>" for n, d in v) + "</ul></section>" for k, v in USES.items())
     (DIST / "uses" / "index.html").write_text(page("uses", "uses - riverxia", f"<h1>uses.{DOMAIN}</h1><p class='tagline'>the tools, languages and infra i actually use</p><div class='cols'>{ub}</div>"))

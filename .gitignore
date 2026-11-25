@@ -7,3 +7,8 @@ __pycache__/
 .deploy-stamp
 .build.lock
 .today
+.dev_data/
+.venv/
+.data/
+buck-out/
+server/target/
