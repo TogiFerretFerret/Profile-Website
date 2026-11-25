@@ -291,7 +291,7 @@ def build(posts):
     teams = "".join(f'<li><b><a href="{u}">{e(n)}</a></b> <br><span class="dim">{e(r)} &middot; {e(k)}</span></li>' for n, r, k, u in TEAMS)
     latest = "".join(f'<li><span class="dim">{p["date"]}</span> <a href="{url("blog", p["slug"] + ".html")}">{e(p["title"])}</a></li>' for p in posts[:6])
     body = f"""<h1>~*~ hi, i'm river ~*~</h1>
-<p class="tagline">ur friendly pansexual paragirlflux genderfae hecker :3<br>aka gaslight gatekeep get shell (she/her/they/them)</p>
+<p class="tagline">ur friendly pansexual paragirlflux genderfae hecker/best otokonoko:3<br>aka gaslight gatekeep get shell (she/her/they/them)</p>
 <div class="cols">
 <section class="box"><h2>about me</h2>{''.join(f'<p>{e(x)}</p>' for x in ABOUT)}</section>
 <section class="box"><h2>latest posts</h2><ul>{latest}</ul><p><a href="{url('blog')}">&gt;&gt; all posts</a> <span class='new'>NEW!</span></p></section>
