@@ -49,7 +49,7 @@ cd server && cargo build
 sh_run(
     name = "server",
     script = """
-cd server && LOCAL=1 cargo run
+cd server && LOCAL=1 DIST_DIR=../dist cargo run
 """,
 )
 
@@ -62,7 +62,7 @@ if [ -f .venv/bin/python3 ]; then
 else
     INCLUDE_FUTURE=1 python3 build.py
 fi
-cd server && LOCAL=1 cargo run
+cd server && LOCAL=1 DIST_DIR=../dist cargo run
 """,
 )
 

@@ -1,0 +1,43 @@
+.TH RIVERXIA-SERVER 8 "2026-11-25" "Profile-Website" "System Manager's Manual"
+.SH NAME
+riverxia-server \- static, paste, and guestbook server
+.SH SYNOPSIS
+.B LOCAL=1 DIST_DIR=../dist cargo run
+.SH DESCRIPTION
+.B riverxia-server
+serves static files from
+.IR DIST_DIR ,
+provides a pastebin at
+.IR /paste ,
+and serves a SQLite-backed guestbook at
+.I /api/entries
+and
+.IR /guestbook/api/entries .
+.SH ENVIRONMENT
+.TP
+.B PORT
+TCP port to listen on (default:
+.BR 8000 ).
+.TP
+.B DIST_DIR
+Path to built static assets (default:
+.BR dist ).
+When invoked from
+.IR server/ ,
+set
+.BR DIST_DIR=../dist .
+.TP
+.B DB_PATH
+Path to SQLite database (default:
+.BR .data/riverxia.db ).
+.TP
+.B LOCAL
+Set to
+.B 1
+for local development (subpath routing such as
+.I /paste/
+and
+.I /guestbook/
+instead of subdomain URLs).
+.SH SEE ALSO
+.BR riverxia (7)
